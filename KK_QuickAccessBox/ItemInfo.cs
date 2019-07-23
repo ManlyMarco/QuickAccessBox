@@ -24,7 +24,7 @@ namespace KK_QuickAccessBox
                         }
                         catch (Exception e)
                         {
-                            Logger.Log(LogLevel.Warning, $"Failed to load information about item {item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
+                            Logger.Log(LogLevel.Warning, $"Failed to load information about item {item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e}");
                         }
                     }
                 }

@@ -32,7 +32,7 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// List of all studio items that can be added into the game
         /// </summary>
-        public IEnumerable<ItemInfo> ItemList => _itemList ?? (_itemList = ItemInfo.GetItemList());
+        public IEnumerable<ItemInfo> ItemList => _itemList;
 
         [DisplayName("Search developer information")]
         [Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.")]
@@ -64,7 +64,7 @@ namespace KK_QuickAccessBox
         {
             if (string.IsNullOrEmpty(searchStr)) return false;
 
-            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             return splitSearchStr.All(s => x.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
@@ -81,17 +81,26 @@ namespace KK_QuickAccessBox
                 return;
             }
 
-            ShowBoxKey = new SavedKeyboardShortcut(nameof(ShowBoxKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl));
+            ShowBoxKey = new SavedKeyboardShortcut(nameof(ShowBoxKey), this, new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl));
             SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);
 
             // todo disable by default
             GenerateThumbsKey = new SavedKeyboardShortcut(nameof(GenerateThumbsKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl, KeyCode.LeftShift));
+
+            if (StudioAPI.StudioLoaded)
+                _itemList = ItemInfo.GetItemList();
+            else
+                StudioAPI.StudioLoadedChanged += (sender, args) => _itemList = ItemInfo.GetItemList();
         }
 
         private void Update()
         {
             if (ShowBoxKey.IsDown())
+            {
+                if (_interface == null)
+                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
                 ShowBox = !ShowBox;
+            }
 
             if (ShowBox)
             {
@@ -102,8 +111,6 @@ namespace KK_QuickAccessBox
             if (GenerateThumbsKey.IsDown())
             {
                 StartCoroutine(ThumbnailGenerator.MakeThumbnail(ItemList, @"D:\thumb_background.png", "D:\\"));
-                if (_interface == null)
-                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
             }
         }
 
@@ -118,7 +125,7 @@ namespace KK_QuickAccessBox
                 _interface.SetList(null);
             else
             {
-                var filteredItems = ItemList.Where(info => ItemMatchesSearch(info, newStr)).Take(40).ToList();
+                var filteredItems = ItemList.Where(info => ItemMatchesSearch(info, newStr));
                 _interface.SetList(filteredItems);
             }
         }
@@ -151,13 +158,19 @@ namespace KK_QuickAccessBox
             TextCategory.text = item.CategoryName;
             TextItem.text = item.ItemName;
 
-            gameObject.SetActive(true);
             //todo icon
+        }
+
+        public void SetVisible(bool visible)
+        {
+            gameObject.SetActive(visible);
         }
     }
 
     internal class InterfaceManager
     {
+        private const int ListMaxSize = 20;
+
         private readonly GameObject _canvasRoot;
         private readonly InputField _inputField;
 
@@ -211,38 +224,60 @@ namespace KK_QuickAccessBox
         /// </summary>
         public void SetList(IEnumerable<ItemInfo> items)
         {
-            foreach (var listEntry in _listEntries)
-                Object.Destroy(listEntry.gameObject);
-
-            _listEntries.Clear();
-
             if (items == null)
             {
+                foreach (var listEntry in _listEntries)
+                    listEntry.SetVisible(false);
+
                 _textHelpObj.SetActive(true);
                 _textEmptyObj.SetActive(false);
                 _textMoreObj.SetActive(false);
                 return;
             }
 
+            items = items.Take(ListMaxSize);
+
+            var itemCount = 0;
             foreach (var itemInfo in items)
             {
-                var copy = Object.Instantiate(_templateListEntry.gameObject, _templateListEntry.transform.parent);
-                var entry = copy.GetComponent<InterfaceListEntry>();
-                entry.SetItem(itemInfo, _onClicked);
-                _listEntries.Add(entry);
+                if (_listEntries.Count > itemCount)
+                {
+                    var entry = _listEntries[itemCount];
+                    entry.SetItem(itemInfo, _onClicked);
+                    entry.SetVisible(true);
+                }
+                else
+                {
+                    var copy = Object.Instantiate(_templateListEntry.gameObject, _templateListEntry.transform.parent);
+                    var entry = copy.GetComponent<InterfaceListEntry>();
+                    _listEntries.Add(entry);
+                    entry.SetItem(itemInfo, _onClicked);
+                    entry.SetVisible(true);
+                }
+
+                itemCount++;
             }
 
+            // Hide unused items
+            foreach (var listItem in _listEntries.Skip(itemCount))
+                listItem.SetVisible(false);
+
             _textHelpObj.SetActive(false);
-            if (_listEntries.Count == 0)
+            if (itemCount == 0)
             {
                 _textEmptyObj.SetActive(true);
                 _textMoreObj.SetActive(false);
             }
-            //todo
-            else if (_listEntries.Count > 20)
+            else if (itemCount >= ListMaxSize)
             {
                 _textEmptyObj.SetActive(false);
                 _textMoreObj.SetActive(true);
+                _textMoreObj.transform.SetSiblingIndex(_listEntries.Last().transform.GetSiblingIndex() + 1);
+            }
+            else
+            {
+                _textEmptyObj.SetActive(false);
+                _textMoreObj.SetActive(false);
             }
         }
 
@@ -263,11 +298,13 @@ namespace KK_QuickAccessBox
                 var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
                 if (canvasObj == null) throw new ArgumentException("Could not find QuickAccessBoxCanvas.prefab in loaded AB");
 
-                canvasObj.SetActive(false);
+                var copy = GameObject.Instantiate(canvasObj);
+                copy.SetActive(false);
 
+                GameObject.Destroy(canvasObj);
                 ab.Unload(false);
 
-                return canvasObj;
+                return copy;
             }
         }
 
