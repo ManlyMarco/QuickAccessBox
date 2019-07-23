@@ -1,193 +1,286 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using BepInEx;
-using BepInEx.Logging;
+using DynamicTranslationLoader;
 using KKAPI.Studio;
-using Studio;
+using StrayTech;
 using UnityEngine;
-using Logger = BepInEx.Logger;
+using UnityEngine.Events;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox
 {
-	[BepInPlugin(GUID, GUID, Version)]
-	[BepInDependency(DynamicTranslationLoader.DynamicTranslator.GUID)]
-	public class QuickAccessBox : BaseUnityPlugin
-	{
-		public const string GUID = "KK_QuickAccessBox";
-		internal const string Version = "0.1";
-		private bool _forceFocusTextbox;
+    [BepInPlugin(GUID, GUID, Version)]
+    [BepInDependency(DynamicTranslator.GUID)]
+    public class QuickAccessBox : BaseUnityPlugin
+    {
+        public const string GUID = "KK_QuickAccessBox";
+        internal const string Version = "0.1";
+        private InterfaceManager _interface;
+        private IEnumerable<ItemInfo> _itemList;
 
-		private IEnumerable<ItemInfo> _itemList;
-		private Vector2 _scrollPosition = Vector2.zero;
+        private bool _showBox;
 
-		private string _searchStr = string.Empty;
-		private bool _showBox;
+        [Advanced(true)]
+        public static SavedKeyboardShortcut GenerateThumbsKey { get; private set; }
 
-		/// <summary>
-		/// List of all studio items that can be added into the game
-		/// </summary>
-		public IEnumerable<ItemInfo> ItemList => _itemList ?? (_itemList = GetItemList());
+        /// <summary>
+        /// List of all studio items that can be added into the game
+        /// </summary>
+        public IEnumerable<ItemInfo> ItemList => _itemList ?? (_itemList = ItemInfo.GetItemList());
 
-		[DisplayName("Search developer information")]
-		[Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.")]
-		public static ConfigWrapper<bool> SearchDeveloperInfo { get; private set; }
+        [DisplayName("Search developer information")]
+        [Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.")]
+        public static ConfigWrapper<bool> SearchDeveloperInfo { get; private set; }
 
-		[DisplayName("Show results if search string is empty")]
-		[Description("If enabled will show everything, if disabled will show nothing.")]
-		public static ConfigWrapper<bool> ShowEmptyResults { get; private set; }
-		
-		[Advanced(true)]
-		public static SavedKeyboardShortcut GenerateThumbsKey { get; private set; }
+        public bool ShowBox
+        {
+            get => _showBox;
+            set
+            {
+                if (value == _showBox)
+                    return;
 
-		[DisplayName("Show quick access box")]
-		public static SavedKeyboardShortcut ShowBoxKey { get; private set; }
+                _interface.SetVisible(value);
 
-		public bool ShowBox
-		{
-			get => _showBox;
-			set
-			{
-				if (value == _showBox)
-					return;
+                if (value && !_showBox)
+                    _interface.FocusSearchBox();
 
-				if (value && !_showBox)
-					_forceFocusTextbox = true;
+                _showBox = value;
 
-				_showBox = value;
-				_searchStr = string.Empty;
-			}
-		}
+                _interface.SetList(null);
+            }
+        }
 
-		internal static Info Info { get; private set; }
+        [DisplayName("Show quick access box")]
+        public static SavedKeyboardShortcut ShowBoxKey { get; private set; }
 
-		private static List<ItemInfo> GetItemList()
-		{
-			var results = new List<ItemInfo>();
+        private static bool ItemMatchesSearch(ItemInfo x, string searchStr)
+        {
+            if (string.IsNullOrEmpty(searchStr)) return false;
 
-			foreach (var group in Info.dicItemLoadInfo)
-			{
-				foreach (var category in group.Value)
-				{
-					foreach (var item in category.Value)
-					{
-						try
-						{
-							results.Add(new ItemInfo(group.Key, category.Key, item.Key, item.Value));
-						}
-						catch (Exception e)
-						{
-							Logger.Log(LogLevel.Warning, $"Failed to load information about item {item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
-						}
-					}
-				}
-			}
+            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[]) null, StringSplitOptions.RemoveEmptyEntries);
+            return splitSearchStr.All(s => x.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
 
-			results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
-			return results;
-		}
+        private void OnDestroy()
+        {
+            _interface?.Dispose();
+        }
 
-		private bool ItemMatchesSearch(ItemInfo x)
-		{
-			if (string.IsNullOrEmpty(_searchStr)) return ShowEmptyResults.Value;
+        private void Start()
+        {
+            if (!StudioAPI.InsideStudio)
+            {
+                enabled = false;
+                return;
+            }
 
-			var splitSearchStr = _searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-			return splitSearchStr.All(s => x.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
-		}
+            ShowBoxKey = new SavedKeyboardShortcut(nameof(ShowBoxKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl));
+            SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);
 
-		private void OnGUI()
-		{
-			if (!ShowBox) return;
+            // todo disable by default
+            GenerateThumbsKey = new SavedKeyboardShortcut(nameof(GenerateThumbsKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl, KeyCode.LeftShift));
+        }
 
-			if (ItemList == null)
-				_itemList = GetItemList();
+        private void Update()
+        {
+            if (ShowBoxKey.IsDown())
+                ShowBox = !ShowBox;
 
-			GUILayout.Window(GetHashCode(), new Rect(100, 100, 500, 500), QuickAccessWindow, "Quick access box");
-		}
+            if (ShowBox)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape))
+                    ShowBox = false;
+            }
 
-		private void QuickAccessWindow(int id)
-		{
-			if (Event.current.keyCode == KeyCode.Escape)
-				ShowBox = false;
+            if (GenerateThumbsKey.IsDown())
+            {
+                StartCoroutine(ThumbnailGenerator.MakeThumbnail(ItemList, @"D:\thumb_background.png", "D:\\"));
+                if (_interface == null)
+                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+            }
+        }
 
-			GUILayout.BeginVertical();
-			{
-				GUILayout.BeginHorizontal();
-				{
-					const string searchBoxName = "searchBox";
-					GUI.SetNextControlName(searchBoxName);
-					_searchStr = GUILayout.TextField(_searchStr);
-					if (_forceFocusTextbox)
-					{
-						_forceFocusTextbox = false;
-						GUI.FocusControl(searchBoxName);
-					}
-				}
-				GUILayout.EndHorizontal();
+        private void OnListItemClicked(ItemInfo info)
+        {
+            info.AddItem();
+        }
 
-				_scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
-				{
-					GUILayout.BeginVertical();
-					{
-						var filteredItems = ItemList.Where(ItemMatchesSearch).Take(40).ToList();
+        private void OnSearchStringChanged(string newStr)
+        {
+            if (string.IsNullOrEmpty(newStr))
+                _interface.SetList(null);
+            else
+            {
+                var filteredItems = ItemList.Where(info => ItemMatchesSearch(info, newStr)).Take(40).ToList();
+                _interface.SetList(filteredItems);
+            }
+        }
+    }
 
-						if (filteredItems.Count == 0)
-						{
-							GUILayout.Box("Nothing found");
-						}
-						else
-						{
-							foreach (var itemInfo in filteredItems)
-							{
-								if (GUILayout.Button(itemInfo.FullName, GUI.skin.box, GUILayout.ExpandWidth(true)))
-									itemInfo.AddItem();
-							}
+    internal class InterfaceListEntry : MonoBehaviour
+    {
+        public RawImage Icon;
+        public Text TextCategory;
+        public Text TextGroup;
+        public Text TextItem;
 
-							if (filteredItems.Count == 40)
-								GUILayout.Box("and more...");
-						}
-					}
-					GUILayout.EndVertical();
-				}
-				GUILayout.EndScrollView();
-			}
-			GUILayout.EndVertical();
-		}
+        private ItemInfo _currentItem;
 
-		private void Start()
-		{
-			if (!StudioAPI.InsideStudio)
-			{
-				enabled = false;
-				return;
-			}
+        public void SetItem(ItemInfo item, Action<ItemInfo> onClicked)
+        {
+            var listener = GetComponent<Button>().onClick;
+            listener.RemoveAllListeners();
+            if (onClicked != null)
+                listener.AddListener(() => onClicked(_currentItem));
 
-			Info = Singleton<Info>.Instance;
+            if (item == null)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
 
-			ShowBoxKey = new SavedKeyboardShortcut(nameof(ShowBoxKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl));
-			SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);
-			ShowEmptyResults = new ConfigWrapper<bool>(nameof(ShowEmptyResults), this, false);
+            _currentItem = item;
+            TextGroup.text = item.GroupName;
+            TextCategory.text = item.CategoryName;
+            TextItem.text = item.ItemName;
 
-			// todo disable by default
-			GenerateThumbsKey = new SavedKeyboardShortcut(nameof(GenerateThumbsKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl, KeyCode.LeftShift));
-		}
+            gameObject.SetActive(true);
+            //todo icon
+        }
+    }
 
-		private void Update()
-		{
-			if (ShowBoxKey.IsDown())
-				ShowBox = !ShowBox;
+    internal class InterfaceManager
+    {
+        private readonly GameObject _canvasRoot;
+        private readonly InputField _inputField;
 
-			if (ShowBox)
-			{
-				if (Input.GetKeyDown(KeyCode.Escape))
-					ShowBox = false;
-			}
+        private readonly List<InterfaceListEntry> _listEntries = new List<InterfaceListEntry>();
+        private readonly Action<ItemInfo> _onClicked;
+        private readonly InterfaceListEntry _templateListEntry;
+        private readonly GameObject _textEmptyObj;
+        private readonly GameObject _textHelpObj;
+        private readonly GameObject _textMoreObj;
 
-			if (GenerateThumbsKey.IsDown())
-			{
-				StartCoroutine(ThumbnailGenerator.MakeThumbnail(ItemList, @"D:\thumb_background.png", "D:\\"));
-			}
-		}
-	}
+        /// <param name="onClicked">Fired when one of the list items is clicked</param>
+        /// <param name="onSearchStringChanged">Fired when search string changes</param>
+        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
+        {
+            _onClicked = onClicked;
+            _canvasRoot = CreateCanvas();
+
+            _inputField = _canvasRoot.transform.FindChildDeep("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
+            _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
+
+            _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
+            _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
+            // todo always has to be last
+            _textMoreObj = _canvasRoot.transform.FindChildDeep("TextMore") ?? throw new ArgumentNullException(nameof(_textMoreObj));
+
+            var listEntryObj = _canvasRoot.transform.FindChildDeep("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
+            listEntryObj.SetActive(false);
+
+            _templateListEntry = listEntryObj.AddComponent<InterfaceListEntry>();
+            _templateListEntry.Icon = _templateListEntry.transform.FindChildDeep("Icon")?.GetComponent<RawImage>() ?? throw new ArgumentException("Couldn't find Icon");
+            _templateListEntry.TextGroup = _templateListEntry.transform.FindChildDeep("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
+            _templateListEntry.TextCategory = _templateListEntry.transform.FindChildDeep("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
+            _templateListEntry.TextItem = _templateListEntry.transform.FindChildDeep("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
+
+            SetList(null);
+        }
+
+        public void Dispose()
+        {
+            Object.Destroy(_canvasRoot);
+            _listEntries.Clear();
+        }
+
+        public void FocusSearchBox()
+        {
+            _inputField.Select();
+        }
+
+        /// <summary>
+        /// Set items to null to show the help text, set them to empty collection to show "no results found" text.
+        /// </summary>
+        public void SetList(IEnumerable<ItemInfo> items)
+        {
+            foreach (var listEntry in _listEntries)
+                Object.Destroy(listEntry.gameObject);
+
+            _listEntries.Clear();
+
+            if (items == null)
+            {
+                _textHelpObj.SetActive(true);
+                _textEmptyObj.SetActive(false);
+                _textMoreObj.SetActive(false);
+                return;
+            }
+
+            foreach (var itemInfo in items)
+            {
+                var copy = Object.Instantiate(_templateListEntry.gameObject, _templateListEntry.transform.parent);
+                var entry = copy.GetComponent<InterfaceListEntry>();
+                entry.SetItem(itemInfo, _onClicked);
+                _listEntries.Add(entry);
+            }
+
+            _textHelpObj.SetActive(false);
+            if (_listEntries.Count == 0)
+            {
+                _textEmptyObj.SetActive(true);
+                _textMoreObj.SetActive(false);
+            }
+            //todo
+            else if (_listEntries.Count > 20)
+            {
+                _textEmptyObj.SetActive(false);
+                _textMoreObj.SetActive(true);
+            }
+        }
+
+        public void SetVisible(bool value)
+        {
+            _canvasRoot.SetActive(value);
+        }
+
+        private static GameObject CreateCanvas()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith("quick_access_box_interface"));
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                var data = ReadFully(stream ?? throw new InvalidOperationException("The UI resource was not found"));
+                var ab = AssetBundle.LoadFromMemory(data);
+
+                var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
+                if (canvasObj == null) throw new ArgumentException("Could not find QuickAccessBoxCanvas.prefab in loaded AB");
+
+                canvasObj.SetActive(false);
+
+                ab.Unload(false);
+
+                return canvasObj;
+            }
+        }
+
+        private static byte[] ReadFully(Stream input)
+        {
+            var buffer = new byte[16 * 1024];
+            using (var ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                    ms.Write(buffer, 0, read);
+                return ms.ToArray();
+            }
+        }
+    }
 }

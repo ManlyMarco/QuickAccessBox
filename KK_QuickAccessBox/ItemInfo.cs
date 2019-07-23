@@ -1,10 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
+using BepInEx;
+using BepInEx.Logging;
 using Studio;
 
 namespace KK_QuickAccessBox
 {
     public sealed class ItemInfo
     {
+        public static List<ItemInfo> GetItemList()
+        {
+            var results = new List<ItemInfo>();
+
+            foreach (var group in Info.Instance.dicItemLoadInfo)
+            {
+                foreach (var category in group.Value)
+                {
+                    foreach (var item in category.Value)
+                    {
+                        try
+                        {
+                            results.Add(new ItemInfo(group.Key, category.Key, item.Key, item.Value));
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Log(LogLevel.Warning, $"Failed to load information about item {item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
+                        }
+                    }
+                }
+            }
+
+            results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
+            return results;
+        }
+
         private readonly bool _initFinished;
         private readonly string _origFullname;
 
@@ -14,11 +43,11 @@ namespace KK_QuickAccessBox
             CategoryNo = categoryNo;
             ItemNo = itemNo;
 
-            Item = item ?? QuickAccessBox.Info.dicItemLoadInfo[groupNo][categoryNo][itemNo];
+            Item = item ?? Info.Instance.dicItemLoadInfo[groupNo][categoryNo][itemNo];
             if (Item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
-            if (!QuickAccessBox.Info.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number " + CategoryNo);
-            GroupInfo = QuickAccessBox.Info.dicItemGroupCategory[GroupNo];
+            if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number " + CategoryNo);
+            GroupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
 
             if (!GroupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number " + CategoryNo);
             var origCategoryName = GroupInfo.dicCategory[CategoryNo];
@@ -99,10 +128,10 @@ namespace KK_QuickAccessBox
         /// </summary>
         public void AddItem()
         {
-            Singleton<Studio.Studio>.Instance.AddItem(GroupNo, CategoryNo, ItemNo);
+            Studio.Studio.Instance.AddItem(GroupNo, CategoryNo, ItemNo);
         }
 
-	    private void UpdateCompositeStrings()
+        private void UpdateCompositeStrings()
         {
             FullName = GroupName + "/" + CategoryName + "/" + ItemName;
 
@@ -115,16 +144,16 @@ namespace KK_QuickAccessBox
                 searchStr = $"{searchStr}\v{Item.childRoot}\v{Item.bundlePath}\v{Item.fileName}\v{Item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 
             SearchStr = searchStr.ToLowerInvariant();
-		}
+        }
 
-	    public override int GetHashCode()
-	    {
-		    return _origFullname.GetHashCode();
-	    }
+        public override int GetHashCode()
+        {
+            return _origFullname.GetHashCode();
+        }
 
-	    public override bool Equals(object obj)
-	    {
-		    return obj is ItemInfo i && i._origFullname == _origFullname;
-	    }
-	}
+        public override bool Equals(object obj)
+        {
+            return obj is ItemInfo i && i._origFullname == _origFullname;
+        }
+    }
 }
