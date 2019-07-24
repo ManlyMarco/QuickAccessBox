@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using BepInEx;
 using DynamicTranslationLoader;
 using KKAPI.Studio;
-using StrayTech;
+using KK_QuickAccessBox.UI;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox
 {
@@ -21,23 +16,22 @@ namespace KK_QuickAccessBox
     {
         public const string GUID = "KK_QuickAccessBox";
         internal const string Version = "0.1";
-        private InterfaceManager _interface;
-        private IEnumerable<ItemInfo> _itemList;
 
+        private InterfaceManager _interface;
         private bool _showBox;
+
+        [DisplayName("Show quick access box")]
+        public static SavedKeyboardShortcut ShowBoxKey { get; private set; }
 
         [Advanced(true)]
         public static SavedKeyboardShortcut GenerateThumbsKey { get; private set; }
 
-        /// <summary>
-        /// List of all studio items that can be added into the game
-        /// </summary>
-        public IEnumerable<ItemInfo> ItemList => _itemList;
-
         [DisplayName("Search developer information")]
-        [Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.")]
+        [Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.\n\n" +
+                     "Requires studio restart to take effect.")]
         public static ConfigWrapper<bool> SearchDeveloperInfo { get; private set; }
 
+        [Browsable(false)]
         public bool ShowBox
         {
             get => _showBox;
@@ -46,32 +40,25 @@ namespace KK_QuickAccessBox
                 if (value == _showBox)
                     return;
 
+                if (value && _interface == null)
+                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+
                 _interface.SetVisible(value);
 
+                // Focus search box right after showing the window
                 if (value && !_showBox)
-                    _interface.FocusSearchBox();
+                    _interface.ClearAndFocusSearchBox();
 
                 _showBox = value;
 
-                _interface.SetList(null);
+                //_interface.SetList(null);
             }
         }
 
-        [DisplayName("Show quick access box")]
-        public static SavedKeyboardShortcut ShowBoxKey { get; private set; }
-
-        private static bool ItemMatchesSearch(ItemInfo x, string searchStr)
-        {
-            if (string.IsNullOrEmpty(searchStr)) return false;
-
-            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            return splitSearchStr.All(s => x.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        private void OnDestroy()
-        {
-            _interface?.Dispose();
-        }
+        /// <summary>
+        /// List of all studio items that can be added into the game
+        /// </summary>
+        public IEnumerable<ItemInfo> ItemList { get; private set; }
 
         private void Start()
         {
@@ -88,19 +75,21 @@ namespace KK_QuickAccessBox
             GenerateThumbsKey = new SavedKeyboardShortcut(nameof(GenerateThumbsKey), this, new KeyboardShortcut(KeyCode.Tab, KeyCode.LeftControl, KeyCode.LeftShift));
 
             if (StudioAPI.StudioLoaded)
-                _itemList = ItemInfo.GetItemList();
+                ItemList = ItemInfo.GetItemList();
             else
-                StudioAPI.StudioLoadedChanged += (sender, args) => _itemList = ItemInfo.GetItemList();
+                StudioAPI.StudioLoadedChanged += (sender, args) => ItemList = ItemInfo.GetItemList();
+        }
+
+        private void OnDestroy()
+        {
+            _interface?.Dispose();
+            Resources.UnloadUnusedAssets();
         }
 
         private void Update()
         {
             if (ShowBoxKey.IsDown())
-            {
-                if (_interface == null)
-                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
                 ShowBox = !ShowBox;
-            }
 
             if (ShowBox)
             {
@@ -109,9 +98,7 @@ namespace KK_QuickAccessBox
             }
 
             if (GenerateThumbsKey.IsDown())
-            {
                 StartCoroutine(ThumbnailGenerator.MakeThumbnail(ItemList, @"D:\thumb_background.png", "D:\\"));
-            }
         }
 
         private void OnListItemClicked(ItemInfo info)
@@ -121,203 +108,16 @@ namespace KK_QuickAccessBox
 
         private void OnSearchStringChanged(string newStr)
         {
-            if (string.IsNullOrEmpty(newStr))
-                _interface.SetList(null);
-            else
-            {
-                var filteredItems = ItemList.Where(info => ItemMatchesSearch(info, newStr));
-                _interface.SetList(filteredItems);
-            }
-        }
-    }
-
-    internal class InterfaceListEntry : MonoBehaviour
-    {
-        public RawImage Icon;
-        public Text TextCategory;
-        public Text TextGroup;
-        public Text TextItem;
-
-        private ItemInfo _currentItem;
-
-        public void SetItem(ItemInfo item, Action<ItemInfo> onClicked)
-        {
-            var listener = GetComponent<Button>().onClick;
-            listener.RemoveAllListeners();
-            if (onClicked != null)
-                listener.AddListener(() => onClicked(_currentItem));
-
-            if (item == null)
-            {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            _currentItem = item;
-            TextGroup.text = item.GroupName;
-            TextCategory.text = item.CategoryName;
-            TextItem.text = item.ItemName;
-
-            //todo icon
+            _interface.SetList(string.IsNullOrEmpty(newStr) ? null : ItemList.Where(info => ItemMatchesSearch(info, newStr)));
         }
 
-        public void SetVisible(bool visible)
+        private static bool ItemMatchesSearch(ItemInfo item, string searchStr)
         {
-            gameObject.SetActive(visible);
-        }
-    }
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (searchStr == null) throw new ArgumentNullException(nameof(searchStr));
 
-    internal class InterfaceManager
-    {
-        private const int ListMaxSize = 20;
-
-        private readonly GameObject _canvasRoot;
-        private readonly InputField _inputField;
-
-        private readonly List<InterfaceListEntry> _listEntries = new List<InterfaceListEntry>();
-        private readonly Action<ItemInfo> _onClicked;
-        private readonly InterfaceListEntry _templateListEntry;
-        private readonly GameObject _textEmptyObj;
-        private readonly GameObject _textHelpObj;
-        private readonly GameObject _textMoreObj;
-
-        /// <param name="onClicked">Fired when one of the list items is clicked</param>
-        /// <param name="onSearchStringChanged">Fired when search string changes</param>
-        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
-        {
-            _onClicked = onClicked;
-            _canvasRoot = CreateCanvas();
-
-            _inputField = _canvasRoot.transform.FindChildDeep("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
-            _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
-
-            _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
-            _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
-            // todo always has to be last
-            _textMoreObj = _canvasRoot.transform.FindChildDeep("TextMore") ?? throw new ArgumentNullException(nameof(_textMoreObj));
-
-            var listEntryObj = _canvasRoot.transform.FindChildDeep("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
-            listEntryObj.SetActive(false);
-
-            _templateListEntry = listEntryObj.AddComponent<InterfaceListEntry>();
-            _templateListEntry.Icon = _templateListEntry.transform.FindChildDeep("Icon")?.GetComponent<RawImage>() ?? throw new ArgumentException("Couldn't find Icon");
-            _templateListEntry.TextGroup = _templateListEntry.transform.FindChildDeep("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
-            _templateListEntry.TextCategory = _templateListEntry.transform.FindChildDeep("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
-            _templateListEntry.TextItem = _templateListEntry.transform.FindChildDeep("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
-
-            SetList(null);
-        }
-
-        public void Dispose()
-        {
-            Object.Destroy(_canvasRoot);
-            _listEntries.Clear();
-        }
-
-        public void FocusSearchBox()
-        {
-            _inputField.Select();
-        }
-
-        /// <summary>
-        /// Set items to null to show the help text, set them to empty collection to show "no results found" text.
-        /// </summary>
-        public void SetList(IEnumerable<ItemInfo> items)
-        {
-            if (items == null)
-            {
-                foreach (var listEntry in _listEntries)
-                    listEntry.SetVisible(false);
-
-                _textHelpObj.SetActive(true);
-                _textEmptyObj.SetActive(false);
-                _textMoreObj.SetActive(false);
-                return;
-            }
-
-            items = items.Take(ListMaxSize);
-
-            var itemCount = 0;
-            foreach (var itemInfo in items)
-            {
-                if (_listEntries.Count > itemCount)
-                {
-                    var entry = _listEntries[itemCount];
-                    entry.SetItem(itemInfo, _onClicked);
-                    entry.SetVisible(true);
-                }
-                else
-                {
-                    var copy = Object.Instantiate(_templateListEntry.gameObject, _templateListEntry.transform.parent);
-                    var entry = copy.GetComponent<InterfaceListEntry>();
-                    _listEntries.Add(entry);
-                    entry.SetItem(itemInfo, _onClicked);
-                    entry.SetVisible(true);
-                }
-
-                itemCount++;
-            }
-
-            // Hide unused items
-            foreach (var listItem in _listEntries.Skip(itemCount))
-                listItem.SetVisible(false);
-
-            _textHelpObj.SetActive(false);
-            if (itemCount == 0)
-            {
-                _textEmptyObj.SetActive(true);
-                _textMoreObj.SetActive(false);
-            }
-            else if (itemCount >= ListMaxSize)
-            {
-                _textEmptyObj.SetActive(false);
-                _textMoreObj.SetActive(true);
-                _textMoreObj.transform.SetSiblingIndex(_listEntries.Last().transform.GetSiblingIndex() + 1);
-            }
-            else
-            {
-                _textEmptyObj.SetActive(false);
-                _textMoreObj.SetActive(false);
-            }
-        }
-
-        public void SetVisible(bool value)
-        {
-            _canvasRoot.SetActive(value);
-        }
-
-        private static GameObject CreateCanvas()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith("quick_access_box_interface"));
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                var data = ReadFully(stream ?? throw new InvalidOperationException("The UI resource was not found"));
-                var ab = AssetBundle.LoadFromMemory(data);
-
-                var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
-                if (canvasObj == null) throw new ArgumentException("Could not find QuickAccessBoxCanvas.prefab in loaded AB");
-
-                var copy = GameObject.Instantiate(canvasObj);
-                copy.SetActive(false);
-
-                GameObject.Destroy(canvasObj);
-                ab.Unload(false);
-
-                return copy;
-            }
-        }
-
-        private static byte[] ReadFully(Stream input)
-        {
-            var buffer = new byte[16 * 1024];
-            using (var ms = new MemoryStream())
-            {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                    ms.Write(buffer, 0, read);
-                return ms.ToArray();
-            }
+            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+            return splitSearchStr.All(s => item.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
         }
     }
 }

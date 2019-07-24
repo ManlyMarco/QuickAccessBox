@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using BepInEx;
 using BepInEx.Logging;
 using Studio;
+using UnityEngine;
+using Logger = BepInEx.Logger;
 
 namespace KK_QuickAccessBox
 {
@@ -122,6 +123,8 @@ namespace KK_QuickAccessBox
         /// String to search against
         /// </summary>
         internal string SearchStr { get; private set; }
+
+        public Texture2D Thumbnail { get; private set; }
 
         /// <summary>
         /// Spawn this item in studio
