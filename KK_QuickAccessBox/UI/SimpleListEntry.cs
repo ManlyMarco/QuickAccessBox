@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace KK_QuickAccessBox.UI
 {
-    internal class InterfaceListEntry : MonoBehaviour
+    internal class SimpleListEntry : MonoBehaviour
     {
         public RawImage Icon;
         public Text TextCategory;

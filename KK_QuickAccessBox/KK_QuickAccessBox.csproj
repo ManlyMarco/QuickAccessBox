@@ -76,19 +76,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UI\InterfaceListEntry.cs" />
     <Compile Include="UI\InterfaceManager.cs" />
     <Compile Include="ItemInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickAccessBox.cs" />
+    <Compile Include="UI\SimpleListEntry.cs" />
     <Compile Include="UI\SimpleVirtualList.cs" />
-    <Compile Include="ThumbnailGenerator.cs" />
+    <Compile Include="Thumbs\ThumbnailGenerator.cs" />
     <Compile Include="TranslationHelper.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\Unity_project\Assets\Assetbundles\quick_access_box_interface">
       <Link>UI\quick_access_box_interface</Link>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Thumbs\thumb_background.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

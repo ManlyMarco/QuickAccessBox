@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using StrayTech;
 using UnityEngine;
 using UnityEngine.Events;
@@ -93,36 +91,19 @@ namespace KK_QuickAccessBox.UI
 
         private static GameObject CreateCanvas()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith("quick_access_box_interface"));
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                var data = ReadFully(stream ?? throw new InvalidOperationException("The UI resource was not found"));
-                var ab = AssetBundle.LoadFromMemory(data);
+            var data = Utils.GetResourceBytes("quick_access_box_interface");
+            var ab = AssetBundle.LoadFromMemory(data);
 
-                var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
-                if (canvasObj == null) throw new ArgumentException("Could not find QuickAccessBoxCanvas.prefab in loaded AB");
+            var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
+            if (canvasObj == null) throw new ArgumentException("Could not find QuickAccessBoxCanvas.prefab in loaded AB");
 
-                var copy = Object.Instantiate(canvasObj);
-                copy.SetActive(false);
+            var copy = Object.Instantiate(canvasObj);
+            copy.SetActive(false);
 
-                Object.Destroy(canvasObj);
-                ab.Unload(false);
+            Object.Destroy(canvasObj);
+            ab.Unload(false);
 
-                return copy;
-            }
-        }
-
-        private static byte[] ReadFully(Stream input)
-        {
-            var buffer = new byte[16 * 1024];
-            using (var ms = new MemoryStream())
-            {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                    ms.Write(buffer, 0, read);
-                return ms.ToArray();
-            }
+            return copy;
         }
     }
 }

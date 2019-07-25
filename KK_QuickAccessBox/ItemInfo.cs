@@ -1,40 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using BepInEx.Logging;
 using Studio;
 using UnityEngine;
-using Logger = BepInEx.Logger;
 
 namespace KK_QuickAccessBox
 {
     public sealed class ItemInfo
     {
-        public static List<ItemInfo> GetItemList()
-        {
-            var results = new List<ItemInfo>();
-
-            foreach (var group in Info.Instance.dicItemLoadInfo)
-            {
-                foreach (var category in group.Value)
-                {
-                    foreach (var item in category.Value)
-                    {
-                        try
-                        {
-                            results.Add(new ItemInfo(group.Key, category.Key, item.Key, item.Value));
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Log(LogLevel.Warning, $"Failed to load information about item {item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e}");
-                        }
-                    }
-                }
-            }
-
-            results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
-            return results;
-        }
-
         private readonly bool _initFinished;
         private readonly string _origFullname;
 
@@ -126,12 +97,21 @@ namespace KK_QuickAccessBox
 
         public Texture2D Thumbnail { get; private set; }
 
+        public string CacheId => $"{GroupNo:D8}-{CategoryNo:D8}-{Item.name.GetHashCode():D32}";
+
         /// <summary>
         /// Spawn this item in studio
         /// </summary>
         public void AddItem()
         {
-            Studio.Studio.Instance.AddItem(GroupNo, CategoryNo, ItemNo);
+            try
+            {
+                Studio.Studio.Instance.AddItem(GroupNo, CategoryNo, ItemNo);
+            }
+            catch (NullReferenceException)
+            {
+                // Some modded items crash in Studio.OCIItem.UpdateColor()
+            }
         }
 
         private void UpdateCompositeStrings()

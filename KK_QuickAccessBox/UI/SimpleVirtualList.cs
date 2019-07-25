@@ -10,7 +10,7 @@ namespace KK_QuickAccessBox.UI
 {
     internal class SimpleVirtualList : MonoBehaviour
     {
-        private readonly List<InterfaceListEntry> _cachedEntries = new List<InterfaceListEntry>();
+        private readonly List<SimpleListEntry> _cachedEntries = new List<SimpleListEntry>();
         private readonly List<ItemInfo> _items = new List<ItemInfo>();
 
         public GameObject EntryTemplate;
@@ -51,7 +51,7 @@ namespace KK_QuickAccessBox.UI
 
             EntryTemplate.SetActive(false);
 
-            var listEntry = EntryTemplate.AddComponent<InterfaceListEntry>();
+            var listEntry = EntryTemplate.AddComponent<SimpleListEntry>();
             listEntry.Icon = listEntry.transform.FindChildDeep("Icon")?.GetComponent<RawImage>() ?? throw new ArgumentException("Couldn't find Icon");
             listEntry.TextGroup = listEntry.transform.FindChildDeep("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
             listEntry.TextCategory = listEntry.transform.FindChildDeep("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
@@ -70,7 +70,7 @@ namespace KK_QuickAccessBox.UI
             for (var i = 0; i < visibleEntryCount; i++)
             {
                 var copy = Instantiate(EntryTemplate, EntryTemplate.transform.parent);
-                var entry = copy.GetComponent<InterfaceListEntry>();
+                var entry = copy.GetComponent<SimpleListEntry>();
                 _cachedEntries.Add(entry);
                 entry.SetVisible(false);
                 entry.SetOnClicked(OnClicked);
