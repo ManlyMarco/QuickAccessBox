@@ -2,19 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using BepInEx;
 using BepInEx.Logging;
 using DynamicTranslationLoader;
 using KKAPI.Studio;
 using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
-using Studio;
 using UnityEngine;
 using Logger = BepInEx.Logger;
-using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace KK_QuickAccessBox
 {
@@ -23,12 +19,12 @@ namespace KK_QuickAccessBox
     public class QuickAccessBox : BaseUnityPlugin
     {
         public const string GUID = "KK_QuickAccessBox";
-        internal const string Version = "0.1";
+        internal const string Version = "0.2";
 
         private InterfaceManager _interface;
         private bool _showBox;
 
-        [DisplayName("Show quick access box")]
+        [DisplayName("!Show quick access box")]
         public static SavedKeyboardShortcut KeyShowBox { get; private set; }
 
         [DisplayName("Search developer information")]
@@ -37,23 +33,27 @@ namespace KK_QuickAccessBox
         public static ConfigWrapper<bool> SearchDeveloperInfo { get; private set; }
 
         [Advanced(true)]
-        [DisplayName("Generate item thumbnails (auto)")]
+        [Category("Thumbnail generation")]
+        [DisplayName("Generate item thumbnails")]
         [Description("Automatically generate thumbnails for all items.\n\n" +
                      "Items with existing thumbnails are skipped. To re-do certain thumbnails just remove them from the folder.")]
         public static SavedKeyboardShortcut ThumbGenerateKey { get; private set; }
 
         [Advanced(true)]
-        [DisplayName("Generate item thumbnails (manual)")]
+        [Category("Thumbnail generation")]
+        [DisplayName("Output directory")]
         [Description("After adjusting the camera position to get the object in the middle of the screen press Shift to accept.")]
         public static ConfigWrapper<string> ThumbStoreLocation { get; private set; }
 
         [Advanced(true)]
-        [DisplayName("Use dark background for generated thumbnails")]
+        [Category("Thumbnail generation")]
+        [DisplayName("Dark background")]
         [Description("Only use for items that are impossible to see on light background like flares.")]
         public static ConfigWrapper<bool> ThumbDarkBackground { get; private set; }
 
         [Advanced(true)]
-        [DisplayName("Adjust generated thumbnails by hand")]
+        [Category("Thumbnail generation")]
+        [DisplayName("Manual mode - adjust by hand")]
         [Description("After spawning the object, generator will wait for you to adjust the camera position to get the object in " +
                      "the middle of the screen. Press left Shift to accept and move to the next item.")]
         public static ConfigWrapper<bool> ThumbManualAdjust { get; private set; }
@@ -106,7 +106,6 @@ namespace KK_QuickAccessBox
         {
             _interface?.Dispose();
             ThumbnailLoader.Dispose();
-            //Resources.UnloadUnusedAssets();
         }
 
         private void Update()
@@ -121,22 +120,31 @@ namespace KK_QuickAccessBox
                 if (IsLoaded())
                     StartCoroutine(ThumbnailGenerator.MakeThumbnail(ItemList, ThumbStoreLocation.Value, ThumbManualAdjust.Value, ThumbDarkBackground.Value));
             }
-
-            if (ShowBox)
-            {
-                if (Input.GetKeyUp(KeyCode.DownArrow) && _interface.IsSearchBoxSelected())
-                    _interface.SelectFirstItem();
-            }
         }
 
         private bool IsLoaded()
         {
             if (ItemList == null)
             {
-                Logger.Log(LogLevel.Message, "Item list is still loading, please try again in a moment");
+                Logger.Log(LogLevel.Message, "Item list is still loading, please try again in a jiffy");
                 return false;
             }
             return true;
+        }
+
+        private IEnumerator LoadingCo()
+        {
+            yield return new WaitUntil(() => StudioAPI.StudioLoaded);
+
+            // Wait for DTL to finish loading translations before starting the thread to avoid accessing TL dicts as they get populated
+            yield return null;
+
+            ItemInfoLoader.StartLoadItemsThread(result => ItemList = result);
+
+            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+            _interface.SetVisible(false);
+
+            ThumbnailLoader.LoadAssetBundle();
         }
 
         private void OnListItemClicked(ItemInfo info)
@@ -157,56 +165,6 @@ namespace KK_QuickAccessBox
 
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             return splitSearchStr.All(s => item.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        private IEnumerator LoadingCo()
-        {
-            yield return new WaitUntil(() => StudioAPI.StudioLoaded);
-            
-            var t = new Thread(LoadItems)
-            {
-                IsBackground = true,
-                Name = "Collect item info",
-                Priority = ThreadPriority.BelowNormal
-            };
-            t.Start();
-
-            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
-            _interface.SetVisible(false);
-
-            ThumbnailLoader.LoadAssetBundle();
-        }
-
-        private void LoadItems()
-        {
-            Logger.Log(LogLevel.Debug, "[KK_QuickAccessBox] Starting item information load thread");
-            var sw = Stopwatch.StartNew();
-
-            var results = new List<ItemInfo>();
-
-            foreach (var group in Info.Instance.dicItemLoadInfo)
-            {
-                foreach (var category in group.Value)
-                {
-                    foreach (var item in category.Value)
-                    {
-                        try
-                        {
-                            results.Add(new ItemInfo(group.Key, category.Key, item.Key, item.Value));
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Log(LogLevel.Warning, $"Failed to load information about item: name={item.Value.name} group={group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
-                        }
-                    }
-                }
-            }
-
-            results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
-            ItemList = results;
-
-            sw.Stop();
-            Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
         }
     }
 }

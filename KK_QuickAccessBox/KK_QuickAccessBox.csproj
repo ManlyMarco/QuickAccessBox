@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ItemInfoLoader.cs" />
     <Compile Include="Thumbs\ThumbnailCache.cs" />
     <Compile Include="UI\InterfaceManager.cs" />
     <Compile Include="ItemInfo.cs" />

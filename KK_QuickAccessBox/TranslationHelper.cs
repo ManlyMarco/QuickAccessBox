@@ -31,6 +31,9 @@ namespace KK_QuickAccessBox
             _onTextChanged = onTextChanged;
         }
 
+        /// <summary>
+        /// Needed by autotranslator to set the translation
+        /// </summary>
         public string text
         {
             get => _text;
