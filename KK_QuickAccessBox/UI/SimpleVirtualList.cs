@@ -52,7 +52,7 @@ namespace KK_QuickAccessBox.UI
             EntryTemplate.SetActive(false);
 
             var listEntry = EntryTemplate.AddComponent<SimpleListEntry>();
-            listEntry.Icon = listEntry.transform.FindChildDeep("Icon")?.GetComponent<RawImage>() ?? throw new ArgumentException("Couldn't find Icon");
+            listEntry.Icon = listEntry.transform.FindChildDeep("Icon")?.GetComponent<Image>() ?? throw new ArgumentException("Couldn't find Icon");
             listEntry.TextGroup = listEntry.transform.FindChildDeep("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
             listEntry.TextCategory = listEntry.transform.FindChildDeep("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
             listEntry.TextItem = listEntry.transform.FindChildDeep("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
@@ -150,6 +150,12 @@ namespace KK_QuickAccessBox.UI
             var cacheEntriesHeight = _cachedEntries.Count * _singleItemHeight;
             var trailingHeight = totalHeight - cacheEntriesHeight - topOffset;
             _verticalLayoutGroup.padding.bottom = Mathf.FloorToInt(Mathf.Max(0, trailingHeight) + _paddingBot);
+        }
+
+        public void SelectFirstItem()
+        {
+            var entry = _cachedEntries.FirstOrDefault();
+            if (entry != null) entry.GetComponent<Button>().Select();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace KK_QuickAccessBox.UI
 {
     internal class SimpleListEntry : MonoBehaviour
     {
-        public RawImage Icon;
+        public Image Icon;
         public Text TextCategory;
         public Text TextGroup;
         public Text TextItem;
@@ -30,14 +30,14 @@ namespace KK_QuickAccessBox.UI
                 TextGroup.text = item.GroupName;
                 TextCategory.text = item.CategoryName;
                 TextItem.text = item.ItemName;
-                Icon.texture = item.Thumbnail;
+                Icon.sprite = item.Thumbnail;
             }
             else
             {
                 TextGroup.text = string.Empty;
                 TextCategory.text = string.Empty;
                 TextItem.text = string.Empty;
-                Icon.texture = null;
+                Icon.sprite = null;
             }
         }
 

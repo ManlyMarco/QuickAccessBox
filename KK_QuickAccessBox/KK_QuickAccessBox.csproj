@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Thumbs\ThumbnailCache.cs" />
     <Compile Include="UI\InterfaceManager.cs" />
     <Compile Include="ItemInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,6 +94,18 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Thumbs\thumb_background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Thumbs\thumb_missing.png" />
+    <EmbeddedResource Include="Thumbs\thumb_sfx.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Thumbs\thumb_background_dark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Unity_project\Assets\Assetbundles\quick_access_box_thumbs">
+      <Link>Thumbs\quick_access_box_thumbs</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

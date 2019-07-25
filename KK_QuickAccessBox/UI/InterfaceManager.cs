@@ -4,6 +4,7 @@ using System.Linq;
 using StrayTech;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -18,7 +19,6 @@ namespace KK_QuickAccessBox.UI
 
         private readonly GameObject _textEmptyObj;
         private readonly GameObject _textHelpObj;
-        private readonly GameObject _textMoreObj;
 
         /// <param name="onClicked">Fired when one of the list items is clicked</param>
         /// <param name="onSearchStringChanged">Fired when search string changes</param>
@@ -31,7 +31,6 @@ namespace KK_QuickAccessBox.UI
 
             _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
             _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
-            _textMoreObj = _canvasRoot.transform.FindChildDeep("TextMore") ?? throw new ArgumentNullException(nameof(_textMoreObj));
 
             var scrollRect = _canvasRoot.GetComponentInChildren<ScrollRect>();
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
@@ -47,10 +46,19 @@ namespace KK_QuickAccessBox.UI
             Object.Destroy(_canvasRoot);
         }
 
-        public void ClearAndFocusSearchBox()
+        public void SelectSearchBox()
         {
-            _inputField.text = string.Empty;
             _inputField.Select();
+        }
+
+        public bool IsSearchBoxSelected()
+        {
+            return EventSystem.current.currentSelectedGameObject == _inputField.gameObject;
+        }
+
+        public void SelectFirstItem()
+        {
+            _simpleVirtualList.SelectFirstItem();
         }
 
         /// <summary>
@@ -66,21 +74,11 @@ namespace KK_QuickAccessBox.UI
             {
                 _textHelpObj.SetActive(true);
                 _textEmptyObj.SetActive(false);
-                _textMoreObj.SetActive(false);
             }
             else
             {
                 _textHelpObj.SetActive(false);
-                if (itemInfos.Any())
-                {
-                    _textEmptyObj.SetActive(false);
-                    _textMoreObj.SetActive(false);
-                }
-                else
-                {
-                    _textEmptyObj.SetActive(true);
-                    _textMoreObj.SetActive(false);
-                }
+                _textEmptyObj.SetActive(!itemInfos.Any());
             }
         }
 

@@ -15,11 +15,12 @@ using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox.Thumbs
 {
+
     internal static class ThumbnailGenerator
     {
         private static readonly HashSet<int> _shootFromFront = new HashSet<int> { 0, 9, 10, 501 };
 
-        public static IEnumerator MakeThumbnail(IEnumerable<ItemInfo> itemList, string outputDirectory, bool manualMode)
+        public static IEnumerator MakeThumbnail(IEnumerable<ItemInfo> itemList, string outputDirectory, bool manualMode, bool dark)
         {
             Texture2D thumbBackground;
             try
@@ -31,8 +32,7 @@ namespace KK_QuickAccessBox.Thumbs
                 if (outputDirectory == null) throw new ArgumentNullException(nameof(outputDirectory));
                 if (!Directory.Exists(outputDirectory)) throw new DirectoryNotFoundException("Output directory was not found: " + outputDirectory);
 
-                thumbBackground = new Texture2D(2, 2, TextureFormat.ARGB32, false);
-                thumbBackground.LoadImage(Utils.GetResourceBytes("thumb_background.png"));
+                thumbBackground = Utils.LoadTexture(Utils.GetResourceBytes(dark ? "thumb_background_dark.png" : "thumb_background.png")) ?? throw new ArgumentNullException(nameof(thumbBackground));
             }
             catch (Exception ex)
             {
@@ -75,6 +75,8 @@ namespace KK_QuickAccessBox.Thumbs
             var createdCount = 0;
             foreach (var itemInfo in itemList)
             {
+                if (itemInfo.IsSFX) continue;
+
                 var thumbPath = Path.Combine(outputDirectory, itemInfo.CacheId + ".png");
                 if (File.Exists(thumbPath)) continue;
 

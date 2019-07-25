@@ -1,4 +1,5 @@
 ﻿using System;
+using KK_QuickAccessBox.Thumbs;
 using Studio;
 using UnityEngine;
 
@@ -18,10 +19,10 @@ namespace KK_QuickAccessBox
             Item = item ?? Info.Instance.dicItemLoadInfo[groupNo][categoryNo][itemNo];
             if (Item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
-            if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number " + CategoryNo);
+            if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number");
             GroupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
 
-            if (!GroupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number " + CategoryNo);
+            if (!GroupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
             var origCategoryName = GroupInfo.dicCategory[CategoryNo];
             _origFullname = GroupInfo.name + "/" + origCategoryName + "/" + Item.name;
 
@@ -95,7 +96,12 @@ namespace KK_QuickAccessBox
         /// </summary>
         internal string SearchStr { get; private set; }
 
-        public Texture2D Thumbnail { get; private set; }
+        public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
+
+        /// <summary>
+        /// Item is a sound effect and should get the SFX thumbnail
+        /// </summary>
+        public bool IsSFX => GroupNo == 00000011;
 
         public string CacheId => $"{GroupNo:D8}-{CategoryNo:D8}-{Item.name.GetHashCode():D32}";
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DynamicTranslationLoader;
 using DynamicTranslationLoader.Text;
 using Harmony;
+using KKAPI;
 using TARC.Compiler;
 
 namespace KK_QuickAccessBox
@@ -17,8 +18,8 @@ namespace KK_QuickAccessBox
         {
             var translatorTraverse = Traverse.Create<TextTranslator>();
             _translatorCompiledLines = translatorTraverse.Field("Translations").GetValue<Dictionary<string, CompiledLine>>();
-            _translatorRegex = translatorTraverse.Method("TryGetRegex", new[] {typeof(string), typeof(string).MakeByRefType(), typeof(bool)});
-            _translatorCallback = Traverse.Create<DynamicTranslator>().Method("OnOnUnableToTranslateTextMeshPro", new[] {typeof(object), typeof(string)});
+            _translatorRegex = translatorTraverse.Method("TryGetRegex", new[] { typeof(string), typeof(string).MakeByRefType(), typeof(bool) });
+            _translatorCallback = Traverse.Create<DynamicTranslator>().Method("OnOnUnableToTranslateTextMeshPro", new[] { typeof(object), typeof(string) });
         }
 
         private readonly Action<string> _onTextChanged;
@@ -48,16 +49,18 @@ namespace KK_QuickAccessBox
                 return;
             }
 
-            var args = new object[] {input, "", false};
+            var args = new object[] { input, "", false };
             if (_translatorRegex.GetValue<bool>(args))
             {
-                updateAction((string) args[1]);
+                updateAction((string)args[1]);
                 return;
             }
 
             // Make sure there's a valid value set in case we need to wait
             updateAction(input);
-            _translatorCallback.GetValue(new TranslationHelper(input, updateAction), input);
+
+            // XUA needs to run on the main thread
+            KoikatuAPI.SynchronizedInvoke(() => _translatorCallback.GetValue(new TranslationHelper(input, updateAction), input));
         }
     }
 }
