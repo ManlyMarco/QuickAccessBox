@@ -25,6 +25,7 @@ namespace KK_QuickAccessBox
         private bool _showBox;
 
         [DisplayName("!Show quick access box")]
+        [Description("Toggles the item search box on and off.")]
         public static SavedKeyboardShortcut KeyShowBox { get; private set; }
 
         [DisplayName("Search developer information")]
@@ -126,7 +127,7 @@ namespace KK_QuickAccessBox
         {
             if (ItemList == null)
             {
-                Logger.Log(LogLevel.Message, "Item list is still loading, please try again in a jiffy");
+                Logger.Log(LogLevel.Message, "Item list is still loading, please try again in a few seconds");
                 return false;
             }
             return true;
