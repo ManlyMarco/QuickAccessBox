@@ -16,6 +16,7 @@ namespace KK_QuickAccessBox
 {
     [BepInPlugin(GUID, GUID, Version)]
     [BepInDependency(DynamicTranslator.GUID)]
+    [BepInDependency(KKAPI.KoikatuAPI.GUID)]
     public class QuickAccessBox : BaseUnityPlugin
     {
         public const string GUID = "KK_QuickAccessBox";

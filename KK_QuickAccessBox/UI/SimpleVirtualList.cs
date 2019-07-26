@@ -58,6 +58,10 @@ namespace KK_QuickAccessBox.UI
             listEntry.TextItem = listEntry.transform.FindChildDeep("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
             listEntry.SetItem(null, true);
 
+            listEntry.TextGroup.MarkXuaIgnored();
+            listEntry.TextCategory.MarkXuaIgnored();
+            listEntry.TextItem.MarkXuaIgnored();
+
             var templateRectTransform = EntryTemplate.GetComponent<RectTransform>();
             _singleItemHeight = templateRectTransform.rect.height + _verticalLayoutGroup.spacing;
         }

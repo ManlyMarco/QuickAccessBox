@@ -28,6 +28,7 @@ namespace KK_QuickAccessBox.UI
 
             _inputField = _canvasRoot.transform.FindChildDeep("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
             _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
+            _inputField.textComponent.MarkXuaIgnored();
 
             _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
             _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));

@@ -41,5 +41,11 @@ namespace KK_QuickAccessBox
                 return ms.ToArray();
             }
         }
+
+        internal static void MarkXuaIgnored(this Component target)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            target.gameObject.name += "(XUAIGNORE)";
+        }
     }
 }
