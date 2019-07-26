@@ -1,6 +1,8 @@
 # KK_QuickAccessBox
 Plugin for CharaStudio that adds a quick access list for searching through all of the items, both stock and modded. The plugin comes with thumbnails for the items, unlike the original studio interface. It's also instant and has low resource footprint, no need to wait for menus to open.
 
+![preview](https://user-images.githubusercontent.com/39247311/61983223-d6fdf680-afff-11e9-8a44-95509f681ce0.png)
+
 To open the quick access box press Left Control + Space (the keybind can be changed in F1 plugin settings, search for "quick"). Video in action: https://www.youtube.com/watch?v=4D3Ibvyxsps
 
 Thanks to AutoTranslator developer for implementing a plugin interface, essu and Keelhauled for help with using renderer bounding boxes and other stuff, and DeathWeasel for help with sideloader stuff.
