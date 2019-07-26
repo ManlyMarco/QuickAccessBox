@@ -1,5 +1,5 @@
 # KK_QuickAccessBox
-Plugin for CharaStudio that adds a quick access list for searching through all of the items, both stock and modded. The plugin comes with thumbnails for the items, unlike the original studio interface. It's also instant and has low resource footprint, no need to wait for menus to open.
+Plugin for CharaStudio (part of Koikatu / Koikatsu Party) that adds a quick access list for searching through all of the items, both stock and modded. The plugin comes with thumbnails for the items, unlike the original studio interface. It's also instant and has low resource footprint, no need to wait for menus to open.
 
 ![preview](https://user-images.githubusercontent.com/39247311/61983223-d6fdf680-afff-11e9-8a44-95509f681ce0.png)
 
@@ -19,6 +19,10 @@ You can support development of this plugin (and many other) on the [patreon page
 6. Start CharaStudio.exe. Once fully loaded in try pressing the key combination and the box should appear.
 
 ## FAQ
+**Q: I don't have the studio (CharaStudio.exe)**
+
+A: If you dont have studio with your Koikatu / Koikatsu Party you can get it by installing the latest [HF Patch](https://github.com/ManlyMarco/KK-HF_Patch).
+
 **Q: The box doesn't appear even though I'm pressing the key combination?**
 
 A: If there is a message in top left corner telling you to wait, wait. If there is no message, go to plugin settings (F1) and search for "quick". If you see the keybind, change it to something else. If you can't see any settings related to this plugin then check your koikatu_data\output_log.txt for errors as usual.
