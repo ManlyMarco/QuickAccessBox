@@ -3,7 +3,7 @@ Plugin for CharaStudio that adds a quick access list for searching through all o
 
 To open the quick access box press Left Control + Space (the keybind can be changed in F1 plugin settings, search for "quick"). Video in action: https://www.youtube.com/watch?v=4D3Ibvyxsps
 
-Thanks to essu and Keelhauled for help with using renderer bounding boxes and other stuff.
+Thanks to AutoTranslator developer for implementing a plugin interface, essu and Keelhauled for help with using renderer bounding boxes and other stuff, and DeathWeasel for help with sideloader stuff.
 
 You can support development of this plugin (and many other) on the [patreon page](https://www.patreon.com/ManlyMarco).
 
