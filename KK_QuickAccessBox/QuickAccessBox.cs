@@ -90,6 +90,11 @@ namespace KK_QuickAccessBox
 
         private void Start()
         {
+            if (!KKAPI.KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2")))
+            {
+                enabled = false;
+                return;
+            }
             KeyShowBox = new SavedKeyboardShortcut(nameof(KeyShowBox), this, new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl));
 
             SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);
