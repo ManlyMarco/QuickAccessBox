@@ -10,7 +10,7 @@ Thanks to AutoTranslator developer for implementing a plugin interface, essu and
 You can support development of this plugin (and many other) on the [patreon page](https://www.patreon.com/ManlyMarco).
 
 ## Installation
-1. Make sure your game is updated and has at least [BepInEx v4.1](https://github.com/BepInEx/BepInEx), BepisPlugins r10 and [KKAPI v1.3.8](https://github.com/ManlyMarco/KKAPI) installed. 
+1. Make sure your game is updated and has at least [BepInEx v4.1](https://github.com/BepInEx/BepInEx), BepisPlugins r11.2 and [KKAPI v1.3.8](https://github.com/ManlyMarco/KKAPI) installed. 
 2.To get proper translations for the items, get the latest [bbepis/KoikatsuTranslation
 ](https://github.com/bbepis/KoikatsuTranslation) (was included since HF Patch v2.6) and [DeathWeasel1337/Koikatsu-Plugin-Translations](https://github.com/DeathWeasel1337/Koikatsu-Plugin-Translations). This is necessary to be able to search for the items in English.
 3. Optionally install [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) v3.7.0 or higher to fill in any missing translations.
@@ -26,3 +26,36 @@ A: If you dont have studio with your Koikatu / Koikatsu Party you can get it by 
 **Q: The box doesn't appear even though I'm pressing the key combination?**
 
 A: If there is a message in top left corner telling you to wait, wait. If there is no message, go to plugin settings (F1) and search for "quick". If you see the keybind, change it to something else. If you can't see any settings related to this plugin then check your koikatu_data\output_log.txt for errors as usual.
+
+**Q: I updated my translations but the search box still uses the old translations?**
+
+A: Remove the BepInEx/KK_QuickAccessBox.cache file.
+
+## How to add thumbnails for your items
+The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings.
+
+### Generating thumbnails and using them
+1. Open plugin settings and search for "Thumbnail generation".
+2. Assign a hotkey to the "Generate item thumbnails" setting.
+3. Create an empty directory and copy its path into the "Output directory" setting. This is where the new thumbnails will get saved.
+4. Close the plugin settings window and reset current studio scene.
+5. Press the "Generate item thumbnails" hotkey. You should see the thumbnails getting generated inside your folder.
+6. If there are any plugins that need adjusting check the "Manual generation" list below.
+7. Place the thumbnails inside your mod's .zipmod file. Put them inside an "abdata/studio_thumbs" folder.
+8. Restart the game with the newly updated .zipmod file and see if your new thumbnails appear in the quick access list.
+
+### Manual generation
+Sometimes the generated thumbnails will have wrong orientation or framing. In that case it's necessary to adjust the camera manually. To be able to properly adjust the camera you need to download the [KK_OrthographicCamera](https://github.com/ManlyMarco/Koikatu-Gameplay-Mod) plugin.
+
+1. In plugin settings turn on "Manual mode - adjust by hand".
+2. Remove the bad thumbnail files from your folder.
+3. Press the generate thumbnails hotkey.
+4. Adjust the camera with your mouse. Zoom in and out with mouse wheel.
+5. Once you are happy with the result, press Left Shift to advance to the next item.
+
+### Notes
+- You can abort thumbnail generation at any time by pressing and holding the Esc key.
+- Resulting thumbnail images (64x64 png files) should be included in your .zipmod file inside the "abdata" folder. The path to the file doesn't matter as long as it is inside abdata. It's recommended to put it in a subfolder instead of directly inside the abdata folder.
+- You can override thumbnails from other .zipmod files by making the path to your thumbnail longer (longer folder names, do not change the .png file name).
+- The generated .png thumbnails have names that represent the item's Group, Category and Item Name. Do not change thumbnail names or they will not work. If you change any of these you will have to re-take the thumbnail to get the new file name.
+- If your items are very bright you can use the "Dark background" setting. Do not overuse this setting to keep consistency.

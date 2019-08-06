@@ -48,7 +48,7 @@ namespace KK_QuickAccessBox
         [Advanced(true)]
         [Category("Thumbnail generation")]
         [DisplayName("Output directory")]
-        [Description("After adjusting the camera position to get the object in the middle of the screen press Shift to accept.")]
+        [Description("Directory to save newly generated thumbs into. The directory must exist. Existing thumbs are not overwritten, remove them to re-create.")]
         public static ConfigWrapper<string> ThumbStoreLocation { get; private set; }
 
         [Advanced(true)]
