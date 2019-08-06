@@ -17,6 +17,8 @@ namespace KK_QuickAccessBox
     [BepInPlugin(GUID, GUID, Version)]
     [BepInDependency(DynamicTranslator.GUID)]
     [BepInDependency(KKAPI.KoikatuAPI.GUID)]
+    [BepInDependency(Sideloader.Sideloader.GUID)]
+    [BepInProcess("CharaStudio")]
     public class QuickAccessBox : BaseUnityPlugin
     {
         public const string GUID = "KK_QuickAccessBox";
@@ -88,12 +90,6 @@ namespace KK_QuickAccessBox
 
         private void Start()
         {
-            if (!StudioAPI.InsideStudio)
-            {
-                enabled = false;
-                return;
-            }
-
             KeyShowBox = new SavedKeyboardShortcut(nameof(KeyShowBox), this, new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl));
 
             SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);
@@ -108,8 +104,6 @@ namespace KK_QuickAccessBox
 
         private void OnDestroy()
         {
-            if (!StudioAPI.InsideStudio) return;
-
             _interface?.Dispose();
             ThumbnailLoader.Dispose();
             ItemInfoLoader.SaveTranslationCache(ItemList);
