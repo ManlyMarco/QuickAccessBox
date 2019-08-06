@@ -107,7 +107,7 @@ namespace KK_QuickAccessBox
         private void OnDestroy()
         {
             _interface?.Dispose();
-            ThumbnailLoader.Dispose();
+            ThumbnailLoader?.Dispose();
         }
 
         private void Update()
