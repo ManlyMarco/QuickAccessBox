@@ -37,8 +37,9 @@ namespace KK_QuickAccessBox
         [Advanced(true)]
         [Category("Thumbnail generation")]
         [DisplayName("Generate item thumbnails")]
-        [Description("Automatically generate thumbnails for all items.\n\n" +
-                     "Items with existing thumbnails are skipped. To re-do certain thumbnails just remove them from the folder.")]
+        [Description("Automatically generate thumbnails for all items. Hold the Esc key to abort.\n\n" +
+                     "Items with existing thumbnails in zipmods are skipped. Items with thumbnails already present in the output folder are skipped too. " +
+                     "To re-do certain thumbnails just remove them from the folder. If they are in a zipmod you have remove them from the zipmod.")]
         public static SavedKeyboardShortcut ThumbGenerateKey { get; private set; }
 
         [Advanced(true)]
