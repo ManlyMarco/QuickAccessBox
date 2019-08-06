@@ -29,6 +29,7 @@ namespace KK_QuickAccessBox
         [Description("Toggles the item search box on and off.")]
         public static SavedKeyboardShortcut KeyShowBox { get; private set; }
 
+        [Advanced(true)]
         [DisplayName("Search developer information")]
         [Description("The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.\n\n" +
                      "Requires studio restart to take effect.")]
