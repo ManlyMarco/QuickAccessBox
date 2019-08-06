@@ -16,38 +16,53 @@ namespace KK_QuickAccessBox
             CategoryNo = categoryNo;
             ItemNo = itemNo;
 
-            Item = item ?? Info.Instance.dicItemLoadInfo[groupNo][categoryNo][itemNo];
-            if (Item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
+            if (item == null) item = Info.Instance.dicItemLoadInfo[groupNo][categoryNo][itemNo];
+
+            if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
+
+            DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+            CacheId = MakeCacheId(groupNo, categoryNo, item);
 
             if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number");
-            GroupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
+            var groupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
 
-            if (!GroupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
-            var origCategoryName = GroupInfo.dicCategory[CategoryNo];
-            _origFullname = GroupInfo.name + "/" + origCategoryName + "/" + Item.name;
+            if (!groupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
+            var origCategoryName = groupInfo.dicCategory[CategoryNo];
+            _origFullname = groupInfo.name + "/" + origCategoryName + "/" + item.name;
 
-            // Get translated versions of the relevant strings
-            TranslationHelper.Translate(
-                GroupInfo.name, s =>
-                {
-                    GroupName = s;
-                    if (_initFinished)
-                        UpdateCompositeStrings();
-                });
-            TranslationHelper.Translate(
-                origCategoryName, s =>
-                {
-                    CategoryName = s;
-                    if (_initFinished)
-                        UpdateCompositeStrings();
-                });
-            TranslationHelper.Translate(
-                Item.name, s =>
-                {
-                    ItemName = s;
-                    if (_initFinished)
-                        UpdateCompositeStrings();
-                });
+            ItemInfoLoader.TranslationCache.TryGetValue(CacheId, out var cachedTranslations);
+            if (cachedTranslations != null)
+            {
+                CategoryName = cachedTranslations.CategoryName;
+                GroupName = cachedTranslations.GroupName;
+                ItemName = cachedTranslations.ItemName;
+            }
+            else
+            {
+                // Get translated versions of the relevant strings
+                TranslationHelper.Translate(
+                    groupInfo.name, s =>
+                    {
+                        GroupName = s;
+                        if (_initFinished)
+                            UpdateCompositeStrings();
+                    });
+                TranslationHelper.Translate(
+                    origCategoryName, s =>
+                    {
+                        CategoryName = s;
+                        if (_initFinished)
+                            UpdateCompositeStrings();
+                    });
+                TranslationHelper.Translate(
+                    item.name, s =>
+                    {
+                        ItemName = s;
+                        if (_initFinished)
+                            UpdateCompositeStrings();
+                    });
+            }
+
             UpdateCompositeStrings();
             _initFinished = true;
         }
@@ -67,8 +82,6 @@ namespace KK_QuickAccessBox
         /// </summary>
         public string FullName { get; private set; }
 
-        public Info.GroupInfo GroupInfo { get; }
-
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
@@ -78,8 +91,6 @@ namespace KK_QuickAccessBox
         /// Top level under add/Item menu
         /// </summary>
         public int GroupNo { get; }
-
-        public Info.ItemLoadInfo Item { get; }
 
         /// <summary>
         /// Translated name, or original if not necessary/available
@@ -94,7 +105,12 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// String to search against
         /// </summary>
-        internal string SearchStr { get; private set; }
+        internal string SearchString { get; private set; }
+
+        /// <summary>
+        /// String with developer info, used to build SearchString
+        /// </summary>
+        private string DeveloperSearchString;
 
         public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
@@ -103,7 +119,7 @@ namespace KK_QuickAccessBox
         /// </summary>
         public bool IsSFX => GroupNo == 00000011;
 
-        public string CacheId => $"{GroupNo:D8}-{CategoryNo:D8}-{Item.name.GetHashCode():D32}";
+        public string CacheId { get; }
 
         /// <summary>
         /// Spawn this item in studio
@@ -130,9 +146,16 @@ namespace KK_QuickAccessBox
                 searchStr = $"{searchStr}\v{_origFullname}";
 
             if (QuickAccessBox.SearchDeveloperInfo.Value)
-                searchStr = $"{searchStr}\v{Item.childRoot}\v{Item.bundlePath}\v{Item.fileName}\v{Item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+                searchStr = $"{searchStr}\v{DeveloperSearchString}";
 
-            SearchStr = searchStr.ToLowerInvariant();
+            SearchString = searchStr.ToLowerInvariant();
+        }
+
+        public static string MakeCacheId(int groupNo, int categoryNo, Info.ItemLoadInfo item)
+        {
+            // Can't use itemNo because it can change with sideloader
+            return $"{groupNo:D8}-{categoryNo:D8}-{Utils.MakeValidFileName(item.name)}";
+            // old - return $"{groupNo:D8}-{categoryNo:D8}-{item.name.GetHashCode():D32}";
         }
 
         public override int GetHashCode()

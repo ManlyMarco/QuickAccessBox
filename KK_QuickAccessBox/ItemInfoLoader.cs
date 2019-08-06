@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using BepInEx;
 using BepInEx.Logging;
+using MessagePack;
 using Studio;
 
 namespace KK_QuickAccessBox
 {
     internal static class ItemInfoLoader
     {
+        private static readonly string _cachePath = Path.Combine(Paths.PluginPath, "KK_QuickAccessBox.cache");
+
+        internal static Dictionary<string, TranslationCacheEntry> TranslationCache { get; private set; }
+
         public static void StartLoadItemsThread(Action<List<ItemInfo>> onFinished)
         {
             Logger.Log(LogLevel.Debug, "[KK_QuickAccessBox] Starting item information load thread");
@@ -29,6 +36,8 @@ namespace KK_QuickAccessBox
             var onFinished = (Action<List<ItemInfo>>)obj;
 
             var sw = Stopwatch.StartNew();
+
+            LoadTranslationCache();
 
             var results = new List<ItemInfo>();
 
@@ -61,6 +70,49 @@ namespace KK_QuickAccessBox
             Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
 
             onFinished(results);
+        }
+
+        private static void LoadTranslationCache()
+        {
+            if (File.Exists(_cachePath))
+            {
+                try
+                {
+                    var cacheBytes = File.ReadAllBytes(_cachePath);
+                    TranslationCache = MessagePackSerializer.Deserialize<Dictionary<string, TranslationCacheEntry>>(cacheBytes);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to read cache: " + ex.Message);
+                }
+            }
+            if (TranslationCache == null)
+                TranslationCache = new Dictionary<string, TranslationCacheEntry>();
+        }
+
+        public static void SaveTranslationCache(IEnumerable<ItemInfo> itemList)
+        {
+            try
+            {
+                var newCache = itemList
+                    .GroupBy(info => info.CacheId)
+                    .Select(infos =>
+                    {
+                        if (infos.Count() != 1)
+                            Logger.Log(LogLevel.Warning, $"[KK_QuickAccessBox] Cache collision on item {infos.Key}, please consider renaming it");
+
+                        // Items have the same full names so translations can be reused for both of them
+                        return infos.First();
+                    })
+                    .ToDictionary(info => info.CacheId, TranslationCacheEntry.FromItemInfo);
+
+                var data = MessagePackSerializer.Serialize(newCache);
+                File.WriteAllBytes(_cachePath, data);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to write cache: " + ex.Message);
+            }
         }
     }
 }

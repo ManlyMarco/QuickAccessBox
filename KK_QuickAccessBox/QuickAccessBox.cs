@@ -106,8 +106,11 @@ namespace KK_QuickAccessBox
 
         private void OnDestroy()
         {
+            if (!StudioAPI.InsideStudio) return;
+
             _interface?.Dispose();
             ThumbnailLoader.Dispose();
+            ItemInfoLoader.SaveTranslationCache(ItemList);
         }
 
         private void Update()
@@ -166,7 +169,7 @@ namespace KK_QuickAccessBox
             if (searchStr == null) throw new ArgumentNullException(nameof(searchStr));
 
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            return splitSearchStr.All(s => item.SearchStr.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
+            return splitSearchStr.All(s => item.SearchString.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DynamicTranslationLoader;
 using DynamicTranslationLoader.Text;
 using Harmony;
-using KKAPI;
+using KKAPI.Utilities;
 using TARC.Compiler;
 
 namespace KK_QuickAccessBox
@@ -63,7 +63,7 @@ namespace KK_QuickAccessBox
             updateAction(input);
 
             // XUA needs to run on the main thread
-            KoikatuAPI.SynchronizedInvoke(() => _translatorCallback.GetValue(new TranslationHelper(input, updateAction), input));
+            ThreadingHelper.StartSyncInvoke(() => _translatorCallback.GetValue(new TranslationHelper(input, updateAction), input));
         }
     }
 }

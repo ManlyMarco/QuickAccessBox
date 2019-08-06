@@ -40,6 +40,10 @@
       <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\lib\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\..\lib\BepInEx.dll</HintPath>
       <Private>False</Private>
@@ -60,6 +64,10 @@
       <HintPath>..\..\BepisPlugins\bin\BepInEx\Screencap.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Sideloader">
+      <HintPath>..\..\BepisPlugins\bin\BepInEx\Sideloader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="TARC.Core">
@@ -78,6 +86,7 @@
   <ItemGroup>
     <Compile Include="ItemInfoLoader.cs" />
     <Compile Include="Thumbs\ThumbnailCache.cs" />
+    <Compile Include="TranslationCacheEntry.cs" />
     <Compile Include="UI\InterfaceManager.cs" />
     <Compile Include="ItemInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -102,11 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Thumbs\thumb_background_dark.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\Unity_project\Assets\Assetbundles\quick_access_box_thumbs">
-      <Link>Thumbs\quick_access_box_thumbs</Link>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
