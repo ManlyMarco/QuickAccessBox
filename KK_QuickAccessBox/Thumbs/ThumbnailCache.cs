@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace KK_QuickAccessBox.Thumbs
@@ -7,7 +9,8 @@ namespace KK_QuickAccessBox.Thumbs
     internal static class ThumbnailLoader
     {
         private static readonly Dictionary<string, Sprite> _thumbnailCache = new Dictionary<string, Sprite>();
-        private static AssetBundle _thumbnailBundle;
+        private static Dictionary<string, string> _pngNameCache;
+
         private static Sprite _thumbMissing;
         private static Sprite _thumbSound;
 
@@ -19,8 +22,8 @@ namespace KK_QuickAccessBox.Thumbs
 
             if (!_thumbnailCache.TryGetValue(cacheId, out var sprite))
             {
-                var getName = $"assets/thumbnails/{cacheId}.png";
-                var tex = _thumbnailBundle.LoadAsset<Texture2D>(getName);
+                _pngNameCache.TryGetValue(cacheId, out var pngPath);
+                var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
                 if (tex != null)
                 {
                     sprite = tex.ToSprite();
@@ -41,11 +44,12 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static void LoadAssetBundle()
         {
-            if (_thumbnailBundle != null) return;
+            if (_pngNameCache != null) return;
 
-            var res = Utils.GetResourceBytes("quick_access_box_thumbs");
-            var ab = AssetBundle.LoadFromMemory(res) ?? throw new Exception("Failed to load thumbnail bundle");
-            _thumbnailBundle = ab;
+            // Make sure the keys are unique. In case of duplicates allow mods to override the stock thumbs by picking the longest filename from the dupes
+            _pngNameCache = Sideloader.Sideloader.GetPngNames()
+                .GroupBy(Path.GetFileNameWithoutExtension)
+                .ToDictionary(gr => gr.Key, gr => gr.OrderByDescending(s => s.Length).First());
 
             var thumbMissing = Utils.LoadTexture(Utils.GetResourceBytes("thumb_missing.png")) ?? throw new ArgumentNullException(nameof(_thumbMissing));
             _thumbMissing = thumbMissing.ToSprite();
@@ -59,7 +63,7 @@ namespace KK_QuickAccessBox.Thumbs
                 UnityEngine.Object.Destroy(thumb);
 
             _thumbnailCache.Clear();
-            _thumbnailBundle.Unload(true);
+            _pngNameCache.Clear();
         }
     }
 }
