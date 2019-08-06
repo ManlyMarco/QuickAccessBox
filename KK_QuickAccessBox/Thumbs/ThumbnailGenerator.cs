@@ -80,6 +80,8 @@ namespace KK_QuickAccessBox.Thumbs
                 var thumbPath = Path.Combine(outputDirectory, itemInfo.CacheId + ".png");
                 if (File.Exists(thumbPath)) continue;
 
+                if (ThumbnailLoader.CustomThumbnailAvailable(itemInfo)) continue;
+
                 yield return null;
 
                 itemInfo.AddItem();
@@ -105,6 +107,7 @@ namespace KK_QuickAccessBox.Thumbs
                     {
                         // Look at the object from front, better for flat effects
                         // Move the camera a long way away from the objects to avoid clipping
+                        // todo anything better? Not reliable
                         camera.transform.position = (targetObj.position + targetObj.forward * objectSize) * 8;
                     }
                     else
@@ -117,21 +120,30 @@ namespace KK_QuickAccessBox.Thumbs
                     camera.transform.LookAt(bounds.center);
                     camera.orthographicSize = objectSize * objectSizeAdjust;
 
+                    void UpdateBackgroundPlane()
+                    {
+                        // Move the thumbnail pane in the opposite way from the camera and scale/align it so that it fills the camera view behind the item
+                        copyPlane.position = camera.transform.position + camera.transform.forward * (camera.transform.position - bounds.center).magnitude * 2;
+                        copyPlane.LookAt(camera.transform);
+                        copyPlane.localScale = new Vector3(objectSize / (16 / 9f) * 1.325F, objectSize * 1.325F, 1) * objectSizeAdjust;
+                    }
+
                     if (manualMode)
                     {
                         cameraControl.enabled = true;
-                        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.LeftShift));
+                        yield return new WaitUntil(() =>
+                        {
+                            // Adjust for the new camera position
+                            objectSize = camera.orthographicSize / objectSizeAdjust;
+                            UpdateBackgroundPlane();
+                            return Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKey(KeyCode.Escape);
+                        });
                         cameraControl.enabled = false;
-                        // Adjust for the new camera position
-                        objectSize = camera.orthographicSize / objectSizeAdjust;
                     }
 
-                    // Move the thumbnail pane in the opposite way from the camera and scale/align it so that it fills the camera view behind the item
-                    copyPlane.position = camera.transform.position + camera.transform.forward * (camera.transform.position - bounds.center).magnitude * 2;
-                    copyPlane.LookAt(camera.transform);
-                    copyPlane.localScale = new Vector3(objectSize / (16 / 9f) * 1.325F, objectSize * 1.325F, 1) * objectSizeAdjust;
+                    UpdateBackgroundPlane();
 
-                    var result = alphaShot.Capture(100, 100, 1, true);
+                    var result = alphaShot.Capture(64, 64, 1, true);
 
                     File.WriteAllBytes(thumbPath, result);
                 }
@@ -144,6 +156,8 @@ namespace KK_QuickAccessBox.Thumbs
                 RemoveAllItems();
 
                 if (createdCount % 400 == 0) Resources.UnloadUnusedAssets();
+
+                if (Input.GetKey(KeyCode.Escape)) break;
             }
 
             cameraControl.enabled = true;

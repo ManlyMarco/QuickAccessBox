@@ -16,13 +16,10 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static Sprite GetThumbnail(ItemInfo info)
         {
-            LoadAssetBundle();
 
-            var cacheId = info.CacheId;
-
-            if (!_thumbnailCache.TryGetValue(cacheId, out var sprite))
+            if (!_thumbnailCache.TryGetValue(info.CacheId, out var sprite))
             {
-                _pngNameCache.TryGetValue(cacheId, out var pngPath);
+                _pngNameCache.TryGetValue(info.CacheId, out var pngPath);
                 var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
                 if (tex != null)
                 {
@@ -36,7 +33,7 @@ namespace KK_QuickAccessBox.Thumbs
                         sprite = _thumbMissing;
                 }
 
-                _thumbnailCache.Add(cacheId, sprite);
+                _thumbnailCache.Add(info.CacheId, sprite);
             }
 
             return sprite;
@@ -64,6 +61,11 @@ namespace KK_QuickAccessBox.Thumbs
 
             _thumbnailCache.Clear();
             _pngNameCache.Clear();
+        }
+
+        public static bool CustomThumbnailAvailable(ItemInfo itemInfo)
+        {
+            return _pngNameCache.ContainsKey(itemInfo.CacheId);
         }
     }
 }
