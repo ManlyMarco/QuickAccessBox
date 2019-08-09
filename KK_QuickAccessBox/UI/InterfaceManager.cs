@@ -33,6 +33,7 @@ namespace KK_QuickAccessBox.UI
 
             _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
             _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
+            _textEmptyObj.SetActive(false);
 
             var scrollRect = _canvasRoot.GetComponentInChildren<ScrollRect>();
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
