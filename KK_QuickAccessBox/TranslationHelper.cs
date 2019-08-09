@@ -1,69 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using DynamicTranslationLoader;
-using DynamicTranslationLoader.Text;
+using BepInEx;
 using Harmony;
 using KKAPI.Utilities;
-using TARC.Compiler;
+using XUnity.AutoTranslator.Plugin.Core;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace KK_QuickAccessBox
 {
-    public class TranslationHelper
+    public static class TranslationHelper
     {
-        private static readonly Traverse _translatorCallback;
-        private static readonly Dictionary<string, CompiledLine> _translatorCompiledLines;
-        private static readonly Traverse _translatorRegex;
+        private static readonly Action<string, Action<string>> _translatorCallback;
+        private static readonly Traverse _translatorGet;
 
         static TranslationHelper()
         {
-            var translatorTraverse = Traverse.Create<TextTranslator>();
-            _translatorCompiledLines = translatorTraverse.Field("Translations").GetValue<Dictionary<string, CompiledLine>>();
-            _translatorRegex = translatorTraverse.Method("TryGetRegex", new[] { typeof(string), typeof(string).MakeByRefType(), typeof(bool) });
-            _translatorCallback = Traverse.Create<DynamicTranslator>().Method("OnOnUnableToTranslateTextMeshPro", new[] { typeof(object), typeof(string) });
-        }
+            var dtl = Traverse.Create(Type.GetType("DynamicTranslationLoader.Text.TextTranslator, DynamicTranslationLoader", false));
+            // public static string TryGetTranslation(string toTranslate)
+            _translatorGet = dtl.Method("TryGetTranslation", new[] {typeof(string)});
+            if (!_translatorGet.MethodExists())
+                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method DynamicTranslationLoader.Text.TextTranslator.TryGetTranslation, item translations will be limited or unavailable");
 
-        private readonly Action<string> _onTextChanged;
-        private string _text;
-
-        private TranslationHelper(string text, Action<string> onTextChanged)
-        {
-            _text = text;
-            _onTextChanged = onTextChanged;
-        }
-
-        /// <summary>
-        /// Needed by autotranslator to set the translation
-        /// </summary>
-        public string text
-        {
-            get => _text;
-            set
+            var xua = Type.GetType("XUnity.AutoTranslator.Plugin.Core.AutoTranslator, XUnity.AutoTranslator.Plugin.Core", false);
+            if (xua != null)
+                _translatorCallback = (s, action) => AutoTranslator.Default.TranslateAsync(
+                    s, result =>
+                    {
+                        if (result.Succeeded) action(result.TranslatedText);
+                    });
+            else
             {
-                _text = value;
-                _onTextChanged?.Invoke(value);
+                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
+                _translatorCallback = null;
             }
         }
 
         public static void Translate(string input, Action<string> updateAction)
         {
-            if (_translatorCompiledLines.TryGetValue(input, out var line))
+            if (_translatorGet.MethodExists())
             {
-                updateAction(line.TranslatedLine);
-                return;
-            }
-
-            var args = new object[] { input, "", false };
-            if (_translatorRegex.GetValue<bool>(args))
-            {
-                updateAction((string)args[1]);
-                return;
+                var result = _translatorGet.GetValue<string>(input);
+                if (result != null)
+                {
+                    updateAction(result);
+                    return;
+                }
             }
 
             // Make sure there's a valid value set in case we need to wait
             updateAction(input);
 
-            // XUA needs to run on the main thread
-            ThreadingHelper.StartSyncInvoke(() => _translatorCallback.GetValue(new TranslationHelper(input, updateAction), input));
+            if (_translatorCallback != null)
+            {
+                // XUA needs to run on the main thread
+                ThreadingHelper.StartSyncInvoke(() => _translatorCallback(input, updateAction));
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using BepInEx;
 using BepInEx.Logging;
-using DynamicTranslationLoader;
 using KKAPI.Studio;
 using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
@@ -15,7 +14,6 @@ using Logger = BepInEx.Logger;
 namespace KK_QuickAccessBox
 {
     [BepInPlugin(GUID, GUID, Version)]
-    [BepInDependency(DynamicTranslator.GUID)]
     [BepInDependency(KKAPI.KoikatuAPI.GUID)]
     [BepInDependency(Sideloader.Sideloader.GUID)]
     [BepInProcess("CharaStudio")]
@@ -90,11 +88,12 @@ namespace KK_QuickAccessBox
 
         private void Start()
         {
-            if (!KKAPI.KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2")))
+            if (!KKAPI.KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2.1")))
             {
                 enabled = false;
                 return;
             }
+
             KeyShowBox = new SavedKeyboardShortcut(nameof(KeyShowBox), this, new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl));
 
             SearchDeveloperInfo = new ConfigWrapper<bool>(nameof(SearchDeveloperInfo), this, false);

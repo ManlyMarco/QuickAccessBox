@@ -52,10 +52,6 @@
       <HintPath>..\..\lib\ConfigurationManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="DynamicTranslationLoader">
-      <HintPath>..\..\BepisPlugins\bin\BepInEx\DynamicTranslationLoader.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="KKAPI">
       <HintPath>..\..\..\KKEC\KKAPI\bin\KKAPI.dll</HintPath>
       <Private>False</Private>
@@ -80,6 +76,10 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\lib\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="XUnity.AutoTranslator.Plugin.Core">
+      <HintPath>..\..\lib\XUnity.AutoTranslator.Plugin.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

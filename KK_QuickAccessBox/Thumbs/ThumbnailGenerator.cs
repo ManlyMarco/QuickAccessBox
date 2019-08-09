@@ -15,7 +15,6 @@ using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox.Thumbs
 {
-
     internal static class ThumbnailGenerator
     {
         private static readonly HashSet<int> _shootFromFront = new HashSet<int> { 0, 9, 10, 501 };
