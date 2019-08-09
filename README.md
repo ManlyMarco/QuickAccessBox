@@ -10,10 +10,10 @@ Thanks to AutoTranslator developer for implementing a plugin interface, essu and
 You can support development of this plugin (and many other) on the [patreon page](https://www.patreon.com/ManlyMarco).
 
 ## Installation
-1. Make sure your game is updated and has at least [BepInEx v4.1](https://github.com/BepInEx/BepInEx), BepisPlugins r11.2 and [KKAPI v1.3.8](https://github.com/ManlyMarco/KKAPI) installed. 
+1. Make sure your game is updated and has at least [BepInEx v4.1](https://github.com/BepInEx/BepInEx), [BepisPlugins r11.2.1](https://github.com/bbepis/BepisPlugins) and [KKAPI v1.3.8](https://github.com/ManlyMarco/KKAPI) installed. 
 2.To get proper translations for the items, get the latest [bbepis/KoikatsuTranslation
 ](https://github.com/bbepis/KoikatsuTranslation) (was included since HF Patch v2.6) and [DeathWeasel1337/Koikatsu-Plugin-Translations](https://github.com/DeathWeasel1337/Koikatsu-Plugin-Translations). This is necessary to be able to search for the items in English.
-3. Optionally install [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) v3.7.0 or higher to fill in any missing translations.
+3. Install [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) v3.7.0 or higher to fill in any missing translations.
 4. Download the latest release from [releases](/../../releases).
 5. Extract contents of the archive into your game's directory (the .dll file should end up inside your BepInEx folder).
 6. Start CharaStudio.exe. Once fully loaded in try pressing the key combination and the box should appear.
@@ -29,7 +29,7 @@ A: If there is a message in top left corner telling you to wait, wait. If there 
 
 **Q: I updated my translations but the search box still uses the old translations?**
 
-A: Remove the BepInEx/KK_QuickAccessBox.cache file.
+A: Close the game and remove the BepInEx/KK_QuickAccessBox.cache file.
 
 ## How to add thumbnails for your items
 The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings.
