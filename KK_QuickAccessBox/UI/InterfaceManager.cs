@@ -19,10 +19,11 @@ namespace KK_QuickAccessBox.UI
 
         private readonly GameObject _textEmptyObj;
         private readonly GameObject _textHelpObj;
+        private static GameObject _searchButton;
 
         /// <param name="onClicked">Fired when one of the list items is clicked</param>
         /// <param name="onSearchStringChanged">Fired when search string changes</param>
-        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
+        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged, Action onToggleVisible)
         {
             _canvasRoot = CreateCanvas();
 
@@ -39,12 +40,15 @@ namespace KK_QuickAccessBox.UI
             _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindChildDeep("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
             _simpleVirtualList.OnClicked = onClicked;
             _simpleVirtualList.Initialize();
+
+            CreateSearchButton(onToggleVisible);
         }
 
         public void Dispose()
         {
             _simpleVirtualList.Clear();
             Object.Destroy(_canvasRoot);
+            Object.Destroy(_searchButton);
         }
 
         public void SelectSearchBox()
@@ -103,6 +107,18 @@ namespace KK_QuickAccessBox.UI
             ab.Unload(false);
 
             return copy;
+        }
+
+        private static void CreateSearchButton(Action onToggleVisible)
+        {
+            var origButton = GameObject.Find("StudioScene/Canvas Main Menu/01_Add/Scroll View Add Group/Viewport/Content/Frame");
+            _searchButton = Object.Instantiate(origButton, origButton.transform.parent);
+            _searchButton.name = "QuickSearchBoxBtn";
+            var btn = _searchButton.GetComponent<Button>();
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.SetPersistentListenerState(0, UnityEventCallState.Off);
+            btn.onClick.AddListener(() => onToggleVisible());
+            _searchButton.GetComponentInChildren<Text>().text = "Search items...";
         }
     }
 }

@@ -9,6 +9,7 @@ using KKAPI.Studio;
 using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
 using UnityEngine;
+using UnityEngine.UI;
 using Logger = BepInEx.Logger;
 
 namespace KK_QuickAccessBox
@@ -146,7 +147,7 @@ namespace KK_QuickAccessBox
 
             ItemInfoLoader.StartLoadItemsThread(result => ItemList = result);
 
-            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged, () => ShowBox = !ShowBox);
             _interface.SetVisible(false);
 
             ThumbnailLoader.LoadAssetBundle();
