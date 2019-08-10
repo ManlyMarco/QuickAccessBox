@@ -5,17 +5,17 @@ using System.ComponentModel;
 using System.Linq;
 using BepInEx;
 using BepInEx.Logging;
+using KKAPI;
 using KKAPI.Studio;
 using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
 using UnityEngine;
-using UnityEngine.UI;
 using Logger = BepInEx.Logger;
 
 namespace KK_QuickAccessBox
 {
     [BepInPlugin(GUID, GUID, Version)]
-    [BepInDependency(KKAPI.KoikatuAPI.GUID)]
+    [BepInDependency(KoikatuAPI.GUID)]
     [BepInDependency(Sideloader.Sideloader.GUID)]
     [BepInProcess("CharaStudio")]
     public class QuickAccessBox : BaseUnityPlugin
@@ -89,7 +89,8 @@ namespace KK_QuickAccessBox
 
         private void Start()
         {
-            if (!KKAPI.KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2.1")))
+            if (!KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2.1")) ||
+                !KoikatuAPI.CheckRequiredPlugin(this, KoikatuAPI.GUID, new Version(KoikatuAPI.VersionConst)))
             {
                 enabled = false;
                 return;
