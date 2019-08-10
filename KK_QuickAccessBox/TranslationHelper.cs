@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BepInEx;
 using Harmony;
 using KKAPI.Utilities;
@@ -16,17 +17,19 @@ namespace KK_QuickAccessBox
         {
             var dtl = Traverse.Create(Type.GetType("DynamicTranslationLoader.Text.TextTranslator, DynamicTranslationLoader", false));
             // public static string TryGetTranslation(string toTranslate)
-            _translatorGet = dtl.Method("TryGetTranslation", new[] {typeof(string)});
+            _translatorGet = dtl.Method("TryGetTranslation", new[] { typeof(string) });
             if (!_translatorGet.MethodExists())
                 Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method DynamicTranslationLoader.Text.TextTranslator.TryGetTranslation, item translations will be limited or unavailable");
 
-            var xua = Type.GetType("XUnity.AutoTranslator.Plugin.Core.AutoTranslator, XUnity.AutoTranslator.Plugin.Core", false);
-            if (xua != null)
-                _translatorCallback = (s, action) => AutoTranslator.Default.TranslateAsync(
-                    s, result =>
-                    {
-                        if (result.Succeeded) action(result.TranslatedText);
-                    });
+            var xua = Type.GetType("XUnity.AutoTranslator.Plugin.Core.ITranslator, XUnity.AutoTranslator.Plugin.Core", false);
+            if (xua != null && xua.GetMethods().Any(x => x.Name == "TranslationResult"))
+            {
+                _translatorCallback = (s, action) =>
+                {
+                    // The lambda doesn't get its types resolved until it's called so this doesn't crash here if the type doesn't exist
+                    AutoTranslator.Default.TranslateAsync(s, result => { if (result.Succeeded) action(result.TranslatedText); });
+                };
+            }
             else
             {
                 Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
