@@ -59,3 +59,9 @@ Sometimes the generated thumbnails will have wrong orientation or framing. In th
 - You can override thumbnails from other .zipmod files by making the path to your thumbnail longer (longer folder names, do not change the .png file name).
 - The generated .png thumbnails have names that represent the item's Group, Category and Item Name. Do not change thumbnail names or they will not work. If you change any of these you will have to re-take the thumbnail to get the new file name.
 - If your items are very bright you can use the "Dark background" setting. Do not overuse this setting to keep consistency.
+
+#### How to get best thumbnail load performance and smallest size
+These tips are optional and will have minimal effect unless you are creating a lot of thumbnails (100s).
+- Use 64x64 resolution, anything higher will not have a positive quality difference.
+- Do not use transparency, instead use 245,245,245 as background color.
+- Use 256 colors (8 Bits Per Pixel with no alpha channel).
