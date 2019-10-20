@@ -2,7 +2,6 @@
 using System.Linq;
 using BepInEx;
 using Harmony;
-using KKAPI.Utilities;
 using XUnity.AutoTranslator.Plugin.Core;
 using LogLevel = BepInEx.Logging.LogLevel;
 
@@ -39,6 +38,8 @@ namespace KK_QuickAccessBox
 
         public static void Translate(string input, Action<string> updateAction)
         {
+            if (updateAction == null) throw new ArgumentNullException(nameof(updateAction));
+
             if (_translatorGet.MethodExists())
             {
                 var result = _translatorGet.GetValue<string>(input);
@@ -55,7 +56,9 @@ namespace KK_QuickAccessBox
             if (_translatorCallback != null)
             {
                 // XUA needs to run on the main thread
-                ThreadingHelper.StartSyncInvoke(() => _translatorCallback(input, updateAction));
+#pragma warning disable 618
+                KKAPI.KoikatuAPI.SynchronizedInvoke(() => _translatorCallback(input, updateAction));
+#pragma warning restore 618
             }
         }
     }
