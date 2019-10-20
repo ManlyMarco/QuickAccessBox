@@ -90,7 +90,7 @@ namespace KK_QuickAccessBox
         private void Start()
         {
             if (!KoikatuAPI.CheckRequiredPlugin(this, Sideloader.Sideloader.GUID, new Version("11.2.1")) ||
-                !KoikatuAPI.CheckRequiredPlugin(this, KoikatuAPI.GUID, new Version(KoikatuAPI.VersionConst)))
+                !KoikatuAPI.CheckRequiredPlugin(this, KoikatuAPI.GUID, new Version("1.4")))
             {
                 enabled = false;
                 return;
@@ -157,8 +157,9 @@ namespace KK_QuickAccessBox
         private void OnListItemClicked(ItemInfo info)
         {
             Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Creating item {info.FullName} - {info.CacheId}");
+		    Logger.Log(LogLevel.Debug, info.DeveloperSearchString);
             info.AddItem();
-        }
+		}
 
         private void OnSearchStringChanged(string newStr)
         {

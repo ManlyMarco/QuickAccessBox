@@ -110,9 +110,9 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// String with developer info, used to build SearchString
         /// </summary>
-        private string DeveloperSearchString;
+        internal string DeveloperSearchString { get; }
 
-        public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
+		public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
         /// <summary>
         /// Item is a sound effect and should get the SFX thumbnail
