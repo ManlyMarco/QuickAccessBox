@@ -21,7 +21,7 @@ namespace KK_QuickAccessBox
                 Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method DynamicTranslationLoader.Text.TextTranslator.TryGetTranslation, item translations will be limited or unavailable");
 
             var xua = Type.GetType("XUnity.AutoTranslator.Plugin.Core.ITranslator, XUnity.AutoTranslator.Plugin.Core", false);
-            if (xua != null && xua.GetMethods().Any(x => x.Name == "TranslationResult"))
+            if (xua != null && xua.GetMethods().Any(x => x.Name == "TranslateAsync"))
             {
                 _translatorCallback = (s, action) =>
                 {
