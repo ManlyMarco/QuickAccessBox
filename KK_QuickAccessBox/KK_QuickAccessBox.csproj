@@ -57,11 +57,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Screencap">
-      <HintPath>..\..\BepisPlugins\bin\BepInEx\Screencap.dll</HintPath>
+      <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\KK_BepisPlugins\Screencap.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sideloader">
-      <HintPath>..\..\BepisPlugins\bin\BepInEx\Sideloader.dll</HintPath>
+      <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\KK_BepisPlugins\Sideloader.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
