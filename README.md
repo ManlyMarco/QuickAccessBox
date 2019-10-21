@@ -40,8 +40,8 @@ The plugin contains a thumbnail generator that makes it easy and fast to create 
 3. Create an empty directory and copy its path into the "Output directory" setting. This is where the new thumbnails will get saved.
 4. Close the plugin settings window and reset current studio scene.
 5. Press the "Generate item thumbnails" hotkey. You should see the thumbnails getting generated inside your folder.
-6. If there are any plugins that need adjusting check the "Manual generation" list below.
-7. Place the thumbnails inside your mod's .zipmod file. Put them inside an "abdata/studio_thumbs" folder.
+6. If there are any thumbnails that need to be adjusted, check the "Manual generation" list below.
+7. Place the thumbnails inside your mod's .zipmod file. Put them inside an "abdata/studio_thumbs" folder as loose .png files without changing their names.
 8. Restart the game with the newly updated .zipmod file and see if your new thumbnails appear in the quick access list.
 
 ### Manual generation
