@@ -24,7 +24,7 @@ namespace KK_QuickAccessBox.Thumbs
             Texture2D thumbBackground;
             try
             {
-                if (manualMode && Chainloader.Plugins.Select(MetadataHelper.GetMetadata).All(x => x.GUID != "KK_OrthographicCamera"))
+                if (manualMode && Chainloader.Plugins.Where(x => x != null).Select(MetadataHelper.GetMetadata).All(x => x.GUID != "KK_OrthographicCamera"))
                     throw new ArgumentException("Manual mode needs the KK_OrthographicCamera plugin to work");
 
                 if (itemList == null) throw new ArgumentNullException(nameof(itemList));
