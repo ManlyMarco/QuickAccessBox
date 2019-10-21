@@ -24,7 +24,6 @@ namespace KK_QuickAccessBox
         internal const string Version = "2.0";
 
         private InterfaceManager _interface;
-        private bool _showBox;
 
         [DisplayName("!Show quick access box")]
         [Description("Toggles the item search box on and off.")]
@@ -66,20 +65,8 @@ namespace KK_QuickAccessBox
         [Browsable(false)]
         public bool ShowBox
         {
-            get => _showBox;
-            set
-            {
-                if (value == _showBox)
-                    return;
-
-                _interface.SetVisible(value);
-
-                // Focus search box right after showing the window
-                if (value && !_showBox)
-                    _interface.SelectSearchBox();
-
-                _showBox = value;
-            }
+            get => _interface.Visible;
+            set => _interface.Visible = value;
         }
 
         /// <summary>
@@ -148,8 +135,8 @@ namespace KK_QuickAccessBox
 
             ItemInfoLoader.StartLoadItemsThread(result => ItemList = result);
 
-            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged, () => ShowBox = !ShowBox);
-            _interface.SetVisible(false);
+            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+            _interface.Visible = false;
 
             ThumbnailLoader.LoadAssetBundle();
         }
@@ -157,9 +144,9 @@ namespace KK_QuickAccessBox
         private void OnListItemClicked(ItemInfo info)
         {
             Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Creating item {info.FullName} - {info.CacheId}");
-		    Logger.Log(LogLevel.Debug, info.DeveloperSearchString);
+            Logger.Log(LogLevel.Debug, info.DeveloperSearchString);
             info.AddItem();
-		}
+        }
 
         private void OnSearchStringChanged(string newStr)
         {

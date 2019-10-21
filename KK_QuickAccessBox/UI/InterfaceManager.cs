@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using KKAPI.Utilities;
 using StrayTech;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,11 +20,14 @@ namespace KK_QuickAccessBox.UI
 
         private readonly GameObject _textEmptyObj;
         private readonly GameObject _textHelpObj;
-        private static GameObject _searchButton;
+
+        private GameObject _searchMenuButton;
+        private GameObject _searchToolbarButton;
+        private Image _toolbarIcon;
 
         /// <param name="onClicked">Fired when one of the list items is clicked</param>
         /// <param name="onSearchStringChanged">Fired when search string changes</param>
-        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged, Action onToggleVisible)
+        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
         {
             _canvasRoot = CreateCanvas();
 
@@ -42,14 +46,16 @@ namespace KK_QuickAccessBox.UI
             _simpleVirtualList.OnClicked = onClicked;
             _simpleVirtualList.Initialize();
 
-            CreateSearchButton(onToggleVisible);
+            CreateSearchMenuButton();
+            CreateSearchToolbarButton();
         }
 
         public void Dispose()
         {
             _simpleVirtualList.Clear();
             Object.Destroy(_canvasRoot);
-            Object.Destroy(_searchButton);
+            Object.Destroy(_searchMenuButton);
+            Object.Destroy(_searchToolbarButton);
         }
 
         public void SelectSearchBox()
@@ -88,9 +94,22 @@ namespace KK_QuickAccessBox.UI
             }
         }
 
-        public void SetVisible(bool value)
+        public bool Visible
         {
-            _canvasRoot.SetActive(value);
+            get => _canvasRoot.activeSelf;
+            set
+            {
+                if (value == _canvasRoot.activeSelf)
+                    return;
+
+                _canvasRoot.SetActive(value);
+
+                // Focus search box right after showing the window
+                if (value && !_canvasRoot.activeSelf)
+                    SelectSearchBox();
+
+                _toolbarIcon.color = value ? Color.green : Color.white;
+            }
         }
 
         private static GameObject CreateCanvas()
@@ -110,16 +129,39 @@ namespace KK_QuickAccessBox.UI
             return copy;
         }
 
-        private static void CreateSearchButton(Action onToggleVisible)
+        private void CreateSearchMenuButton()
         {
             var origButton = GameObject.Find("StudioScene/Canvas Main Menu/01_Add/Scroll View Add Group/Viewport/Content/Frame");
-            _searchButton = Object.Instantiate(origButton, origButton.transform.parent);
-            _searchButton.name = "QuickSearchBoxBtn";
-            var btn = _searchButton.GetComponent<Button>();
-            btn.onClick.RemoveAllListeners();
-            btn.onClick.SetPersistentListenerState(0, UnityEventCallState.Off);
-            btn.onClick.AddListener(() => onToggleVisible());
-            _searchButton.GetComponentInChildren<Text>().text = "Search items...";
+
+            _searchMenuButton = Object.Instantiate(origButton, origButton.transform.parent);
+            _searchMenuButton.name = "QuickSearchBoxBtn";
+
+            var btn = _searchMenuButton.GetComponent<Button>();
+            btn.onClick.ActuallyRemoveAllListeners();
+            btn.onClick.AddListener(() => Visible = !Visible);
+
+            _searchMenuButton.GetComponentInChildren<Text>().text = "Search...";
+        }
+
+        private void CreateSearchToolbarButton()
+        {
+            var existingRt = GameObject.Find("StudioScene/Canvas System Menu/01_Button/Button Center").GetComponent<RectTransform>();
+
+            _searchToolbarButton = Object.Instantiate(existingRt.gameObject, existingRt.parent);
+            var copyRt = _searchToolbarButton.GetComponent<RectTransform>();
+            copyRt.localScale = existingRt.localScale;
+            copyRt.anchoredPosition = existingRt.anchoredPosition + new Vector2(0f, 120f);
+
+            var iconTex = Utils.LoadTexture(ResourceUtils.GetEmbeddedResource("toolbar-icon.png"));
+            var iconSprite = Sprite.Create(iconTex, new Rect(0f, 0f, 32f, 32f), new Vector2(16f, 16f));
+
+            var copyBtn = copyRt.GetComponent<Button>();
+            copyBtn.onClick.ActuallyRemoveAllListeners();
+            copyBtn.onClick.AddListener(() => Visible = !Visible);
+
+            _toolbarIcon = copyBtn.image;
+            _toolbarIcon.sprite = iconSprite;
+            _toolbarIcon.color = Color.white;
         }
     }
 }

@@ -112,5 +112,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Thumbs\thumb_background_dark.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UI\toolbar-icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
