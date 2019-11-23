@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BepInEx;
-using Harmony;
+using HarmonyLib;
 using XUnity.AutoTranslator.Plugin.Core;
 using LogLevel = BepInEx.Logging.LogLevel;
 
@@ -18,7 +18,7 @@ namespace KK_QuickAccessBox
             // public static string TryGetTranslation(string toTranslate)
             _translatorGet = dtl.Method("TryGetTranslation", new[] { typeof(string) });
             if (!_translatorGet.MethodExists())
-                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method DynamicTranslationLoader.Text.TextTranslator.TryGetTranslation, item translations will be limited or unavailable");
+                QuickAccessBox.Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method DynamicTranslationLoader.Text.TextTranslator.TryGetTranslation, item translations will be limited or unavailable");
 
             var xua = Type.GetType("XUnity.AutoTranslator.Plugin.Core.ITranslator, XUnity.AutoTranslator.Plugin.Core", false);
             if (xua != null && xua.GetMethods().Any(x => x.Name == "TranslateAsync"))
@@ -31,7 +31,7 @@ namespace KK_QuickAccessBox
             }
             else
             {
-                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
+                QuickAccessBox.Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
                 _translatorCallback = null;
             }
         }

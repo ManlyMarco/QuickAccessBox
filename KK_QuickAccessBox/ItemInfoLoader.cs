@@ -20,7 +20,7 @@ namespace KK_QuickAccessBox
 
         public static void StartLoadItemsThread(Action<List<ItemInfo>> onFinished)
         {
-            Logger.Log(LogLevel.Debug, "[KK_QuickAccessBox] Starting item information load thread");
+            QuickAccessBox.Logger.Log(LogLevel.Debug, "[KK_QuickAccessBox] Starting item information load thread");
 
             var t = new Thread(LoadItemsThread)
             {
@@ -58,7 +58,7 @@ namespace KK_QuickAccessBox
                             if (e is TargetInvocationException ie && ie.InnerException != null)
                                 e = ie.InnerException;
 
-                            Logger.Log(LogLevel.Warning, $"Failed to load information about item: name={item.Value.name} group={@group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
+                            QuickAccessBox.Logger.Log(LogLevel.Warning, $"Failed to load information about item: name={item.Value.name} group={@group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
                         }
                     }
                 }
@@ -67,7 +67,7 @@ namespace KK_QuickAccessBox
             results.Sort((x, y) => String.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
 
             sw.Stop();
-            Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
+            QuickAccessBox.Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
 
             onFinished(results);
         }
@@ -83,7 +83,7 @@ namespace KK_QuickAccessBox
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to read cache: " + ex.Message);
+                    QuickAccessBox.Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to read cache: " + ex.Message);
                 }
             }
             if (TranslationCache == null)
@@ -99,7 +99,7 @@ namespace KK_QuickAccessBox
                     .Select(infos =>
                     {
                         if (infos.Count() != 1)
-                            Logger.Log(LogLevel.Warning, $"[KK_QuickAccessBox] Cache collision on item {infos.Key}, please consider renaming it");
+                            QuickAccessBox.Logger.Log(LogLevel.Warning, $"[KK_QuickAccessBox] Cache collision on item {infos.Key}, please consider renaming it");
 
                         // Items have the same full names so translations can be reused for both of them
                         return infos.First();
@@ -111,7 +111,7 @@ namespace KK_QuickAccessBox
             }
             catch (Exception ex)
             {
-                Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to write cache: " + ex.Message);
+                QuickAccessBox.Logger.Log(LogLevel.Warning, "[KK_QuickAccessBox] Failed to write cache: " + ex.Message);
             }
         }
     }

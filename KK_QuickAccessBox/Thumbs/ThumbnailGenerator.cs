@@ -10,7 +10,6 @@ using BepInEx.Logging;
 using Illusion.Extensions;
 using Studio;
 using UnityEngine;
-using Logger = BepInEx.Logger;
 using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox.Thumbs
@@ -35,7 +34,7 @@ namespace KK_QuickAccessBox.Thumbs
             }
             catch (Exception ex)
             {
-                Logger.Log(LogLevel.Message | LogLevel.Error, "Failed to make thumbs: " + ex.Message);
+                QuickAccessBox.Logger.Log(LogLevel.Message | LogLevel.Error, "Failed to make thumbs: " + ex.Message);
                 yield break;
             }
 
@@ -148,7 +147,7 @@ namespace KK_QuickAccessBox.Thumbs
                 }
                 else
                 {
-                    Logger.Log(LogLevel.Info, "No renderers to take capture of - " + itemInfo.FullName);
+                    QuickAccessBox.Logger.Log(LogLevel.Info, "No renderers to take capture of - " + itemInfo.FullName);
                 }
 
                 yield return null;
@@ -165,7 +164,7 @@ namespace KK_QuickAccessBox.Thumbs
             Object.Destroy(thumbBackground);
             Object.Destroy(copyPlane.gameObject);
 
-            Logger.Log(LogLevel.Message, "Finished taking thumbnails!");
+            QuickAccessBox.Logger.Log(LogLevel.Message, "Finished taking thumbnails!");
         }
 
         private static Bounds? CalculateBounds(IEnumerable<Transform> targets)
