@@ -60,8 +60,8 @@
       <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\KK_BepisPlugins\Screencap.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Sideloader">
-      <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\KK_BepisPlugins\Sideloader.dll</HintPath>
+    <Reference Include="Sideloader, Version=12.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sideloader.Koikatu.12.4.0\lib\net35\Sideloader.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
