@@ -119,7 +119,7 @@ namespace KK_QuickAccessBox
 
         private void OnListItemClicked(ItemInfo info)
         {
-            Logger.Log(LogLevel.Debug, $"[KK_QuickAccessBox] Creating item {info.FullName} - {info.CacheId}");
+            Logger.Log(LogLevel.Debug, $"Creating item {info.FullName} - {info.CacheId}");
             Logger.Log(LogLevel.Debug, info.DeveloperSearchString);
             info.AddItem();
         }

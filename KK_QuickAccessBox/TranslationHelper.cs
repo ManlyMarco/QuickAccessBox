@@ -21,7 +21,7 @@ namespace KK_QuickAccessBox
             }
             else
             {
-                QuickAccessBox.Logger.LogWarning("[KK_QuickAccessBox] Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
+                QuickAccessBox.Logger.LogWarning("Could not find method AutoTranslator.Default.TranslateAsync, item translations will be limited or unavailable");
                 _translatorCallback = null;
             }
         }
