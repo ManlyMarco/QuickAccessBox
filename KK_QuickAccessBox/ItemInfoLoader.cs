@@ -14,7 +14,7 @@ namespace KK_QuickAccessBox
 {
     internal static class ItemInfoLoader
     {
-        private static readonly string _cachePath = Path.Combine(Paths.BepInExConfigPath, "KK_QuickAccessBox.cache");
+        private static readonly string _cachePath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.cache");
 
         internal static Dictionary<string, TranslationCacheEntry> TranslationCache { get; private set; }
 
