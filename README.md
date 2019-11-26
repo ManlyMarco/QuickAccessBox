@@ -10,13 +10,13 @@ Thanks to AutoTranslator developer for implementing a plugin interface, essu and
 You can support development of this plugin (and many other) on the [patreon page](https://www.patreon.com/ManlyMarco).
 
 ## Installation
-1. Make sure your game is updated and has at least [BepInEx v4.1](https://github.com/BepInEx/BepInEx), [BepisPlugins r11.2.1](https://github.com/bbepis/BepisPlugins) and [KKAPI v1.3.8](https://github.com/ManlyMarco/KKAPI) installed.
+1. Make sure your game is updated and has at least [BepInEx v5.0](https://github.com/BepInEx/BepInEx), [BepisPlugins r11.2.1](https://github.com/bbepis/BepisPlugins) and [KKAPI v1.4](https://github.com/ManlyMarco/KKAPI) installed.
 2. To get proper translations for the items, get the latest [bbepis/KoikatsuTranslation
 ](https://github.com/bbepis/KoikatsuTranslation) (was included since HF Patch v2.6) and [DeathWeasel1337/Koikatsu-Plugin-Translations](https://github.com/DeathWeasel1337/Koikatsu-Plugin-Translations). This is necessary to be able to search for the items in English.
 3. Install [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) v3.7.0 or higher to fill in any missing translations.
 4. Download the latest release from [releases](/../../releases).
-5. Extract contents of the archive into your game's directory (the .dll file should end up inside your BepInEx folder).
-6. Start CharaStudio.exe. Once fully loaded in try pressing the key combination and the box should appear.
+5. Extract contents of the archive into your game's directory (the .dll file should end up inside your BepInEx/plugins folder).
+6. Start CharaStudio.exe. Once fully loaded in try pressing Ctrl+Space combination and the box should appear. There also should be a "Search" button at the middle left edge of the screen.
 
 ## FAQ
 **Q: I don't have the studio (CharaStudio.exe)**
