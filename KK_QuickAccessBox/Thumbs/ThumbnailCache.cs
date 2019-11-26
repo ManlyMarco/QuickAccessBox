@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx;
 using UnityEngine;
 
 namespace KK_QuickAccessBox.Thumbs
@@ -16,9 +17,10 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static Sprite GetThumbnail(ItemInfo info)
         {
-
             if (!_thumbnailCache.TryGetValue(info.CacheId, out var sprite))
             {
+                if (_pngNameCache == null) return _thumbMissing;
+
                 _pngNameCache.TryGetValue(info.CacheId, out var pngPath);
                 var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
                 if (tex != null)
@@ -41,12 +43,17 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static void LoadAssetBundle()
         {
-            if (_pngNameCache != null) return;
+            if (_thumbMissing != null) return;
 
-            // Make sure the keys are unique. In case of duplicates allow mods to override the stock thumbs by picking the longest filename from the dupes
-            _pngNameCache = Sideloader.Sideloader.GetPngNames()
-                .GroupBy(Path.GetFileNameWithoutExtension)
-                .ToDictionary(gr => gr.Key, gr => gr.OrderByDescending(s => s.Length).First());
+            ThreadingHelper.Instance.StartAsyncInvoke(
+                () =>
+                {
+                    // Make sure the keys are unique. In case of duplicates allow mods to override the stock thumbs by picking the longest filename from the dupes
+                    _pngNameCache = Sideloader.Sideloader.GetPngNames()
+                        .GroupBy(Path.GetFileNameWithoutExtension)
+                        .ToDictionary(gr => gr.Key, gr => gr.OrderByDescending(s => s.Length).First());
+                    return null;
+                });
 
             var thumbMissing = Utils.LoadTexture(Utils.GetResourceBytes("thumb_missing.png")) ?? throw new ArgumentNullException(nameof(_thumbMissing));
             _thumbMissing = thumbMissing.ToSprite();
@@ -60,12 +67,12 @@ namespace KK_QuickAccessBox.Thumbs
                 UnityEngine.Object.Destroy(thumb);
 
             _thumbnailCache.Clear();
-            _pngNameCache.Clear();
+            _pngNameCache = null;
         }
 
         public static bool CustomThumbnailAvailable(ItemInfo itemInfo)
         {
-            return _pngNameCache.ContainsKey(itemInfo.CacheId);
+            return _pngNameCache != null && _pngNameCache.ContainsKey(itemInfo.CacheId);
         }
     }
 }
