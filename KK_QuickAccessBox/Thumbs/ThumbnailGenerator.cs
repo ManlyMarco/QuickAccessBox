@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using alphaShot;
-using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using Illusion.Extensions;
@@ -23,8 +22,8 @@ namespace KK_QuickAccessBox.Thumbs
             Texture2D thumbBackground;
             try
             {
-                if (manualMode && Chainloader.Plugins.Where(x => x != null).Select(MetadataHelper.GetMetadata).All(x => x.GUID != "KK_OrthographicCamera"))
-                    throw new ArgumentException("Manual mode needs the KK_OrthographicCamera plugin to work");
+                if (manualMode && !Chainloader.PluginInfos.ContainsKey("KK_OrthographicCamera"))
+                    throw new ArgumentException("Manual mode needs the OrthographicCamera plugin to work");
 
                 if (itemList == null) throw new ArgumentNullException(nameof(itemList));
                 if (outputDirectory == null) throw new ArgumentNullException(nameof(outputDirectory));
@@ -143,7 +142,8 @@ namespace KK_QuickAccessBox.Thumbs
 
                     var result = alphaShot.Capture(64, 64, 1, true);
 
-                    File.WriteAllBytes(thumbPath, result);
+                    try { File.WriteAllBytes(thumbPath, result); }
+                    catch (SystemException ex) { QuickAccessBox.Logger.Log(LogLevel.Message | LogLevel.Error, "Failed to write thumbnail file - " + ex.Message); }
                 }
                 else
                 {
