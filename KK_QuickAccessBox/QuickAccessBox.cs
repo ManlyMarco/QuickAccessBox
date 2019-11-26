@@ -22,7 +22,7 @@ namespace KK_QuickAccessBox
     public class QuickAccessBox : BaseUnityPlugin
     {
         public const string GUID = "KK_QuickAccessBox";
-        internal const string Version = "2.0";
+        internal const string Version = "2.1";
         internal new static ManualLogSource Logger;
 
         private InterfaceManager _interface;
