@@ -105,8 +105,7 @@ namespace KK_QuickAccessBox
         private IEnumerator LoadingCo()
         {
             yield return new WaitUntil(() => StudioAPI.StudioLoaded);
-
-            // Wait for DTL to finish loading translations before starting the thread to avoid accessing TL dicts as they get populated
+            // Wait until fully loaded
             yield return null;
 
             ItemInfoLoader.StartLoadItemsThread(result => ItemList = result);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BepInEx;
 using XUnity.AutoTranslator.Plugin.Core;
 
 namespace KK_QuickAccessBox
@@ -36,9 +37,7 @@ namespace KK_QuickAccessBox
             if (_translatorCallback != null)
             {
                 // XUA needs to run on the main thread
-#pragma warning disable 618
-                KKAPI.KoikatuAPI.SynchronizedInvoke(() => _translatorCallback(input, updateAction));
-#pragma warning restore 618
+                ThreadingHelper.Instance.StartSyncInvoke(() => _translatorCallback(input, updateAction));
             }
         }
     }
