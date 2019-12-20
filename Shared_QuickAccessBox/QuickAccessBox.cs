@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using BepInEx;
 using BepInEx.Logging;
@@ -11,6 +12,7 @@ using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
 using UnityEngine;
 using BepInEx.Configuration;
+using MessagePack;
 using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
 
 namespace KK_QuickAccessBox
@@ -26,6 +28,7 @@ namespace KK_QuickAccessBox
 
         private InterfaceManager _interface;
 
+        private const string DESCRIPTION_RECENTS = "How many items that were recently opened by using the search box should be stored. Recent items are displayed when search box is empty, ordered by date of last use. Set to 0 to disable the feature.";
         private const string DESCRIPTION_DEVINFO = "The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.\nRequires studio restart to take effect.";
         private const string DESCRIPTION_THUMBGENKEY = "Automatically generate thumbnails for all items. Hold the Esc key to abort.\n\n" +
                                                        "Items with existing thumbnails in zipmods are skipped. Items with thumbnails already present in the output folder are skipped too. " +
@@ -41,6 +44,7 @@ namespace KK_QuickAccessBox
         public static ConfigEntry<string> ThumbStoreLocation { get; private set; }
         public static ConfigEntry<bool> ThumbDarkBackground { get; private set; }
         public static ConfigEntry<bool> ThumbManualAdjust { get; private set; }
+        public static ConfigEntry<int> RecentsCount { get; private set; }
 
         [Browsable(false)]
         public bool ShowBox
@@ -59,7 +63,7 @@ namespace KK_QuickAccessBox
             Logger = base.Logger;
 
             KeyShowBox = Config.Bind("General", "Show quick access box", new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl), "Toggles the item search box on and off.");
-
+            RecentsCount = Config.Bind("General", "Number of recents to remember", 20, new ConfigDescription(DESCRIPTION_RECENTS, new AcceptableValueRange<int>(0, 200)));
             SearchDeveloperInfo = Config.Bind("General", "Search developer information", false, new ConfigDescription(DESCRIPTION_DEVINFO, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
 
             ThumbGenerateKey = Config.Bind("Thumbnail generation", "Generate item thumbnails", new KeyboardShortcut(), new ConfigDescription(DESCRIPTION_THUMBGENKEY, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
@@ -75,6 +79,7 @@ namespace KK_QuickAccessBox
             _interface?.Dispose();
             ThumbnailLoader.Dispose();
             ItemInfoLoader.SaveTranslationCache(ItemList);
+            SaveRecents();
         }
 
         private void Update()
@@ -111,6 +116,7 @@ namespace KK_QuickAccessBox
 
             _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
             _interface.Visible = false;
+            LoadRecents();
 
             ThumbnailLoader.LoadAssetBundle();
         }
@@ -119,11 +125,17 @@ namespace KK_QuickAccessBox
         {
             Logger.LogDebug($"Creating item {info.FullName} - GroupNo:{info.GroupNo} CategoryNo:{info.CategoryNo} ItemNo:{info.ItemNo} CacheId:{info.CacheId}");
             info.AddItem();
+
+            _recents[info.CacheId] = DateTime.UtcNow;
+            TrimRecents();
         }
 
         private void OnSearchStringChanged(string newStr)
         {
-            _interface.SetList(string.IsNullOrEmpty(newStr) ? null : ItemList.Where(info => ItemMatchesSearch(info, newStr)));
+            // If no search string, show recents if any
+            _interface.SetList(!string.IsNullOrEmpty(newStr)
+                ? ItemList.Where(info => ItemMatchesSearch(info, newStr))
+                : _recents.OrderByDescending(x => x.Value).Select(x => ItemList.FirstOrDefault(i => i.CacheId == x.Key)).Where(x => x != null));
         }
 
         private static bool ItemMatchesSearch(ItemInfo item, string searchStr)
@@ -134,5 +146,47 @@ namespace KK_QuickAccessBox
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             return splitSearchStr.All(s => item.SearchString.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
         }
+
+        #region Recents
+
+        private static readonly string _recentsPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.recents");
+        private Dictionary<string, DateTime> _recents = new Dictionary<string, DateTime>();
+
+        private void SaveRecents()
+        {
+            try
+            {
+                File.WriteAllBytes(_recentsPath, MessagePackSerializer.Serialize(_recents));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning("Failed to save recents: " + ex.Message);
+            }
+        }
+
+        private void LoadRecents()
+        {
+            if (File.Exists(_recentsPath))
+            {
+                try
+                {
+                    var bytes = File.ReadAllBytes(_recentsPath);
+                    _recents = MessagePackSerializer.Deserialize<Dictionary<string, DateTime>>(bytes);
+                    TrimRecents();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning("Failed to read recents: " + ex.Message);
+                }
+            }
+        }
+
+        private void TrimRecents()
+        {
+            foreach (var toRemove in _recents.OrderByDescending(x => x.Value).Skip(RecentsCount.Value))
+                _recents.Remove(toRemove.Key);
+        }
+
+        #endregion
     }
 }
