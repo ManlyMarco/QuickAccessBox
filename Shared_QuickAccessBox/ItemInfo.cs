@@ -20,14 +20,22 @@ namespace KK_QuickAccessBox
 
             if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
+#if KK
             DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+#elif AI
+            DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+#endif
             CacheId = MakeCacheId(groupNo, categoryNo, item);
 
             if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number");
             var groupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
 
             if (!groupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
+#if KK
             var origCategoryName = groupInfo.dicCategory[CategoryNo];
+#elif AI
+            var origCategoryName = groupInfo.dicCategory[CategoryNo].name;
+#endif
             _origFullname = groupInfo.name + "/" + origCategoryName + "/" + item.name;
 
             ItemInfoLoader.TranslationCache.TryGetValue(CacheId, out var cachedTranslations);
@@ -112,12 +120,17 @@ namespace KK_QuickAccessBox
         /// </summary>
         internal string DeveloperSearchString { get; }
 
-		public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
+        public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
         /// <summary>
         /// Item is a sound effect and should get the SFX thumbnail
         /// </summary>
-        public bool IsSFX => GroupNo == 00000011;
+        public bool IsSFX =>
+#if KK
+            GroupNo == 00000011;
+#elif AI
+            GroupNo == 00000009;
+#endif
 
         public string CacheId { get; }
 

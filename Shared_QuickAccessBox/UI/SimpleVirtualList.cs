@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using StrayTech;
+using IllusionUtility.GetUtility;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -52,10 +52,10 @@ namespace KK_QuickAccessBox.UI
             EntryTemplate.SetActive(false);
 
             var listEntry = EntryTemplate.AddComponent<SimpleListEntry>();
-            listEntry.Icon = listEntry.transform.FindChildDeep("Icon")?.GetComponent<Image>() ?? throw new ArgumentException("Couldn't find Icon");
-            listEntry.TextGroup = listEntry.transform.FindChildDeep("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
-            listEntry.TextCategory = listEntry.transform.FindChildDeep("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
-            listEntry.TextItem = listEntry.transform.FindChildDeep("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
+            listEntry.Icon = listEntry.transform.FindLoop("Icon")?.GetComponent<Image>() ?? throw new ArgumentException("Couldn't find Icon");
+            listEntry.TextGroup = listEntry.transform.FindLoop("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
+            listEntry.TextCategory = listEntry.transform.FindLoop("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
+            listEntry.TextItem = listEntry.transform.FindLoop("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
             listEntry.SetItem(null, true);
 
             listEntry.TextGroup.MarkXuaIgnored();
@@ -110,8 +110,8 @@ namespace KK_QuickAccessBox.UI
             _dirty = false;
 
             // Store selected item to preserve selection when moving the list with mouse
-            var selectedItem = EventSystem.current != null 
-                ? _cachedEntries.Find(x => x.gameObject == EventSystem.current.currentSelectedGameObject)?.CurrentItem 
+            var selectedItem = EventSystem.current != null
+                ? _cachedEntries.Find(x => x.gameObject == EventSystem.current.currentSelectedGameObject)?.CurrentItem
                 : null;
 
             var count = 0;
@@ -142,7 +142,7 @@ namespace KK_QuickAccessBox.UI
             // Needed after changing _verticalLayoutGroup.padding since it doesn't make the object dirty
             LayoutRebuilder.MarkLayoutForRebuild(_verticalLayoutGroup.GetComponent<RectTransform>());
 
-            //Logger.Log(LogLevel.Info, $"items={_items.Count} scroll={scrollPosition} topItems={topOffsetItems} top={_verticalLayoutGroup.padding.top} bottom={_verticalLayoutGroup.padding.bottom}");
+            //Logger.LogInfo( $"items={_items.Count} scroll={scrollPosition} topItems={topOffsetItems} top={_verticalLayoutGroup.padding.top} bottom={_verticalLayoutGroup.padding.bottom}");
         }
 
         private void RecalculateOffsets(int itemsAboveViewRect)

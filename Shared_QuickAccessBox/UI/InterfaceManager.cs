@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using IllusionUtility.GetUtility;
 using KKAPI.Utilities;
-using StrayTech;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -31,18 +31,18 @@ namespace KK_QuickAccessBox.UI
         {
             _canvasRoot = CreateCanvas();
 
-            _inputField = _canvasRoot.transform.FindChildDeep("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
+            _inputField = _canvasRoot.transform.FindLoop("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
             _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
             _inputField.textComponent.MarkXuaIgnored();
 
-            _textHelpObj = _canvasRoot.transform.FindChildDeep("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
-            _textEmptyObj = _canvasRoot.transform.FindChildDeep("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
+            _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
+            _textEmptyObj = _canvasRoot.transform.FindLoop("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
             _textEmptyObj.SetActive(false);
 
             var scrollRect = _canvasRoot.GetComponentInChildren<ScrollRect>();
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
             _simpleVirtualList.ScrollRect = scrollRect;
-            _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindChildDeep("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
+            _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindLoop("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
             _simpleVirtualList.OnClicked = onClicked;
             _simpleVirtualList.Initialize();
 
@@ -140,7 +140,11 @@ namespace KK_QuickAccessBox.UI
             btn.onClick.ActuallyRemoveAllListeners();
             btn.onClick.AddListener(() => Visible = !Visible);
 
+#if KK
             _searchMenuButton.GetComponentInChildren<Text>().text = "Search...";
+#elif AI
+            _searchMenuButton.GetComponentInChildren<TMPro.TMP_Text>().text = "Search...";
+#endif
         }
 
         private void CreateSearchToolbarButton()

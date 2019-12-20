@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -85,6 +86,20 @@ namespace KK_QuickAccessBox
             if (sb.Length == 0)
                 return "_";
             return changed ? sb.ToString() : text;
+        }
+
+        public static Bounds? CalculateBounds(IEnumerable<Transform> targets)
+        {
+            Bounds? b = null;
+            foreach (var renderer in targets.SelectMany(x => x.GetComponentsInChildren<Renderer>()))
+            {
+                if (b == null)
+                    b = renderer.bounds;
+                else
+                    b.Value.Encapsulate(renderer.bounds);
+            }
+
+            return b;
         }
     }
 }

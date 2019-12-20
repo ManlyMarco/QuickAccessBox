@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>cf7c11e6-ced8-4bf3-9885-3f127e83389b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Shared_QuickAccessBox</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)UI\toolbar-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ConfigurationManagerAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ItemInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ItemInfoLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickAccessBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Thumbs\ThumbnailCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TranslationCacheEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TranslationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\InterfaceManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\SimpleListEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\SimpleVirtualList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)UI\quick_access_box_interface" />
+  </ItemGroup>
+</Project>

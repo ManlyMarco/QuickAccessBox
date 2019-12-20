@@ -15,7 +15,7 @@ namespace KK_QuickAccessBox.Thumbs
 {
     internal static class ThumbnailGenerator
     {
-        private static readonly HashSet<int> _shootFromFront = new HashSet<int> { 0, 9, 10, 501 };
+        private static readonly HashSet<int> _shootFromFrontGroups = new HashSet<int> { 0, 9, 10, 501 };
 
         public static IEnumerator MakeThumbnail(IEnumerable<ItemInfo> itemList, string outputDirectory, bool manualMode, bool dark)
         {
@@ -87,7 +87,7 @@ namespace KK_QuickAccessBox.Thumbs
                 yield return null;
 
                 var targets = root.Children();
-                var b = CalculateBounds(targets);
+                var b = Utils.CalculateBounds(targets);
 
                 if (b != null)
                 {
@@ -97,10 +97,8 @@ namespace KK_QuickAccessBox.Thumbs
 
                     var objectSize = bounds.size.magnitude;
                     var targetObj = targets.First();
-
-                    //var tweak = _shootFromFront.FirstOrDefault(x => x.Group == itemInfo.GroupNo);
-                    //if (tweak != null && tweak.Categories.Contains(itemInfo.CategoryNo))
-                    if (_shootFromFront.Contains(itemInfo.GroupNo))
+                    
+                    if (_shootFromFrontGroups.Contains(itemInfo.GroupNo))
                     {
                         // Look at the object from front, better for flat effects
                         // Move the camera a long way away from the objects to avoid clipping
@@ -165,20 +163,6 @@ namespace KK_QuickAccessBox.Thumbs
             Object.Destroy(copyPlane.gameObject);
 
             QuickAccessBox.Logger.Log(LogLevel.Message, "Finished taking thumbnails!");
-        }
-
-        private static Bounds? CalculateBounds(IEnumerable<Transform> targets)
-        {
-            Bounds? b = null;
-            foreach (var renderer in targets.SelectMany(x => x.GetComponentsInChildren<Renderer>()))
-            {
-                if (b == null)
-                    b = renderer.bounds;
-                else
-                    b.Value.Encapsulate(renderer.bounds);
-            }
-
-            return b;
         }
 
         private static void RemoveAllItems()
