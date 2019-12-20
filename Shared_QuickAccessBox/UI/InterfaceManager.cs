@@ -36,6 +36,11 @@ namespace KK_QuickAccessBox.UI
             _inputField.textComponent.MarkXuaIgnored();
 
             _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
+#if AI
+            var helpText = _textHelpObj.GetComponentInChildren<Text>();
+            // Get rid of the "use keyboard to navigate" part that doesn't work in AI
+            helpText.text = helpText.text.Substring(0, helpText.text.LastIndexOf('-'));
+#endif
             _textEmptyObj = _canvasRoot.transform.FindLoop("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
             _textEmptyObj.SetActive(false);
 
@@ -79,16 +84,15 @@ namespace KK_QuickAccessBox.UI
         public void SetList(IEnumerable<ItemInfo> items)
         {
             var itemInfos = items?.ToList();
-
-            _simpleVirtualList.SetList(itemInfos);
-
-            if (itemInfos == null)
+            if (itemInfos == null || itemInfos.Count == 0)
             {
+                _simpleVirtualList.SetList(null);
                 _textHelpObj.SetActive(true);
                 _textEmptyObj.SetActive(false);
             }
             else
             {
+                _simpleVirtualList.SetList(itemInfos);
                 _textHelpObj.SetActive(false);
                 _textEmptyObj.SetActive(!itemInfos.Any());
             }
@@ -106,7 +110,12 @@ namespace KK_QuickAccessBox.UI
 
                 // Focus search box right after showing the window
                 if (value)
+                {
                     SelectSearchBox();
+
+                    if(string.IsNullOrEmpty(_inputField.text))
+                        _inputField.onValueChanged.Invoke("");
+                }
 
                 _toolbarIcon.color = value ? Color.green : Color.white;
             }
