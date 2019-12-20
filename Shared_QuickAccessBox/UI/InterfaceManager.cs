@@ -105,7 +105,7 @@ namespace KK_QuickAccessBox.UI
                 _canvasRoot.SetActive(value);
 
                 // Focus search box right after showing the window
-                if (value && !_canvasRoot.activeSelf)
+                if (value)
                     SelectSearchBox();
 
                 _toolbarIcon.color = value ? Color.green : Color.white;
