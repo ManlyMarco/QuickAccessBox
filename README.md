@@ -41,7 +41,7 @@ The plugin contains a thumbnail generator that makes it easy and fast to create 
 4. Close the plugin settings window and reset current studio scene.
 5. Press the "Generate item thumbnails" hotkey. You should see the thumbnails getting generated inside your folder.
 6. If there are any thumbnails that need to be adjusted, check the "Manual generation" list below.
-7. Place the thumbnails inside your mod's .zipmod file. Put them inside an "abdata/studio_thumbs" folder as loose .png files without changing their names.
+7. Place the thumbnails inside your mod's .zipmod file. Put them inside an "abdata/studio_thumbnails" folder as loose .png files *without changing their names*.
 8. Restart the game with the newly updated .zipmod file and see if your new thumbnails appear in the quick access list.
 
 ### Manual generation
@@ -56,7 +56,7 @@ Sometimes the generated thumbnails will have wrong orientation or framing. In th
 ### Notes
 - You can abort thumbnail generation at any time by pressing and holding the Esc key.
 - Resulting thumbnail images (64x64 png files) should be included in your .zipmod file inside the "abdata" folder. The path to the file doesn't matter as long as it is inside abdata. It's recommended to put it in a subfolder instead of directly inside the abdata folder.
-- You can override thumbnails from other .zipmod files by making the path to your thumbnail longer (longer folder names, do not change the .png file name).
+- You can override thumbnails from other .zipmod files by making the path to your thumbnail longer (use longer or more folder names, do not change the .png file name).
 - The generated .png thumbnails have names that represent the item's Group, Category and Item Name. Do not change thumbnail names or they will not work. If you change any of these you will have to re-take the thumbnail to get the new file name.
 - If your items are very bright you can use the "Dark background" setting. Do not overuse this setting to keep consistency.
 
