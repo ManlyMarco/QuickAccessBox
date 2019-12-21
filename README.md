@@ -1,5 +1,5 @@
-# KK_QuickAccessBox
-Plugin for CharaStudio (part of Koikatu / Koikatsu Party) that adds a quick access list for searching through all of the items, both stock and modded. The plugin comes with thumbnails for the items, unlike the original studio interface. It's also instant and has low resource footprint, no need to wait for menus to open.
+# QuickAccessBox
+Plugin for Koikatu / Koikatsu Party and AI-Shoujo / AI-Girl studio that adds a quick access list for searching through all of the items, both stock and modded. The plugin comes with thumbnails for the items, unlike the original studio interface. It's also instant and has low resource footprint, no need to wait for menus to open.
 
 ![preview](https://user-images.githubusercontent.com/39247311/61983223-d6fdf680-afff-11e9-8a44-95509f681ce0.png)
 
@@ -10,16 +10,15 @@ Thanks to AutoTranslator developer for implementing a plugin interface, essu and
 You can support development of this plugin (and many other) on the [patreon page](https://www.patreon.com/ManlyMarco).
 
 ## Installation
-1. Make sure your game is updated and has at least [BepInEx v5.0](https://github.com/BepInEx/BepInEx), [BepisPlugins r11.2.1](https://github.com/bbepis/BepisPlugins) and [KKAPI v1.4](https://github.com/ManlyMarco/KKAPI) installed.
-2. To get proper translations for the items, get the latest [bbepis/KoikatsuTranslation
-](https://github.com/bbepis/KoikatsuTranslation) (was included since HF Patch v2.6) and [DeathWeasel1337/Koikatsu-Plugin-Translations](https://github.com/DeathWeasel1337/Koikatsu-Plugin-Translations). This is necessary to be able to search for the items in English.
+1. Make sure your game is updated and has at least [BepInEx v5.0](https://github.com/BepInEx/BepInEx), [BepisPlugins r13.0.3](https://github.com/bbepis/BepisPlugins) and [KKAPI v1.4](https://github.com/ManlyMarco/KKAPI) installed.
+2. To get proper translations for the items, get the latest translations for your game. This is necessary to be able to search for the items in English.
 3. Install [XUnity.AutoTranslator](https://github.com/bbepis/XUnity.AutoTranslator) v3.7.0 or higher to fill in any missing translations.
 4. Download the latest release from [releases](/../../releases).
 5. Extract contents of the archive into your game's directory (the .dll file should end up inside your BepInEx/plugins folder).
-6. Start CharaStudio.exe. Once fully loaded in try pressing Ctrl+Space combination and the box should appear. There also should be a "Search" button at the middle left edge of the screen.
+6. Start studio. Once fully loaded in try pressing Ctrl+Space combination and the box should appear. There also should be a "Find" button near the left edge of the screen.
 
 ## FAQ
-**Q: I don't have the studio (CharaStudio.exe)**
+**Q: I don't have the studio in Koikatu / Koikatsu Party (CharaStudio.exe)**
 
 A: If you dont have studio with your Koikatu / Koikatsu Party you can get it by installing the latest [HF Patch](https://github.com/ManlyMarco/KK-HF_Patch).
 
@@ -45,7 +44,7 @@ The plugin contains a thumbnail generator that makes it easy and fast to create 
 8. Restart the game with the newly updated .zipmod file and see if your new thumbnails appear in the quick access list.
 
 ### Manual generation
-Sometimes the generated thumbnails will have wrong orientation or framing. In that case it's necessary to adjust the camera manually. To be able to properly adjust the camera you need to download the [KK_OrthographicCamera](https://github.com/ManlyMarco/Koikatu-Gameplay-Mod) plugin.
+Sometimes the generated thumbnails will have wrong orientation or framing. In that case it's necessary to adjust the camera manually. To be able to properly adjust the camera you need to download the [OrthographicCamera](https://github.com/ManlyMarco/Koikatu-Gameplay-Mod) plugin.
 
 1. In plugin settings turn on "Manual mode - adjust by hand".
 2. Remove the bad thumbnail files from your folder.
