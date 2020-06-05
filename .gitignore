@@ -335,4 +335,4 @@ ASALocalRun/
 /Unity_project/Library
 /Unity_project/Temp
 /Unity_project/Assets/Thumbnails
-/Thumbnails
+/Thumbnails/*/abdata
