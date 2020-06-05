@@ -18,17 +18,17 @@ You can support development of this plugin (and many other) on the [patreon page
 6. Start studio. Once fully loaded in try pressing Ctrl+Space combination and the box should appear. There also should be a "Find" button near the left edge of the screen.
 
 ## FAQ
-**Q: I don't have the studio in Koikatu / Koikatsu Party (CharaStudio.exe)**
+**Q: I don't have the studio in Koikatsu or AI-Shoujo**
 
-A: If you dont have studio with your Koikatu / Koikatsu Party you can get it by installing the latest [HF Patch](https://github.com/ManlyMarco/KK-HF_Patch).
+A: If you dont have studio you can get it by installing the latest HF Patch for your game.
 
 **Q: The box doesn't appear even though I'm pressing the key combination?**
 
-A: If there is a message in top left corner telling you to wait, wait. If there is no message, go to plugin settings (F1) and search for "quick". If you see the keybind, change it to something else. If you can't see any settings related to this plugin then check your koikatu_data\output_log.txt for errors as usual.
+A: If there is a message in top left corner telling you to wait, wait. If there is no message, go to plugin settings (F1) and search for "quick". If you see the keybind, change it to something else. If you can't see any settings related to this plugin then check your output_log.txt for errors as usual. There should also be a new "Search" button at the left side of the studio screen.
 
 **Q: I updated my translations but the search box still uses the old translations?**
 
-A: Close the game and remove the BepInEx/KK_QuickAccessBox.cache file.
+A: Close the game and remove the BepInEx/cache/KK_QuickAccessBox.cache file.
 
 ## How to add thumbnails for your items
 The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings.
