@@ -35,19 +35,19 @@ namespace KK_QuickAccessBox.UI
             _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
             _inputField.textComponent.MarkXuaIgnored();
 
-            _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp") ?? throw new ArgumentNullException(nameof(_textHelpObj));
-#if AI
+            _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp").gameObject ?? throw new ArgumentNullException(nameof(_textHelpObj));
+#if AI || HS2
             var helpText = _textHelpObj.GetComponentInChildren<Text>();
             // Get rid of the "use keyboard to navigate" part that doesn't work in AI
             helpText.text = helpText.text.Substring(0, helpText.text.LastIndexOf('-'));
 #endif
-            _textEmptyObj = _canvasRoot.transform.FindLoop("TextEmpty") ?? throw new ArgumentNullException(nameof(_textEmptyObj));
+            _textEmptyObj = _canvasRoot.transform.FindLoop("TextEmpty").gameObject ?? throw new ArgumentNullException(nameof(_textEmptyObj));
             _textEmptyObj.SetActive(false);
 
             var scrollRect = _canvasRoot.GetComponentInChildren<ScrollRect>();
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
             _simpleVirtualList.ScrollRect = scrollRect;
-            _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindLoop("ListEntry") ?? throw new ArgumentException("Couldn't find ListEntry");
+            _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindLoop("ListEntry").gameObject ?? throw new ArgumentException("Couldn't find ListEntry");
             _simpleVirtualList.OnClicked = onClicked;
             _simpleVirtualList.Initialize();
 
@@ -151,7 +151,7 @@ namespace KK_QuickAccessBox.UI
 
 #if KK
             _searchMenuButton.GetComponentInChildren<Text>().text = "Search...";
-#elif AI
+#elif AI || HS2
             _searchMenuButton.GetComponentInChildren<TMPro.TMP_Text>().text = "Search...";
 #endif
         }

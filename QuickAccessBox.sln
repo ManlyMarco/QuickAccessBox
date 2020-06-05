@@ -9,9 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_QuickAccessBox", "AI_Qui
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_QuickAccessBox", "Shared_QuickAccessBox\Shared_QuickAccessBox.shproj", "{CF7C11E6-CED8-4BF3-9885-3F127E83389B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_QuickAccessBox", "HS2_QuickAccessBox\HS2_QuickAccessBox.csproj", "{53F32772-4312-4FE1-BE0D-2BBF00FDF903}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{cf7c11e6-ced8-4bf3-9885-3f127e83389b}*SharedItemsImports = 13
 	EndGlobalSection
@@ -28,6 +31,10 @@ Global
 		{53899808-1333-4671-B0BE-0338CC0781B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53899808-1333-4671-B0BE-0338CC0781B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53899808-1333-4671-B0BE-0338CC0781B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53F32772-4312-4FE1-BE0D-2BBF00FDF903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53F32772-4312-4FE1-BE0D-2BBF00FDF903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53F32772-4312-4FE1-BE0D-2BBF00FDF903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53F32772-4312-4FE1-BE0D-2BBF00FDF903}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

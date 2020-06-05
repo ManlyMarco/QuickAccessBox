@@ -22,7 +22,7 @@ namespace KK_QuickAccessBox
 
 #if KK
             DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
-#elif AI
+#elif AI || HS2
             DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 #endif
             CacheId = MakeCacheId(groupNo, categoryNo, item);
@@ -33,7 +33,7 @@ namespace KK_QuickAccessBox
             if (!groupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
 #if KK
             var origCategoryName = groupInfo.dicCategory[CategoryNo];
-#elif AI
+#elif AI || HS2
             var origCategoryName = groupInfo.dicCategory[CategoryNo].name;
 #endif
             _origFullname = groupInfo.name + "/" + origCategoryName + "/" + item.name;
@@ -128,7 +128,7 @@ namespace KK_QuickAccessBox
         public bool IsSFX =>
 #if KK
             GroupNo == 00000011;
-#elif AI
+#elif AI || HS2
             GroupNo == 00000009;
 #endif
 
