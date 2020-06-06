@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<manifest schema-ver="1">
+	<guid>AI_QuickAccessBox.BasicThumbs</guid>
+	<name>Basic thumbnail pack for QuickAccessBox for AIS and HS2</name>
+	<version>2.2.1</version>
+	<author>ManlyMarco</author>
+	<description>Contains tumbnails for stock studio items and mods released up to date</description>
+	<website>https://github.com/ManlyMarco/QuickAccessBox</website>
+</manifest>

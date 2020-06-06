@@ -95,6 +95,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>md "$(SolutionDir)bin\mods\"
-copy "$(SolutionDir)Thumbnails\KK\KK_QuickAccessBox_BasicThumbs.zipmod " "$(SolutionDir)bin\mods\"</PostBuildEvent>
+copy "$(SolutionDir)Thumbnails\KK\KK_QuickAccessBox_BasicThumbs.zipmod " "$(SolutionDir)bin\mods\KK_QuickAccessBox_BasicThumbs.zipmod"</PostBuildEvent>
   </PropertyGroup>
 </Project>
