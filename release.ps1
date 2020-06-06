@@ -19,7 +19,7 @@ function CreateZip ($element)
     
     $ver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Get-ChildItem -Path ($copy + "\*.dll") -Recurse -Force)[0]).FileVersion.ToString()
     
-    Compress-Archive -Path $copy -Force -CompressionLevel "Optimal" -DestinationPath ($dir + "out\" + $element + "QuickAccessBox_" + $ver + ".zip")
+    Compress-Archive -Path ($copy + "*") -Force -CompressionLevel "Optimal" -DestinationPath ($dir + "out\" + $element + "QuickAccessBox_" + $ver + ".zip")
 
     Remove-Item -Force -Path ($copy) -Recurse
 }
