@@ -22,7 +22,7 @@ namespace KK_QuickAccessBox
     [BepInDependency(Sideloader.Sideloader.GUID, "11.2.1")]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
-        public const string Version = "2.2";
+        public const string Version = "2.2.1";
 
         internal static new ManualLogSource Logger;
 
