@@ -143,8 +143,9 @@ namespace KK_QuickAccessBox
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (searchStr == null) throw new ArgumentNullException(nameof(searchStr));
 
+            var matchString = item.SearchString;
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            return splitSearchStr.All(s => item.SearchString.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0);
+            return splitSearchStr.All(s => matchString.IndexOf(s, StringComparison.Ordinal) >= 0);
         }
 
         #region Recents
