@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using KK_QuickAccessBox.Thumbs;
 using Studio;
 using UnityEngine;
@@ -21,9 +24,9 @@ namespace KK_QuickAccessBox
             if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
 #if KK
-            DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+            DeveloperSearchStrings = new[] { item.childRoot, item.bundlePath, item.fileName, item.manifest, GroupNo.ToString(), CategoryNo.ToString(), ItemNo.ToString() };
 #elif AI || HS2
-            DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+            DeveloperSearchStrings = new[] { item.bundlePath, item.fileName, item.manifest, GroupNo.ToString(), CategoryNo.ToString(), ItemNo.ToString() };
 #endif
             CacheId = MakeCacheId(groupNo, categoryNo, item);
 
@@ -113,12 +116,12 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// String to search against
         /// </summary>
-        internal string SearchString { get; private set; }
+        internal string[] SearchStrings { get; private set; }
 
         /// <summary>
         /// String with developer info, used to build SearchString
         /// </summary>
-        internal string DeveloperSearchString { get; }
+        internal string[] DeveloperSearchStrings { get; }
 
         public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
@@ -153,15 +156,15 @@ namespace KK_QuickAccessBox
         {
             FullName = GroupName + "/" + CategoryName + "/" + ItemName;
 
-            var searchStr = FullName;
+            var strings = new List<string> { GroupName, CategoryName, ItemName };
 
             if (!_origFullname.Equals(FullName, StringComparison.OrdinalIgnoreCase))
-                searchStr = $"{searchStr}\v{_origFullname}";
+                strings.AddRange(_origFullname.Split('/'));
 
             if (QuickAccessBox.SearchDeveloperInfo.Value)
-                searchStr = $"{searchStr}\v{DeveloperSearchString}";
+                strings.AddRange(DeveloperSearchStrings);
 
-            SearchString = searchStr.ToLowerInvariant();
+            SearchStrings = strings.Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
         }
 
         public static string MakeCacheId(int groupNo, int categoryNo, Info.ItemLoadInfo item)

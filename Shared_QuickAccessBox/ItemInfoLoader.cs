@@ -63,7 +63,7 @@ namespace KK_QuickAccessBox
                 }
             }
 
-            results.Sort((x, y) => String.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
+            results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
 
             sw.Stop();
             QuickAccessBox.Logger.LogDebug($"Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
