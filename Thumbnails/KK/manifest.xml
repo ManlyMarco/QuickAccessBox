@@ -2,7 +2,7 @@
 <manifest schema-ver="1">
 	<guid>KK_QuickAccessBox.BasicThumbs</guid>
 	<name>Basic thumbnail pack for KK_QuickAccessBox</name>
-	<version>2.2.2</version>
+	<version>2.2.2.2</version>
 	<author>ManlyMarco</author>
 	<description>Contains tumbnails for stock studio items and mods released up to date</description>
 	<website>https://github.com/ManlyMarco/KK_QuickAccessBox</website>
