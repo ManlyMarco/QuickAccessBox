@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BepInEx;
@@ -21,6 +22,7 @@ namespace KK_QuickAccessBox
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     [BepInDependency(Sideloader.Sideloader.GUID, Sideloader.Sideloader.Version)]
     [BepInDependency("KK_OrthographicCamera", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
         public const string Version = "2.2.1";
@@ -57,7 +59,7 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// List of all studio items that can be added into the game
         /// </summary>
-        public IEnumerable<ItemInfo> ItemList { get; private set; }
+        public IEnumerable<ItemInfo> ItemList => ItemInfoLoader.ItemList;
 
         private void Start()
         {
@@ -77,10 +79,10 @@ namespace KK_QuickAccessBox
 
         private void OnDestroy()
         {
-            _interface?.Dispose();
-            ThumbnailLoader.Dispose();
-            ItemInfoLoader.SaveTranslationCache(ItemList);
-            SaveRecents();
+            //_interface?.Dispose();
+            //ThumbnailLoader.Dispose();
+            ItemInfoLoader.Dispose();
+            //SaveRecents();
         }
 
         private void Update()
@@ -113,7 +115,7 @@ namespace KK_QuickAccessBox
             // Wait until fully loaded
             yield return null;
 
-            ItemInfoLoader.StartLoadItemsThread(result => ItemList = result);
+            ItemInfoLoader.LoadItems();
 
             _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
             _interface.Visible = false;
@@ -129,6 +131,7 @@ namespace KK_QuickAccessBox
 
             _recents[info.CacheId] = DateTime.UtcNow;
             TrimRecents();
+            SaveRecents();
         }
 
         private void OnSearchStringChanged(string newStr)

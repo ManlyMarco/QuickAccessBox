@@ -2,16 +2,22 @@
 using System.IO;
 using System.Linq;
 using KK_QuickAccessBox.Thumbs;
+using MessagePack;
 using Sideloader.AutoResolver;
 using Studio;
 using UnityEngine;
 
 namespace KK_QuickAccessBox
 {
+    [MessagePackObject]
     public sealed class ItemInfo
     {
         private readonly bool _initFinished;
-        private readonly string _origFullname;
+
+        private ItemInfo()
+        {
+            _initFinished = true;
+        }
 
         public ItemInfo(int groupNo, int categoryNo, int itemNo, Info.ItemLoadInfo item = null)
         {
@@ -51,7 +57,7 @@ namespace KK_QuickAccessBox
 #elif AI || HS2
             var origCategoryName = groupInfo.dicCategory[CategoryNo].name;
 #endif
-            _origFullname = groupInfo.name + "/" + origCategoryName + "/" + item.name;
+            OriginalItemName = groupInfo.name + "/" + origCategoryName + "/" + item.name;
 
             ItemInfoLoader.TranslationCache.TryGetValue(CacheId, out var cachedTranslations);
             if (cachedTranslations != null)
@@ -93,53 +99,67 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
+        [Key(nameof(ItemName))]
         public string CategoryName { get; private set; }
 
         /// <summary>
         /// Under add/Item/Group
         /// </summary>
-        public int CategoryNo { get; }
+        [Key(nameof(ItemName))]
+        public int CategoryNo { get; private set; }
 
         /// <summary>
         /// Full translated (or original if not necessary/available) path of the item in the item tree
         /// </summary>
+        [Key(nameof(ItemName))]
         public string FullName { get; private set; }
 
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
+        [Key(nameof(ItemName))]
         public string GroupName { get; private set; }
 
         /// <summary>
         /// Top level under add/Item menu
         /// </summary>
-        public int GroupNo { get; }
+        [Key(nameof(ItemName))]
+        public int GroupNo { get; private set; }
 
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
+        [Key(nameof(ItemName))]
         public string ItemName { get; private set; }
+
+        [Key(nameof(OriginalItemName))]
+        private string OriginalItemName { get; set; }
 
         /// <summary>
         /// Index of the item in
         /// </summary>
-        public int ItemNo { get; }
+        [Key(nameof(ItemNo))]
+        public int ItemNo { get; private set; }
 
         /// <summary>
         /// String to search against
         /// </summary>
+        [Key(nameof(SearchString))]
         internal string SearchString { get; private set; }
 
         /// <summary>
         /// String with developer info, used to build SearchString
         /// </summary>
-        internal string DeveloperSearchString { get; }
+        [Key(nameof(DeveloperSearchString))]
+        internal string DeveloperSearchString { get; private set; }
 
+        [IgnoreMember]
         public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
         /// <summary>
         /// Item is a sound effect and should get the SFX thumbnail
         /// </summary>
+        [IgnoreMember]
         public bool IsSFX =>
 #if KK
             GroupNo == 00000011;
@@ -147,17 +167,20 @@ namespace KK_QuickAccessBox
             GroupNo == 00000009;
 #endif
 
-        public string CacheId { get; }
+        [Key(nameof(CacheId))]
+        public string CacheId { get; private set; }
 
         /// <summary>
         /// If this item is from a zipmod, GUID of the zipmod. Otherwise null.
         /// </summary>
-        public string GUID { get; }
+        [Key(nameof(GUID))]
+        public string GUID { get; private set; }
 
         /// <summary>
         /// If this item is from a zipmod, name of the .zipmod file. Otherwise null.
         /// </summary>
-        public string FileName { get; }
+        [Key(nameof(FileName))]
+        public string FileName { get; private set; }
 
         /// <summary>
         /// Spawn this item in studio
@@ -180,8 +203,8 @@ namespace KK_QuickAccessBox
 
             var searchStr = FullName;
 
-            if (!_origFullname.Equals(FullName, StringComparison.OrdinalIgnoreCase))
-                searchStr = $"{searchStr}\v{_origFullname}";
+            if (!OriginalItemName.Equals(FullName, StringComparison.OrdinalIgnoreCase))
+                searchStr = $"{searchStr}\v{OriginalItemName}";
 
             if (QuickAccessBox.SearchDeveloperInfo.Value)
                 searchStr = $"{searchStr}\v{DeveloperSearchString}";
@@ -198,12 +221,13 @@ namespace KK_QuickAccessBox
 
         public override int GetHashCode()
         {
-            return _origFullname.GetHashCode();
+            if (OriginalItemName == null) return 0;
+            return OriginalItemName.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ItemInfo i && i._origFullname == _origFullname;
+            return obj is ItemInfo i && i.OriginalItemName == OriginalItemName;
         }
     }
 }

@@ -30,15 +30,23 @@ namespace KK_QuickAccessBox
         public static void Translate(string input, Action<string> updateAction)
         {
             if (updateAction == null) throw new ArgumentNullException(nameof(updateAction));
-            
-            // Make sure there's a valid value set in case we need to wait
-            updateAction(input);
 
             if (_translatorCallback != null)
             {
-                // XUA needs to run on the main thread
-                ThreadingHelper.Instance.StartSyncInvoke(() => _translatorCallback(input, updateAction));
+                Console.WriteLine("hit");
+                var didFire = false;
+                _translatorCallback(input, s =>
+                {
+                    updateAction(s);
+                    didFire = true;
+                    ItemInfoLoader.TriggerCacheSave();
+                });
+                if (didFire) return;
             }
+
+            // Make sure there's a valid value set
+            updateAction(input);
+            ItemInfoLoader.TriggerCacheSave();
         }
     }
 }

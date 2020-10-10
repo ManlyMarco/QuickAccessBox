@@ -55,13 +55,13 @@ namespace KK_QuickAccessBox.UI
             CreateSearchToolbarButton();
         }
 
-        public void Dispose()
-        {
-            _simpleVirtualList.Clear();
-            Object.Destroy(_canvasRoot);
-            Object.Destroy(_searchMenuButton);
-            Object.Destroy(_searchToolbarButton);
-        }
+        //public void Dispose()
+        //{
+        //    _simpleVirtualList.Clear();
+        //    Object.Destroy(_canvasRoot);
+        //    Object.Destroy(_searchMenuButton);
+        //    Object.Destroy(_searchToolbarButton);
+        //}
 
         public void SelectSearchBox()
         {
