@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using KK_QuickAccessBox.Thumbs;
+using Sideloader.AutoResolver;
 using Studio;
 using UnityEngine;
 
@@ -25,6 +28,18 @@ namespace KK_QuickAccessBox
 #elif AI || HS2
             DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 #endif
+            var studioResolveInfo = UniversalAutoResolver.LoadedStudioResolutionInfo.FirstOrDefault(x => x.ResolveItem && x.Slot == itemNo);
+            if (studioResolveInfo != null)
+            {
+                GUID = studioResolveInfo.GUID;
+                DeveloperSearchString += "\v" + GUID;
+                if (Sideloader.Sideloader.ZipArchives.TryGetValue(studioResolveInfo.GUID, out var filename))
+                {
+                    FileName = Path.GetFileName(filename);
+                    DeveloperSearchString += "\v" + FileName;
+                }
+            }
+
             CacheId = MakeCacheId(groupNo, categoryNo, item);
 
             if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number");
@@ -133,6 +148,16 @@ namespace KK_QuickAccessBox
 #endif
 
         public string CacheId { get; }
+
+        /// <summary>
+        /// If this item is from a zipmod, GUID of the zipmod. Otherwise null.
+        /// </summary>
+        public string GUID { get; }
+
+        /// <summary>
+        /// If this item is from a zipmod, name of the .zipmod file. Otherwise null.
+        /// </summary>
+        public string FileName { get; }
 
         /// <summary>
         /// Spawn this item in studio
