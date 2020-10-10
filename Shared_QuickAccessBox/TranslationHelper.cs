@@ -33,7 +33,6 @@ namespace KK_QuickAccessBox
 
             if (_translatorCallback != null)
             {
-                Console.WriteLine("hit");
                 var didFire = false;
                 _translatorCallback(input, s =>
                 {
