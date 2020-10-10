@@ -124,7 +124,7 @@ namespace KK_QuickAccessBox
 
         private void OnListItemClicked(ItemInfo info)
         {
-            Logger.LogDebug($"Creating item {info.FullName} - GroupNo:{info.GroupNo} CategoryNo:{info.CategoryNo} ItemNo:{info.ItemNo} CacheId:{info.CacheId}");
+            Logger.LogDebug($"Creating item {info.FullName} - GUID:{info.GUID} GroupNo:{info.GroupNo} CategoryNo:{info.CategoryNo} ItemNo:{info.ItemNo} FileName:{info.FileName}");
             info.AddItem();
 
             _recents[info.CacheId] = DateTime.UtcNow;
