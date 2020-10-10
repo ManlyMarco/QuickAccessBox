@@ -18,8 +18,9 @@ using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
 namespace KK_QuickAccessBox
 {
     [BepInPlugin(GUID, GUID, Version)]
-    [BepInDependency(KoikatuAPI.GUID, "1.4")]
-    [BepInDependency(Sideloader.Sideloader.GUID, "11.2.1")]
+    [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
+    [BepInDependency(Sideloader.Sideloader.GUID, Sideloader.Sideloader.Version)]
+    [BepInDependency("KK_OrthographicCamera", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
         public const string Version = "2.2.1";
