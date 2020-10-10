@@ -4,10 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
+using System.Timers;
 using BepInEx;
+using ChaCustom;
 using MessagePack;
 using Studio;
+using UniRx;
+using UniRx.Triggers;
+using Timer = System.Timers.Timer;
 
 namespace KK_QuickAccessBox
 {
@@ -16,32 +20,55 @@ namespace KK_QuickAccessBox
         private static readonly string _cachePath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.cache");
 
         internal static Dictionary<string, TranslationCacheEntry> TranslationCache { get; private set; }
+        public static IEnumerable<ItemInfo> ItemList { get; private set; }
 
-        public static void StartLoadItemsThread(Action<List<ItemInfo>> onFinished)
+        public static void TriggerCacheSave()
+        {
+            _cacheSaveTimer.Stop();
+            _cacheSaveTimer.Start();
+        }
+
+        public static void Dispose()
+        {
+            if(_cacheSaveTimer.Enabled)
+                SaveTranslationCache();
+
+            _cacheSaveTimer.Dispose();
+        }
+
+        private static Timer _cacheSaveTimer;
+        private static void SetupCache()
+        {
+            LoadTranslationCache();
+
+            void OnSave(object sender, ElapsedEventArgs args)
+            {
+                _cacheSaveTimer.Stop();
+                SaveTranslationCache();
+            }
+
+            // Timeout has to be long enough to ensure people with potato internet can still get the translations in time
+            _cacheSaveTimer = new Timer(TimeSpan.FromSeconds(60).TotalMilliseconds);
+            _cacheSaveTimer.Elapsed += OnSave;
+            _cacheSaveTimer.AutoReset = false;
+            _cacheSaveTimer.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+
+            // If a cache save is still pending on maker exit, run it immediately
+            CustomBase.Instance.OnDestroyAsObservable().Subscribe(_ => { if (_cacheSaveTimer.Enabled) OnSave(null, null); });
+        }
+
+        public static void LoadItems()
         {
             QuickAccessBox.Logger.LogDebug("Starting item information load thread");
 
-            var t = new Thread(LoadItemsThread)
-            {
-                IsBackground = true,
-                Name = "Collect item info",
-                Priority = ThreadPriority.BelowNormal
-            };
-            t.Start(onFinished);
-        }
-
-        private static void LoadItemsThread(object obj)
-        {
-            var onFinished = (Action<List<ItemInfo>>)obj;
-
-            var sw = Stopwatch.StartNew();
-
-            LoadTranslationCache();
+            SetupCache();
 
             var results = new List<ItemInfo>();
 
-            // The instance has to be spawned by now to avoid crashing from crossthreaded FindObjectOfType
+            // The instance should have been spawned by now
             var info = Info.Instance;
+
+            var sw = Stopwatch.StartNew();
             foreach (var group in info.dicItemLoadInfo)
             {
                 foreach (var category in @group.Value)
@@ -63,12 +90,10 @@ namespace KK_QuickAccessBox
                 }
             }
 
+            QuickAccessBox.Logger.LogDebug($"Item information loading finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
             results.Sort((x, y) => String.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
+            ItemList = results;
 
-            sw.Stop();
-            QuickAccessBox.Logger.LogDebug($"Item information load thread finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
-
-            onFinished(results);
         }
 
         private static void LoadTranslationCache()
@@ -89,11 +114,13 @@ namespace KK_QuickAccessBox
                 TranslationCache = new Dictionary<string, TranslationCacheEntry>();
         }
 
-        public static void SaveTranslationCache(IEnumerable<ItemInfo> itemList)
+        private static void SaveTranslationCache()
         {
             try
             {
-                var newCache = itemList
+                if (ItemList == null) return;
+
+                var newCache = ItemList
                     .GroupBy(info => info.CacheId)
                     .Select(infos =>
                     {

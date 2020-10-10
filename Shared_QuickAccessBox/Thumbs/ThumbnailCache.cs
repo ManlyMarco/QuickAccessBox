@@ -61,14 +61,14 @@ namespace KK_QuickAccessBox.Thumbs
             _thumbSound = thumbSound.ToSprite();
         }
 
-        public static void Dispose()
-        {
-            foreach (var thumb in _thumbnailCache.Values)
-                UnityEngine.Object.Destroy(thumb);
-
-            _thumbnailCache.Clear();
-            _pngNameCache = null;
-        }
+        //public static void Dispose()
+        //{
+        //    foreach (var thumb in _thumbnailCache.Values)
+        //        UnityEngine.Object.Destroy(thumb);
+        //
+        //    _thumbnailCache.Clear();
+        //    _pngNameCache = null;
+        //}
 
         public static bool CustomThumbnailAvailable(ItemInfo itemInfo)
         {
