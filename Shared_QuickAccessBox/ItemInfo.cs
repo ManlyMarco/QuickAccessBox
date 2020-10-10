@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using KK_QuickAccessBox.Thumbs;
 using MessagePack;
-using Sideloader.AutoResolver;
 using Studio;
 using UnityEngine;
 
@@ -13,11 +10,6 @@ namespace KK_QuickAccessBox
     public sealed class ItemInfo
     {
         private readonly bool _initFinished;
-
-        private ItemInfo()
-        {
-            _initFinished = true;
-        }
 
         public ItemInfo(int groupNo, int categoryNo, int itemNo, Info.ItemLoadInfo item = null)
         {
@@ -34,14 +26,13 @@ namespace KK_QuickAccessBox
 #elif AI || HS2
             DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 #endif
-            var studioResolveInfo = UniversalAutoResolver.LoadedStudioResolutionInfo.FirstOrDefault(x => x.ResolveItem && x.Slot == itemNo);
-            if (studioResolveInfo != null)
+            if (ItemInfoLoader.ZipmodCache.TryGetValue(itemNo, out var cachedGuid) && cachedGuid.Key != null)
             {
-                GUID = studioResolveInfo.GUID;
+                GUID = cachedGuid.Key;
                 DeveloperSearchString += "\v" + GUID;
-                if (Sideloader.Sideloader.ZipArchives.TryGetValue(studioResolveInfo.GUID, out var filename))
+                if(cachedGuid.Value != null)
                 {
-                    FileName = Path.GetFileName(filename);
+                    FileName = cachedGuid.Value;
                     DeveloperSearchString += "\v" + FileName;
                 }
             }
@@ -99,67 +90,55 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
-        [Key(nameof(ItemName))]
         public string CategoryName { get; private set; }
 
         /// <summary>
         /// Under add/Item/Group
         /// </summary>
-        [Key(nameof(ItemName))]
-        public int CategoryNo { get; private set; }
+        public int CategoryNo { get; }
 
         /// <summary>
         /// Full translated (or original if not necessary/available) path of the item in the item tree
         /// </summary>
-        [Key(nameof(ItemName))]
         public string FullName { get; private set; }
 
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
-        [Key(nameof(ItemName))]
         public string GroupName { get; private set; }
 
         /// <summary>
         /// Top level under add/Item menu
         /// </summary>
-        [Key(nameof(ItemName))]
-        public int GroupNo { get; private set; }
+        public int GroupNo { get; }
 
         /// <summary>
         /// Translated name, or original if not necessary/available
         /// </summary>
-        [Key(nameof(ItemName))]
         public string ItemName { get; private set; }
 
-        [Key(nameof(OriginalItemName))]
-        private string OriginalItemName { get; set; }
+        private string OriginalItemName { get; }
 
         /// <summary>
         /// Index of the item in
         /// </summary>
-        [Key(nameof(ItemNo))]
-        public int ItemNo { get; private set; }
+        public int ItemNo { get; }
 
         /// <summary>
         /// String to search against
         /// </summary>
-        [Key(nameof(SearchString))]
         internal string SearchString { get; private set; }
 
         /// <summary>
         /// String with developer info, used to build SearchString
         /// </summary>
-        [Key(nameof(DeveloperSearchString))]
-        internal string DeveloperSearchString { get; private set; }
+        internal string DeveloperSearchString { get; }
 
-        [IgnoreMember]
         public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
         /// <summary>
         /// Item is a sound effect and should get the SFX thumbnail
         /// </summary>
-        [IgnoreMember]
         public bool IsSFX =>
 #if KK
             GroupNo == 00000011;
@@ -167,20 +146,17 @@ namespace KK_QuickAccessBox
             GroupNo == 00000009;
 #endif
 
-        [Key(nameof(CacheId))]
-        public string CacheId { get; private set; }
+        public string CacheId { get; }
 
         /// <summary>
         /// If this item is from a zipmod, GUID of the zipmod. Otherwise null.
         /// </summary>
-        [Key(nameof(GUID))]
-        public string GUID { get; private set; }
+        public string GUID { get; }
 
         /// <summary>
         /// If this item is from a zipmod, name of the .zipmod file. Otherwise null.
         /// </summary>
-        [Key(nameof(FileName))]
-        public string FileName { get; private set; }
+        public string FileName { get; }
 
         /// <summary>
         /// Spawn this item in studio

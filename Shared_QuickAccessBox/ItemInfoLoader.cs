@@ -6,11 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Timers;
 using BepInEx;
-using ChaCustom;
 using MessagePack;
+using Sideloader.AutoResolver;
 using Studio;
-using UniRx;
-using UniRx.Triggers;
 using Timer = System.Timers.Timer;
 
 namespace KK_QuickAccessBox
@@ -19,6 +17,7 @@ namespace KK_QuickAccessBox
     {
         private static readonly string _cachePath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.cache");
 
+        internal static Dictionary<int, KeyValuePair<string, string>> ZipmodCache { get; private set; }
         internal static Dictionary<string, TranslationCacheEntry> TranslationCache { get; private set; }
         public static IEnumerable<ItemInfo> ItemList { get; private set; }
 
@@ -30,7 +29,7 @@ namespace KK_QuickAccessBox
 
         public static void Dispose()
         {
-            if(_cacheSaveTimer.Enabled)
+            if (_cacheSaveTimer.Enabled)
                 SaveTranslationCache();
 
             _cacheSaveTimer.Dispose();
@@ -40,6 +39,7 @@ namespace KK_QuickAccessBox
         private static void SetupCache()
         {
             LoadTranslationCache();
+            LoadZipmodCache();
 
             void OnSave(object sender, ElapsedEventArgs args)
             {
@@ -52,9 +52,6 @@ namespace KK_QuickAccessBox
             _cacheSaveTimer.Elapsed += OnSave;
             _cacheSaveTimer.AutoReset = false;
             _cacheSaveTimer.SynchronizingObject = ThreadingHelper.SynchronizingObject;
-
-            // If a cache save is still pending on maker exit, run it immediately
-            CustomBase.Instance.OnDestroyAsObservable().Subscribe(_ => { if (_cacheSaveTimer.Enabled) OnSave(null, null); });
         }
 
         public static void LoadItems()
@@ -91,7 +88,7 @@ namespace KK_QuickAccessBox
             }
 
             QuickAccessBox.Logger.LogDebug($"Item information loading finished in {sw.Elapsed.TotalMilliseconds:F0}ms - {results.Count} valid items found");
-            results.Sort((x, y) => String.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
+            results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
             ItemList = results;
 
         }
@@ -138,6 +135,20 @@ namespace KK_QuickAccessBox
             catch (Exception ex)
             {
                 QuickAccessBox.Logger.LogWarning("Failed to write cache: " + ex.Message);
+            }
+        }
+
+        private static void LoadZipmodCache()
+        {
+            ZipmodCache = new Dictionary<int, KeyValuePair<string, string>>();
+            foreach (var x in UniversalAutoResolver.LoadedStudioResolutionInfo)
+            {
+                if (!x.ResolveItem) continue;
+
+                if (Sideloader.Sideloader.ZipArchives.TryGetValue(x.GUID, out var filename))
+                    filename = Path.GetFileName(filename);
+
+                ZipmodCache.Add(x.LocalSlot, new KeyValuePair<string, string>(x.GUID, filename));
             }
         }
     }
