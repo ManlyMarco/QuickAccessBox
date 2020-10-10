@@ -48,16 +48,20 @@
       <HintPath>..\packages\IllusionLibs.HoneySelect2.Cinemachine.2018.4.11\lib\net46\Cinemachine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HS2API, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IllusionModdingAPI.HS2API.1.12.0\lib\net46\HS2API.dll</HintPath>
+    <Reference Include="HS2API, Version=1.13.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IllusionModdingAPI.HS2API.1.13.3\lib\net46\HS2API.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HS2_Screencap">
       <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\HS2_BepisPlugins\HS2_Screencap.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HS2_Sideloader">
-      <HintPath>..\..\BepisPlugins\bin\BepInEx\plugins\HS2_BepisPlugins\HS2_Sideloader.dll</HintPath>
+    <Reference Include="HS2_Sideloader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sideloader.HoneySelect2.16.0.0\lib\net46\HS2_Sideloader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.2.0.246, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.2.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="IL, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -94,12 +98,16 @@
       <HintPath>..\packages\IllusionLibs.HoneySelect2.UnityEngine.UI.2018.4.11\lib\net46\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IllusionLibs.HoneySelect2.UnityEngine.UIModule.2018.4.11\lib\net46\UnityEngine.UIModule.dll</HintPath>
+    <Reference Include="XUnity.AutoTranslator.Plugin.Core, Version=4.11.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IllusionLibs.XUnity.AutoTranslator.Plugin.Core.4.11.3\lib\net46\XUnity.AutoTranslator.Plugin.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="XUnity.AutoTranslator.Plugin.Core, Version=4.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IllusionLibs.XUnity.AutoTranslator.Plugin.Core.4.11.0\lib\net46\XUnity.AutoTranslator.Plugin.Core.dll</HintPath>
+    <Reference Include="XUnity.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XUnity.Common.1.0.0\lib\net35\XUnity.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="XUnity.ResourceRedirector, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XUnity.ResourceRedirector.1.1.0\lib\net35\XUnity.ResourceRedirector.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -123,7 +131,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="..\Shared_QuickAccessBox\Shared_QuickAccessBox.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
