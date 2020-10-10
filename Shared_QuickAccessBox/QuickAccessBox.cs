@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BepInEx;
@@ -25,7 +24,7 @@ namespace KK_QuickAccessBox
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
-        public const string Version = "2.2.1";
+        public const string Version = "2.3";
 
         internal static new ManualLogSource Logger;
 
