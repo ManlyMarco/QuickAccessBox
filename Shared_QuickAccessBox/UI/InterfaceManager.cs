@@ -14,6 +14,7 @@ namespace KK_QuickAccessBox.UI
     internal class InterfaceManager
     {
         private readonly GameObject _canvasRoot;
+        private readonly RectTransform _windowRootRt;
         private readonly InputField _inputField;
 
         private readonly SimpleVirtualList _simpleVirtualList;
@@ -30,6 +31,20 @@ namespace KK_QuickAccessBox.UI
         public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
         {
             _canvasRoot = CreateCanvas();
+
+            _windowRootRt = _canvasRoot.GetComponentInChildren<Image>().GetComponent<RectTransform>();
+            var savedPos = QuickAccessBox.WindowPosition.Value;
+            if (savedPos != Vector2.zero)
+            {
+                var sd = _windowRootRt.sizeDelta;
+                // Prevent window from getting stuck off-screen
+                if (savedPos.x > 0 && savedPos.x + sd.x < 1920 && -savedPos.y > 0 && savedPos.y + sd.y < 1080)
+                {
+                    _windowRootRt.offsetMin = savedPos;
+                    _windowRootRt.offsetMax = savedPos + sd;
+                }
+            }
+            MovableWindow.MakeObjectDraggable(_windowRootRt, _windowRootRt, false);
 
             _inputField = _canvasRoot.transform.FindLoop("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
             _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
@@ -55,13 +70,16 @@ namespace KK_QuickAccessBox.UI
             CreateSearchToolbarButton();
         }
 
-        //public void Dispose()
-        //{
-        //    _simpleVirtualList.Clear();
-        //    Object.Destroy(_canvasRoot);
-        //    Object.Destroy(_searchMenuButton);
-        //    Object.Destroy(_searchToolbarButton);
-        //}
+        public void Dispose()
+        {
+            QuickAccessBox.WindowPosition.Value = _windowRootRt.offsetMin;
+#if DEBUG
+            _simpleVirtualList.Clear();
+            Object.Destroy(_canvasRoot);
+            Object.Destroy(_searchMenuButton);
+            Object.Destroy(_searchToolbarButton);
+#endif
+        }
 
         public void SelectSearchBox()
         {
@@ -113,7 +131,7 @@ namespace KK_QuickAccessBox.UI
                 {
                     SelectSearchBox();
 
-                    if(string.IsNullOrEmpty(_inputField.text))
+                    if (string.IsNullOrEmpty(_inputField.text))
                         _inputField.onValueChanged.Invoke("");
                 }
 

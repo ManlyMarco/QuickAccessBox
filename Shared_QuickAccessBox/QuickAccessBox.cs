@@ -39,6 +39,7 @@ namespace KK_QuickAccessBox
         private const string DESCRIPTION_MANUALADJUST = "After spawning the object, generator will wait for you to adjust the camera position to get the object in " +
                                                     "the middle of the screen. Press left Shift to accept and move to the next item.";
         private const string DESCRIPTION_THUMBDIR = "Directory to save newly generated thumbs into. The directory must exist. Existing thumbs are not overwritten, remove them to re-create.";
+        private const string DESCRIPTION_WINPOS = "Position at which the search window first opens. Can be changed by dragging the edges of the window.";
 
         public static ConfigEntry<KeyboardShortcut> KeyShowBox { get; private set; }
         public static ConfigEntry<bool> SearchDeveloperInfo { get; private set; }
@@ -47,6 +48,8 @@ namespace KK_QuickAccessBox
         public static ConfigEntry<bool> ThumbDarkBackground { get; private set; }
         public static ConfigEntry<bool> ThumbManualAdjust { get; private set; }
         public static ConfigEntry<int> RecentsCount { get; private set; }
+
+        public static ConfigEntry<Vector2> WindowPosition { get; private set; }
 
         [Browsable(false)]
         public bool ShowBox
@@ -64,22 +67,26 @@ namespace KK_QuickAccessBox
         {
             Logger = base.Logger;
 
+            var advanced = new ConfigurationManagerAttributes { IsAdvanced = true };
+
             KeyShowBox = Config.Bind("General", "Show quick access box", new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl), "Toggles the item search box on and off.");
             RecentsCount = Config.Bind("General", "Number of recents to remember", 20, new ConfigDescription(DESCRIPTION_RECENTS, new AcceptableValueRange<int>(0, 200)));
-            SearchDeveloperInfo = Config.Bind("General", "Search developer information", false, new ConfigDescription(DESCRIPTION_DEVINFO, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            SearchDeveloperInfo = Config.Bind("General", "Search developer information", false, new ConfigDescription(DESCRIPTION_DEVINFO, null, advanced));
 
-            ThumbGenerateKey = Config.Bind("Thumbnail generation", "Generate item thumbnails", new KeyboardShortcut(), new ConfigDescription(DESCRIPTION_THUMBGENKEY, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
-            ThumbManualAdjust = Config.Bind("Thumbnail generation", "Manual mode", false, new ConfigDescription(DESCRIPTION_MANUALADJUST, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
-            ThumbDarkBackground = Config.Bind("Thumbnail generation", "Dark background", false, new ConfigDescription(DESCRIPTION_DARKBG, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
-            ThumbStoreLocation = Config.Bind("Thumbnail generation", "Output directory", string.Empty, new ConfigDescription(DESCRIPTION_THUMBDIR, null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            ThumbGenerateKey = Config.Bind("Thumbnail generation", "Generate item thumbnails", new KeyboardShortcut(), new ConfigDescription(DESCRIPTION_THUMBGENKEY, null, advanced));
+            ThumbManualAdjust = Config.Bind("Thumbnail generation", "Manual mode", false, new ConfigDescription(DESCRIPTION_MANUALADJUST, null, advanced));
+            ThumbDarkBackground = Config.Bind("Thumbnail generation", "Dark background", false, new ConfigDescription(DESCRIPTION_DARKBG, null, advanced));
+            ThumbStoreLocation = Config.Bind("Thumbnail generation", "Output directory", string.Empty, new ConfigDescription(DESCRIPTION_THUMBDIR, null, advanced));
 
+            WindowPosition = Config.Bind("General", "Initial window position", Vector2.zero, new ConfigDescription(DESCRIPTION_WINPOS, null, new ConfigurationManagerAttributes { Browsable = false }));
+            
             StartCoroutine(LoadingCo());
         }
 
         private void OnDestroy()
         {
-            //_interface?.Dispose();
-            //ThumbnailLoader.Dispose();
+            _interface?.Dispose();
+            ThumbnailLoader.Dispose();
             ItemInfoLoader.Dispose();
             //SaveRecents();
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BepInEx;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox.Thumbs
 {
@@ -61,14 +62,16 @@ namespace KK_QuickAccessBox.Thumbs
             _thumbSound = thumbSound.ToSprite();
         }
 
-        //public static void Dispose()
-        //{
-        //    foreach (var thumb in _thumbnailCache.Values)
-        //        UnityEngine.Object.Destroy(thumb);
-        //
-        //    _thumbnailCache.Clear();
-        //    _pngNameCache = null;
-        //}
+        public static void Dispose()
+        {
+#if DEBUG
+            foreach (var thumb in _thumbnailCache.Values)
+                Object.Destroy(thumb);
+        
+            _thumbnailCache.Clear();
+            _pngNameCache = null;
+#endif
+        }
 
         public static bool CustomThumbnailAvailable(ItemInfo itemInfo)
         {

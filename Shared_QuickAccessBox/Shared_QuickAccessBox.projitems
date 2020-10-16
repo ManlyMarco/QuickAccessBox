@@ -20,6 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Thumbs\ThumbnailCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TranslationCacheEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TranslationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UI\MovableWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\InterfaceManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\SimpleListEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\SimpleVirtualList.cs" />
