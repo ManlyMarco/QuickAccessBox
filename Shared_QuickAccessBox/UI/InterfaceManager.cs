@@ -72,7 +72,8 @@ namespace KK_QuickAccessBox.UI
 
         public void Dispose()
         {
-            QuickAccessBox.WindowPosition.Value = _windowRootRt.offsetMin;
+            if (_windowRootRt != null)
+                QuickAccessBox.WindowPosition.Value = _windowRootRt.offsetMin;
 #if DEBUG
             _simpleVirtualList.Clear();
             Object.Destroy(_canvasRoot);
