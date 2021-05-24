@@ -101,6 +101,8 @@ namespace KK_QuickAccessBox.Thumbs
 
                 yield return null;
 
+                Console.WriteLine($"Spawning: FullName={itemInfo.FullName} FileName={itemInfo.FileName}");
+                
                 itemInfo.AddItem();
                 createdCount++;
 
@@ -191,6 +193,9 @@ namespace KK_QuickAccessBox.Thumbs
             Singleton<Studio.Studio>.Instance.treeNodeCtrl.selectNode = null;
             foreach (var treeNodeObject in Object.FindObjectsOfType<TreeNodeObject>().Where(x => x != null))
                 Singleton<Studio.Studio>.Instance.treeNodeCtrl.DeleteNode(treeNodeObject);
+
+            foreach (Transform unofficialChild in GameObject.Find("CommonSpace").transform)
+                GameObject.Destroy(unofficialChild.gameObject);
         }
     }
 }

@@ -79,7 +79,8 @@ namespace KK_QuickAccessBox.Thumbs
                 postProcessing.enabled = false;
                 RenderSettings.ambientSkyColor = Color.white;
                 RenderSettings.ambientEquatorColor = Color.white;
-                RenderSettings.ambientGroundColor = Color.white;
+                RenderSettings.ambientGroundColor = Color.white;
+
                 var cap = screencap.Capture(64, 64, 1, true);
                 var cap2D = cap.ToTexture2D();
                 var bytes = cap2D.EncodeToPNG();
@@ -99,6 +100,8 @@ namespace KK_QuickAccessBox.Thumbs
                 if (ThumbnailLoader.CustomThumbnailAvailable(itemInfo)) continue;
 
                 yield return null;
+
+                Console.WriteLine($"Spawning: FullName={itemInfo.FullName} FileName={itemInfo.FileName}");
 
                 itemInfo.AddItem();
                 createdCount++;
@@ -190,6 +193,9 @@ namespace KK_QuickAccessBox.Thumbs
             Singleton<Studio.Studio>.Instance.treeNodeCtrl.selectNode = null;
             foreach (var treeNodeObject in Object.FindObjectsOfType<TreeNodeObject>().Where(x => x != null))
                 Singleton<Studio.Studio>.Instance.treeNodeCtrl.DeleteNode(treeNodeObject);
+
+            foreach (Transform unofficialChild in GameObject.Find("CommonSpace").transform)
+                GameObject.Destroy(unofficialChild.gameObject);
         }
     }
 }
