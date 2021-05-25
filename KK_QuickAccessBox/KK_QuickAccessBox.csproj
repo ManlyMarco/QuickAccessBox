@@ -94,7 +94,7 @@
   <Import Project="..\Shared_QuickAccessBox\Shared_QuickAccessBox.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>md "$(SolutionDir)bin\mods\"
-copy "$(SolutionDir)Thumbnails\KK\KK_QuickAccessBox_BasicThumbs.zipmod " "$(SolutionDir)bin\mods\KK_QuickAccessBox_BasicThumbs.zipmod"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
