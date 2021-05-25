@@ -31,9 +31,10 @@ A: If there is a message in top left corner telling you to wait, wait. If there 
 A: Close the game and remove the BepInEx/cache/KK_QuickAccessBox.cache file.
 
 ## How to add thumbnails for your items
-The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings.
+The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings. Generating thumbnails will also double as a good test for your zipmod to make sure that all items can be properly loaded.
 
 ### Generating thumbnails and using them
+0. Place your zipmod in an empty mods directory (so that you only generate thumbnails for this particular zipmod). It should be enough to only move `Sideloader Modpack - Studio` out of your mods directory. Make sure that you still have the `*_QuickAccessBox_BasicThumbs.zipmod` since it contains thumbs for built-in studio items.
 1. Open plugin settings and search for "Thumbnail generation".
 2. Assign a hotkey to the "Generate item thumbnails" setting.
 3. Create an empty directory and copy its path into the "Output directory" setting. This is where the new thumbnails will get saved.
@@ -51,6 +52,11 @@ Sometimes the generated thumbnails will have wrong orientation or framing. In th
 3. Press the generate thumbnails hotkey.
 4. Adjust the camera with your mouse. Zoom in and out with mouse wheel.
 5. Once you are happy with the result, press Left Shift to advance to the next item.
+
+### In case of issues
+If your game crashes or the thumbnail generation hangs at some point, it's most likely because of an issue with the zipmod. Turn on the console when generating thumbnails to see any errors that might be happening, and fix whatever in the zipmod that is causing them. Try spawning and removing all of the items in the zipmod manually and see if they work properly.
+
+If you see a lot of HSPE errors in log, they can be ignored. You can remove KKPE/AIPE/HS2PE before generating thumbnails to clean up the log and make it easier to spot issues.
 
 ### Notes
 - You can abort thumbnail generation at any time by pressing and holding the Esc key.
