@@ -33,6 +33,8 @@ A: Close the game and remove the BepInEx/cache/KK_QuickAccessBox.cache file.
 ## How to add thumbnails for your items
 The plugin contains a thumbnail generator that makes it easy and fast to create thumbnails for your studio items. The generator is controlled from plugin settings. Generating thumbnails will also double as a good test for your zipmod to make sure that all items can be properly loaded.
 
+There's a video version of this tutorial [here](https://www.youtube.com/watch?v=usrm59R0Iik).
+
 ### Generating thumbnails and using them
 0. Place your zipmod in an empty mods directory (so that you only generate thumbnails for this particular zipmod). It should be enough to only move `Sideloader Modpack - Studio` out of your mods directory. Make sure that you still have the `*_QuickAccessBox_BasicThumbs.zipmod` since it contains thumbs for built-in studio items.
 1. Open plugin settings and search for "Thumbnail generation".
