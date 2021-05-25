@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BepInEx;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace KK_QuickAccessBox.Thumbs
 {
@@ -46,15 +42,21 @@ namespace KK_QuickAccessBox.Thumbs
         {
             if (_thumbMissing != null) return;
 
-            ThreadingHelper.Instance.StartAsyncInvoke(
-                () =>
-                {
-                    // Make sure the keys are unique. In case of duplicates allow mods to override the stock thumbs by picking the longest filename from the dupes
-                    _pngNameCache = Sideloader.Sideloader.GetPngNames()
-                        .GroupBy(Path.GetFileNameWithoutExtension)
-                        .ToDictionary(gr => gr.Key, gr => gr.OrderByDescending(s => s.Length).First());
-                    return null;
-                });
+            _pngNameCache = new Dictionary<string, string>();
+
+            var pathSeparators = new[] { '/', '\\' };
+            foreach (var pngName in Sideloader.Sideloader.GetPngNames())
+            {
+                //var name = Path.GetFileNameWithoutExtension(pngName); - order of magnitude slower
+                var i = pngName.LastIndexOfAny(pathSeparators) + 1;
+                var d = pngName.LastIndexOf('.');
+                var name = pngName.Substring(i, d - i);
+
+                // Prefer thumbs with longer paths to let mod authors override defaults
+                if (_pngNameCache.TryGetValue(name, out var existing) && existing.Length > pngName.Length)
+                    continue;
+                _pngNameCache[name] = pngName;
+            }
 
             var thumbMissing = Utils.LoadTexture(Utils.GetResourceBytes("thumb_missing.png")) ?? throw new ArgumentNullException(nameof(_thumbMissing));
             _thumbMissing = thumbMissing.ToSprite();
