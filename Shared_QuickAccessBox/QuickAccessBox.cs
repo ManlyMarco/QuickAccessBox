@@ -79,7 +79,7 @@ namespace KK_QuickAccessBox
             ThumbStoreLocation = Config.Bind("Thumbnail generation", "Output directory", string.Empty, new ConfigDescription(DESCRIPTION_THUMBDIR, null, advanced));
 
             WindowPosition = Config.Bind("General", "Initial window position", Vector2.zero, new ConfigDescription(DESCRIPTION_WINPOS, null, new ConfigurationManagerAttributes { Browsable = false }));
-            
+
             StartCoroutine(LoadingCo());
         }
 
@@ -107,7 +107,7 @@ namespace KK_QuickAccessBox
 
         private bool IsLoaded()
         {
-            if (ItemList == null)
+            if (ItemList == null || _interface == null)
             {
                 Logger.LogMessage("Item list is still loading, please try again in a few seconds");
                 return false;
@@ -121,13 +121,17 @@ namespace KK_QuickAccessBox
             // Wait until fully loaded
             yield return null;
 
-            ItemInfoLoader.LoadItems();
-
-            _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
-            _interface.Visible = false;
-            LoadRecents();
-
-            ThumbnailLoader.LoadAssetBundle();
+            ThreadingHelper.Instance.StartAsyncInvoke(() =>
+            {
+                ItemInfoLoader.LoadItems();
+                LoadRecents();
+                return () =>
+                {
+                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+                    _interface.Visible = false;
+                    ThumbnailLoader.LoadAssetBundle();
+                };
+            });
         }
 
         private void OnListItemClicked(ItemInfo info)
