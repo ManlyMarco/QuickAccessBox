@@ -177,23 +177,8 @@ namespace KK_QuickAccessBox.UI
 
         private void CreateSearchToolbarButton()
         {
-            var existingRt = GameObject.Find("StudioScene/Canvas System Menu/01_Button/Button Center").GetComponent<RectTransform>();
-
-            _searchToolbarButton = Object.Instantiate(existingRt.gameObject, existingRt.parent);
-            var copyRt = _searchToolbarButton.GetComponent<RectTransform>();
-            copyRt.localScale = existingRt.localScale;
-            copyRt.anchoredPosition = existingRt.anchoredPosition + new Vector2(0f, 120f);
-
             var iconTex = Utils.LoadTexture(ResourceUtils.GetEmbeddedResource("toolbar-icon.png"));
-            var iconSprite = Sprite.Create(iconTex, new Rect(0f, 0f, 32f, 32f), new Vector2(16f, 16f));
-
-            var copyBtn = copyRt.GetComponent<Button>();
-            copyBtn.onClick.ActuallyRemoveAllListeners();
-            copyBtn.onClick.AddListener(() => Visible = !Visible);
-
-            _toolbarIcon = copyBtn.image;
-            _toolbarIcon.sprite = iconSprite;
-            _toolbarIcon.color = Color.white;
+            KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
         }
     }
 }
