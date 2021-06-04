@@ -178,7 +178,7 @@ namespace KK_QuickAccessBox.UI
         private void CreateSearchToolbarButton()
         {
             var iconTex = Utils.LoadTexture(ResourceUtils.GetEmbeddedResource("toolbar-icon.png"));
-            KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
+            _toolbarIcon = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
         }
     }
 }
