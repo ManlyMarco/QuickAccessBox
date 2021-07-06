@@ -191,6 +191,7 @@ namespace KK_QuickAccessBox
         public static string MakeCacheId(int groupNo, int categoryNo, Info.ItemLoadInfo item)
         {
             // Can't use itemNo because it can change with sideloader
+            // todo change into Sideloader.AutoResolver.UniversalAutoResolver.TryGetResolutionInfo((ChaListDefine.CategoryNo)categoryNo, 1).Slot ?
             return $"{groupNo:D8}-{categoryNo:D8}-{Utils.MakeValidFileName(item.name)}";
             // old - return $"{groupNo:D8}-{categoryNo:D8}-{item.name.GetHashCode():D32}";
         }

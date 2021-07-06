@@ -23,7 +23,6 @@ namespace KK_QuickAccessBox.UI
         private readonly GameObject _textHelpObj;
 
         private GameObject _searchMenuButton;
-        private GameObject _searchToolbarButton;
         private Image _toolbarIcon;
 
         /// <param name="onClicked">Fired when one of the list items is clicked</param>
@@ -78,7 +77,6 @@ namespace KK_QuickAccessBox.UI
             _simpleVirtualList.Clear();
             Object.Destroy(_canvasRoot);
             Object.Destroy(_searchMenuButton);
-            Object.Destroy(_searchToolbarButton);
 #endif
         }
 
@@ -178,7 +176,7 @@ namespace KK_QuickAccessBox.UI
         private void CreateSearchToolbarButton()
         {
             var iconTex = Utils.LoadTexture(ResourceUtils.GetEmbeddedResource("toolbar-icon.png"));
-            _toolbarIcon = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
+            _toolbarIcon = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b).ControlObject.GetComponentInChildren<Image>();
         }
     }
 }
