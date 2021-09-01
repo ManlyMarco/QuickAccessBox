@@ -30,7 +30,7 @@ namespace KK_QuickAccessBox
             {
                 GUID = cachedGuid.Key;
                 DeveloperSearchString += "\v" + GUID;
-                if(cachedGuid.Value != null)
+                if (cachedGuid.Value != null)
                 {
                     FileName = cachedGuid.Value;
                     DeveloperSearchString += "\v" + FileName;
@@ -141,9 +141,10 @@ namespace KK_QuickAccessBox
         /// </summary>
         public bool IsSFX =>
 #if KK
-            GroupNo == 00000011;
+            GroupNo == 00000011; // stock 3d sfx
 #elif AI || HS2
-            GroupNo == 00000009;
+            GroupNo == 00000009 || // stock 3d sfx
+            GroupNo == 2171; // dirty's 3dsfx
 #endif
 
         public string CacheId { get; }
