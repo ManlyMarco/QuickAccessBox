@@ -19,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)QuickAccessBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ThumbnailCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TranslationCacheEntry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TranslationHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\MovableWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\InterfaceManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI\SimpleListEntry.cs" />

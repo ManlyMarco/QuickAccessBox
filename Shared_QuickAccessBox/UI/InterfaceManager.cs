@@ -166,7 +166,7 @@ namespace KK_QuickAccessBox.UI
             btn.onClick.ActuallyRemoveAllListeners();
             btn.onClick.AddListener(() => Visible = !Visible);
 
-#if KK
+#if KK || KKS
             _searchMenuButton.GetComponentInChildren<Text>().text = "Search...";
 #elif AI || HS2
             _searchMenuButton.GetComponentInChildren<TMPro.TMP_Text>().text = "Search...";

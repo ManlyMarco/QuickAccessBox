@@ -27,7 +27,7 @@ namespace KK_QuickAccessBox.UI
         public RectTransform toDrag;
         public bool preventCameraControl;
 
-        protected override void Awake()
+        public override void Awake()
         {
             base.Awake();
             _cameraControl = FindObjectOfType<BaseCameraControl>();

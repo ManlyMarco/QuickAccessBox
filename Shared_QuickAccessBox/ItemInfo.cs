@@ -21,7 +21,7 @@ namespace KK_QuickAccessBox
 
             if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
-#if KK
+#if KK || KKS
             DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 #elif AI || HS2
             DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
@@ -43,7 +43,7 @@ namespace KK_QuickAccessBox
             var groupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
 
             if (!groupInfo.dicCategory.ContainsKey(CategoryNo)) throw new ArgumentException("Invalid category number");
-#if KK
+#if KK || KKS
             var origCategoryName = groupInfo.dicCategory[CategoryNo];
 #elif AI || HS2
             var origCategoryName = groupInfo.dicCategory[CategoryNo].name;
@@ -60,27 +60,24 @@ namespace KK_QuickAccessBox
             else
             {
                 // Get translated versions of the relevant strings
-                TranslationHelper.Translate(
-                    groupInfo.name, s =>
-                    {
-                        GroupName = s;
-                        if (_initFinished)
-                            UpdateCompositeStrings();
-                    });
-                TranslationHelper.Translate(
-                    origCategoryName, s =>
-                    {
-                        CategoryName = s;
-                        if (_initFinished)
-                            UpdateCompositeStrings();
-                    });
-                TranslationHelper.Translate(
-                    item.name, s =>
-                    {
-                        ItemName = s;
-                        if (_initFinished)
-                            UpdateCompositeStrings();
-                    });
+                Translate(groupInfo.name, s =>
+                {
+                    GroupName = s;
+                    if (_initFinished)
+                        UpdateCompositeStrings();
+                });
+                Translate(origCategoryName, s =>
+                {
+                    CategoryName = s;
+                    if (_initFinished)
+                        UpdateCompositeStrings();
+                });
+                Translate(item.name, s =>
+                {
+                    ItemName = s;
+                    if (_initFinished)
+                        UpdateCompositeStrings();
+                });
             }
 
             UpdateCompositeStrings();
@@ -140,7 +137,7 @@ namespace KK_QuickAccessBox
         /// Item is a sound effect and should get the SFX thumbnail
         /// </summary>
         public bool IsSFX =>
-#if KK
+#if KK || KKS
             GroupNo == 00000011; // stock 3d sfx
 #elif AI || HS2
             GroupNo == 00000009 || // stock 3d sfx
@@ -206,6 +203,25 @@ namespace KK_QuickAccessBox
         public override bool Equals(object obj)
         {
             return obj is ItemInfo i && i.OriginalItemName == OriginalItemName;
+        }
+
+        private static void Translate(string input, Action<string> updateAction)
+        {
+            if (KKAPI.Utilities.TranslationHelper.AutoTranslatorInstalled)
+            {
+                var didFire = false;
+                KKAPI.Utilities.TranslationHelper.TranslateAsync(input, s =>
+                {
+                    updateAction(s);
+                    didFire = true;
+                    ItemInfoLoader.TriggerCacheSave();
+                });
+                if (didFire) return;
+            }
+
+            // Make sure there's a valid value set
+            updateAction(input);
+            ItemInfoLoader.TriggerCacheSave();
         }
     }
 }
