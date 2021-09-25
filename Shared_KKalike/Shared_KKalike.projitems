@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>eaf0de8e-c2d9-4612-ba76-7b1a0c77dc16</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Shared_KKalike</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Thumbs\thumb_background.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Thumbs\thumb_background_dark.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Thumbs\thumb_missing.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Thumbs\thumb_sfx.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ThumbnailGenerator.cs" />
+  </ItemGroup>
+</Project>

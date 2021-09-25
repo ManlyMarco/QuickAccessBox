@@ -29,7 +29,7 @@ namespace KK_QuickAccessBox.Thumbs
                 if (outputDirectory == null) throw new ArgumentNullException(nameof(outputDirectory));
                 if (!Directory.Exists(outputDirectory)) throw new DirectoryNotFoundException("Output directory was not found: " + outputDirectory);
 
-                thumbBackground = Utils.LoadTexture(Utils.GetResourceBytes(dark ? "thumb_background_dark.png" : "thumb_background.png")) ?? throw new ArgumentNullException(nameof(thumbBackground));
+                thumbBackground = ResourceUtils.GetEmbeddedResource(dark ? "thumb_background_dark.png" : "thumb_background.png").LoadTexture();
             }
             catch (Exception ex)
             {
