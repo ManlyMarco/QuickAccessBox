@@ -18,8 +18,10 @@ using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
 namespace KK_QuickAccessBox
 {
     [BepInPlugin(GUID, GUID, Version)]
+    [BepInProcess(KoikatuAPI.StudioProcessName)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     [BepInDependency(Sideloader.Sideloader.GUID, Sideloader.Sideloader.Version)]
+    [BepInDependency(Screencap.ScreenshotManager.GUID, Screencap.ScreenshotManager.Version)]
     [BepInDependency("KK_OrthographicCamera", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin

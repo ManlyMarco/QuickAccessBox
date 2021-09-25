@@ -140,7 +140,7 @@ namespace KK_QuickAccessBox.UI
 
         private static GameObject CreateCanvas()
         {
-            var data = Utils.GetResourceBytes("quick_access_box_interface");
+            var data = ResourceUtils.GetEmbeddedResource("quick_access_box_interface");
             var ab = AssetBundle.LoadFromMemory(data);
 
             var canvasObj = ab.LoadAsset<GameObject>("assets/QuickAccessBoxCanvas.prefab");
@@ -175,7 +175,7 @@ namespace KK_QuickAccessBox.UI
 
         private void CreateSearchToolbarButton()
         {
-            var iconTex = Utils.LoadTexture(ResourceUtils.GetEmbeddedResource("toolbar-icon.png"));
+            var iconTex = ResourceUtils.GetEmbeddedResource("toolbar-icon.png").LoadTexture();
             _toolbarIcon = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b).ControlObject.GetComponentInChildren<Image>();
         }
     }

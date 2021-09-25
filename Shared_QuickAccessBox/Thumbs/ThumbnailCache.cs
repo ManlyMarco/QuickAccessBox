@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using KKAPI.Utilities;
 using UnityEngine;
 
 namespace KK_QuickAccessBox.Thumbs
@@ -58,10 +59,8 @@ namespace KK_QuickAccessBox.Thumbs
                 _pngNameCache[name] = pngName;
             }
 
-            var thumbMissing = Utils.LoadTexture(Utils.GetResourceBytes("thumb_missing.png")) ?? throw new ArgumentNullException(nameof(_thumbMissing));
-            _thumbMissing = thumbMissing.ToSprite();
-            var thumbSound = Utils.LoadTexture(Utils.GetResourceBytes("thumb_sfx.png")) ?? throw new ArgumentNullException(nameof(_thumbSound));
-            _thumbSound = thumbSound.ToSprite();
+            _thumbMissing = ResourceUtils.GetEmbeddedResource("thumb_missing.png").LoadTexture().ToSprite();
+            _thumbSound = ResourceUtils.GetEmbeddedResource("thumb_sfx.png").LoadTexture().ToSprite();
         }
 
         public static void Dispose()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using IllusionUtility.GetUtility;
+using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
