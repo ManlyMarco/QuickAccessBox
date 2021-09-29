@@ -56,9 +56,9 @@ Sometimes the generated thumbnails will have wrong orientation or framing. In th
 5. Once you are happy with the result, press Left Shift to advance to the next item.
 
 ### In case of issues
-If your game crashes or the thumbnail generation hangs at some point, it's most likely because of an issue with the zipmod. Turn on the console when generating thumbnails to see any errors that might be happening, and fix whatever in the zipmod that is causing them. Try spawning and removing all of the items in the zipmod manually and see if they work properly.
-
-If you see a lot of HSPE errors in log, they can be ignored. You can remove KKPE/AIPE/HS2PE before generating thumbnails to clean up the log and make it easier to spot issues.
+- If your game crashes or the thumbnail generation hangs at some point, it's most likely because of an issue with the zipmod. Turn on the console when generating thumbnails to see any errors that might be happening, and fix whatever in the zipmod that is causing them. Try spawning and removing all of the items in the zipmod manually and see if they work properly.
+- If you see a lot of HSPE errors in log, they can be ignored. You can remove KKPE/AIPE/HS2PE before generating thumbnails to clean up the log and make it easier to spot issues.
+- If the thumbnails don't work after you put them in your zipmod, and the item names are using non-English letters, the problem is most likely wrong filename encoding in your zip file. To fix this you have to use the UTF-8 encoding in your zip file. You can do this in 7zip by typing `cu` in the Parameters field in the "Add to Archive" dialog when creating your zip (this will force UTF-8 encoding).
 
 ### Notes
 - You can abort thumbnail generation at any time by pressing and holding the Esc key.
