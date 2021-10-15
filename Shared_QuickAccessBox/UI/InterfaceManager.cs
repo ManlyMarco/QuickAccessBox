@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using IllusionUtility.GetUtility;
+using KKAPI.Studio.UI;
 using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,7 +24,7 @@ namespace KK_QuickAccessBox.UI
         private readonly GameObject _textHelpObj;
 
         private GameObject _searchMenuButton;
-        private Image _toolbarIcon;
+        private ToolbarToggle _toolbarIcon;
 
         /// <param name="onClicked">Fired when one of the list items is clicked</param>
         /// <param name="onSearchStringChanged">Fired when search string changes</param>
@@ -120,6 +121,8 @@ namespace KK_QuickAccessBox.UI
             get => _canvasRoot.activeSelf;
             set
             {
+                _toolbarIcon.Value = value;
+
                 if (value == _canvasRoot.activeSelf)
                     return;
 
@@ -133,8 +136,6 @@ namespace KK_QuickAccessBox.UI
                     if (string.IsNullOrEmpty(_inputField.text))
                         _inputField.onValueChanged.Invoke("");
                 }
-
-                _toolbarIcon.color = value ? Color.green : Color.white;
             }
         }
 
@@ -176,7 +177,7 @@ namespace KK_QuickAccessBox.UI
         private void CreateSearchToolbarButton()
         {
             var iconTex = ResourceUtils.GetEmbeddedResource("toolbar-icon.png").LoadTexture();
-            _toolbarIcon = KKAPI.Studio.UI.CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b).ControlObject.GetComponentInChildren<Image>();
+            _toolbarIcon = CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
         }
     }
 }
