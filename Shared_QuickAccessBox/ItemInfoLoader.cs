@@ -51,7 +51,6 @@ namespace KK_QuickAccessBox
             _cacheSaveTimer = new Timer(TimeSpan.FromSeconds(60).TotalMilliseconds);
             _cacheSaveTimer.Elapsed += OnSave;
             _cacheSaveTimer.AutoReset = false;
-            _cacheSaveTimer.SynchronizingObject = ThreadingHelper.SynchronizingObject;
         }
 
         public static void LoadItems()
