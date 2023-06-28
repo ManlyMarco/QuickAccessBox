@@ -21,6 +21,9 @@ namespace KK_QuickAccessBox
 
             if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
+            Bundle = item.bundlePath;
+            Asset = item.fileName;
+
 #if KK || KKS
             DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
 #elif AI || HS2
@@ -157,6 +160,16 @@ namespace KK_QuickAccessBox
         public string FileName { get; }
 
         /// <summary>
+        /// Relative path to the asset bundle that contains this item
+        /// </summary>
+        public string Bundle { get; }
+
+        /// <summary>
+        /// Name of this item's asset inside of the asset bundle
+        /// </summary>
+        public string Asset { get; }
+
+        /// <summary>
         /// Spawn this item in studio
         /// </summary>
         public void AddItem()
@@ -203,6 +216,11 @@ namespace KK_QuickAccessBox
         public override bool Equals(object obj)
         {
             return obj is ItemInfo i && i.OriginalItemName == OriginalItemName;
+        }
+
+        public override string ToString()
+        {
+            return $"Name=\"{FullName}\" GroupNo={GroupNo} CategoryNo={CategoryNo} ItemNo={ItemNo} Bundle=\"{Bundle}\" Asset=\"{Asset}\" GUID=\"{GUID}\" Zipmod=\"{FileName}\"";
         }
 
         private static void Translate(string input, Action<string> updateAction)
