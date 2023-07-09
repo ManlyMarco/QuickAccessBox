@@ -1,46 +1,53 @@
 ﻿using System;
 using KK_QuickAccessBox.Thumbs;
-using MessagePack;
+using Sideloader.AutoResolver;
 using Studio;
 using UnityEngine;
+#pragma warning disable CS0612
 
 namespace KK_QuickAccessBox
 {
-    [MessagePackObject]
     public sealed class ItemInfo
     {
         private readonly bool _initFinished;
 
-        public ItemInfo(int groupNo, int categoryNo, int itemNo, Info.ItemLoadInfo item = null)
+        public ItemInfo(int groupNo, int categoryNo, int localSlot, Info.ItemLoadInfo studioInfo, StudioResolveInfo zipmodInfo, string zipmodFilename)
         {
             GroupNo = groupNo;
             CategoryNo = categoryNo;
-            ItemNo = itemNo;
+            LocalSlot = localSlot;
 
-            if (item == null) item = Info.Instance.dicItemLoadInfo[groupNo][categoryNo][itemNo];
+            if (studioInfo == null) throw new ArgumentNullException(nameof(studioInfo), "Info.ItemLoadInfo is null in dicItemLoadInfo");
 
-            if (item == null) throw new ArgumentNullException(nameof(item), "Info.ItemLoadInfo is null in dicItemLoadInfo");
-
-            Bundle = item.bundlePath;
-            Asset = item.fileName;
+            Bundle = studioInfo.bundlePath;
+            Asset = studioInfo.fileName;
 
 #if KK || KKS
-            DeveloperSearchString = $"{item.childRoot}\v{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+            DeveloperSearchString = $"{studioInfo.childRoot}\v{studioInfo.bundlePath}\v{studioInfo.fileName}\v{studioInfo.manifest}\v{GroupNo}\v{CategoryNo}\v{LocalSlot}";
 #elif AI || HS2
-            DeveloperSearchString = $"{item.bundlePath}\v{item.fileName}\v{item.manifest}\v{GroupNo}\v{CategoryNo}\v{ItemNo}";
+            DeveloperSearchString = $"{studioInfo.bundlePath}\v{studioInfo.fileName}\v{studioInfo.manifest}\v{GroupNo}\v{CategoryNo}\v{LocalSlot}";
 #endif
-            if (ItemInfoLoader.ZipmodCache.TryGetValue(itemNo, out var cachedGuid) && cachedGuid.Key != null)
+            
+            OldCacheId = MakeOldCacheId(groupNo, categoryNo, studioInfo);
+
+            if (zipmodInfo != null)
             {
-                GUID = cachedGuid.Key;
-                DeveloperSearchString += "\v" + GUID;
-                if (cachedGuid.Value != null)
-                {
-                    FileName = cachedGuid.Value;
-                    DeveloperSearchString += "\v" + FileName;
-                }
+                GUID = zipmodInfo.GUID;
+                ZipmodSlot = zipmodInfo.Slot;
+                DeveloperSearchString += "\v" + GUID + "\v" + ZipmodSlot;
+                NewCacheId = MakeNewCacheId(groupNo, categoryNo, ZipmodSlot);
+            }
+            else
+            {
+                ZipmodSlot = -1;
+                NewCacheId = MakeNewCacheId(groupNo, categoryNo, LocalSlot);
             }
 
-            CacheId = MakeCacheId(groupNo, categoryNo, item);
+            if (zipmodFilename != null)
+            {
+                FileName = zipmodFilename;
+                DeveloperSearchString += "\v" + FileName;
+            }
 
             if (!Info.Instance.dicItemGroupCategory.ContainsKey(GroupNo)) throw new ArgumentException("Invalid group number");
             var groupInfo = Info.Instance.dicItemGroupCategory[GroupNo];
@@ -51,9 +58,11 @@ namespace KK_QuickAccessBox
 #elif AI || HS2
             var origCategoryName = groupInfo.dicCategory[CategoryNo].name;
 #endif
-            OriginalItemName = groupInfo.name + "/" + origCategoryName + "/" + item.name;
+            OriginalItemName = groupInfo.name + "/" + origCategoryName + "/" + studioInfo.name;
 
-            ItemInfoLoader.TranslationCache.TryGetValue(CacheId, out var cachedTranslations);
+            // Use old cache ID since it contains the name, which is translated here.
+            // This way duplicate names will not have duplicate entries. Also old caches can still be used.
+            ItemInfoLoader.TranslationCache.TryGetValue(OldCacheId, out var cachedTranslations);
             if (cachedTranslations != null)
             {
                 CategoryName = cachedTranslations.CategoryName;
@@ -75,7 +84,7 @@ namespace KK_QuickAccessBox
                     if (_initFinished)
                         UpdateCompositeStrings();
                 });
-                Translate(item.name, s =>
+                Translate(studioInfo.name, s =>
                 {
                     ItemName = s;
                     if (_initFinished)
@@ -120,9 +129,14 @@ namespace KK_QuickAccessBox
         private string OriginalItemName { get; }
 
         /// <summary>
-        /// Index of the item in
+        /// Index of the item as used by the current game instance. Changes between game restarts for zipmods.
         /// </summary>
-        public int ItemNo { get; }
+        public int LocalSlot { get; }
+
+        /// <summary>
+        /// Original index of the item if it was loaded from a zipmod, -1 otherwise. Stays constant between game restarts.
+        /// </summary>
+        public int ZipmodSlot { get; }
 
         /// <summary>
         /// String to search against
@@ -147,7 +161,11 @@ namespace KK_QuickAccessBox
             GroupNo == 2171; // dirty's 3dsfx
 #endif
 
-        public string CacheId { get; }
+        [Obsolete("Will be removed", true)]
+        public string CacheId => OldCacheId;
+        internal string NewCacheId { get; }
+        [Obsolete]
+        internal string OldCacheId { get; }
 
         /// <summary>
         /// If this item is from a zipmod, GUID of the zipmod. Otherwise null.
@@ -176,7 +194,7 @@ namespace KK_QuickAccessBox
         {
             try
             {
-                Studio.Studio.Instance.AddItem(GroupNo, CategoryNo, ItemNo);
+                Studio.Studio.Instance.AddItem(GroupNo, CategoryNo, LocalSlot);
             }
             catch (NullReferenceException)
             {
@@ -199,28 +217,33 @@ namespace KK_QuickAccessBox
             SearchString = searchStr.ToLowerInvariant();
         }
 
-        public static string MakeCacheId(int groupNo, int categoryNo, Info.ItemLoadInfo item)
+        private static string MakeNewCacheId(int groupNo, int categoryNo, int slotNo)
+        {
+            // Sideloader generated local slot numbers start at 100000000, so real slot numbers should have at most 8 digits
+            return $"{groupNo:D8}-{categoryNo:D8}-{slotNo:D8}";
+        }
+
+        [Obsolete]
+        private string MakeOldCacheId(int groupNo, int categoryNo, Info.ItemLoadInfo item)
         {
             // Can't use itemNo because it can change with sideloader
-            // todo change into Sideloader.AutoResolver.UniversalAutoResolver.TryGetResolutionInfo((ChaListDefine.CategoryNo)categoryNo, 1).Slot ?
             return $"{groupNo:D8}-{categoryNo:D8}-{Utils.MakeValidFileName(item.name)}";
-            // old - return $"{groupNo:D8}-{categoryNo:D8}-{item.name.GetHashCode():D32}";
+            // even older - return $"{groupNo:D8}-{categoryNo:D8}-{item.name.GetHashCode():D32}";
         }
 
         public override int GetHashCode()
         {
-            if (OriginalItemName == null) return 0;
-            return OriginalItemName.GetHashCode();
+            return string.Concat(GroupNo, '/', CategoryNo, '/', LocalSlot).GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ItemInfo i && i.OriginalItemName == OriginalItemName;
+            return obj is ItemInfo i && i.GroupNo == GroupNo && i.CategoryNo == CategoryNo && i.LocalSlot == LocalSlot;
         }
 
         public override string ToString()
         {
-            return $"Name=\"{FullName}\" GroupNo={GroupNo} CategoryNo={CategoryNo} ItemNo={ItemNo} Bundle=\"{Bundle}\" Asset=\"{Asset}\" GUID=\"{GUID}\" Zipmod=\"{FileName}\"";
+            return $"Name=\"{FullName}\" GroupNo={GroupNo} CategoryNo={CategoryNo} LocalSlot={LocalSlot} ZipmodSlot={ZipmodSlot} Bundle=\"{Bundle}\" Asset=\"{Asset}\" GUID=\"{GUID}\" Zipmod=\"{FileName}\"";
         }
 
         private static void Translate(string input, Action<string> updateAction)

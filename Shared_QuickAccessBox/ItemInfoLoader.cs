@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Timers;
 using BepInEx;
@@ -17,7 +16,6 @@ namespace KK_QuickAccessBox
     {
         private static readonly string _cachePath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.cache");
 
-        internal static Dictionary<int, KeyValuePair<string, string>> ZipmodCache { get; private set; }
         internal static Dictionary<string, TranslationCacheEntry> TranslationCache { get; private set; }
         public static IEnumerable<ItemInfo> ItemList { get; private set; }
 
@@ -39,7 +37,6 @@ namespace KK_QuickAccessBox
         private static void SetupCache()
         {
             LoadTranslationCache();
-            LoadZipmodCache();
 
             void OnSave(object sender, ElapsedEventArgs args)
             {
@@ -59,6 +56,8 @@ namespace KK_QuickAccessBox
 
             SetupCache();
 
+            var zipmodInfos = GatherZipmodInfos();
+
             var results = new List<ItemInfo>();
 
             // The instance should have been spawned by now
@@ -71,16 +70,22 @@ namespace KK_QuickAccessBox
                 {
                     foreach (var item in category.Value)
                     {
+                        var localSlot = item.Key;
+                        var groupNo = group.Key;
+                        var categoryNo = category.Key;
+
+                        zipmodInfos.TryGetValue(localSlot, out var zipmodInfo);
+
                         try
                         {
-                            results.Add(new ItemInfo(@group.Key, category.Key, item.Key, item.Value));
+                            results.Add(new ItemInfo(groupNo, categoryNo, localSlot, item.Value, zipmodInfo.Key, zipmodInfo.Value));
                         }
                         catch (Exception e)
                         {
                             if (e is TargetInvocationException ie && ie.InnerException != null)
                                 e = ie.InnerException;
 
-                            QuickAccessBox.Logger.LogWarning($"Failed to load information about item: name={item.Value.name} group={@group.Key} category={category.Key} itemNo={item.Key} - {e.Message}");
+                            QuickAccessBox.Logger.LogWarning($"Failed to load information about item: name={item.Value.name} group={groupNo} category={categoryNo} slot={zipmodInfo.Key?.Slot ?? localSlot} zipmod=\"{zipmodInfo.Value}\" - {e.Message}");
                         }
                     }
                 }
@@ -116,17 +121,14 @@ namespace KK_QuickAccessBox
             {
                 if (ItemList == null) return;
 
-                var newCache = ItemList
-                    .GroupBy(info => info.CacheId)
-                    .Select(infos =>
-                    {
-                        if (infos.Count() != 1)
-                            QuickAccessBox.Logger.LogWarning($"Cache collision on item {infos.Key}, please consider renaming it");
-
-                        // Items have the same full names so translations can be reused for both of them
-                        return infos.First();
-                    })
-                    .ToDictionary(info => info.CacheId, TranslationCacheEntry.FromItemInfo);
+                var newCache = new Dictionary<string, TranslationCacheEntry>();
+                foreach (var itemInfo in ItemList)
+                {
+                    // Items with the same OldCacheId have the same full names so translations can be reused for all of them
+#pragma warning disable CS0612
+                    newCache[itemInfo.OldCacheId] = TranslationCacheEntry.FromItemInfo(itemInfo);
+#pragma warning restore CS0612
+                }
 
                 var data = MessagePackSerializer.Serialize(newCache);
                 File.WriteAllBytes(_cachePath, data);
@@ -137,9 +139,9 @@ namespace KK_QuickAccessBox
             }
         }
 
-        private static void LoadZipmodCache()
+        private static Dictionary<int, KeyValuePair<StudioResolveInfo, string>> GatherZipmodInfos()
         {
-            ZipmodCache = new Dictionary<int, KeyValuePair<string, string>>();
+            var zipmodCache = new Dictionary<int, KeyValuePair<StudioResolveInfo, string>>();
             foreach (var x in UniversalAutoResolver.LoadedStudioResolutionInfo)
             {
                 if (!x.ResolveItem) continue;
@@ -147,8 +149,9 @@ namespace KK_QuickAccessBox
                 if (Sideloader.Sideloader.ZipArchives.TryGetValue(x.GUID, out var filename))
                     filename = Path.GetFileName(filename);
 
-                ZipmodCache.Add(x.LocalSlot, new KeyValuePair<string, string>(x.GUID, filename));
+                zipmodCache.Add(x.LocalSlot, new KeyValuePair<StudioResolveInfo, string>(x, filename));
             }
+            return zipmodCache;
         }
     }
 }

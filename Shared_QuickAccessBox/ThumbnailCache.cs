@@ -15,26 +15,32 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static Sprite GetThumbnail(ItemInfo info)
         {
-            if (!_thumbnailCache.TryGetValue(info.CacheId, out var sprite))
+            if (_thumbnailCache.TryGetValue(info.NewCacheId, out var sprite)) return sprite;
+            if (_pngNameCache == null) return _thumbMissing;
+
+            _pngNameCache.TryGetValue(info.NewCacheId, out var pngPath);
+            if (pngPath == null)
             {
-                if (_pngNameCache == null) return _thumbMissing;
-
-                _pngNameCache.TryGetValue(info.CacheId, out var pngPath);
-                var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
-                if (tex != null)
-                {
-                    sprite = tex.ToSprite();
-                }
-                else
-                {
-                    if (info.IsSFX)
-                        sprite = _thumbSound;
-                    else
-                        sprite = _thumbMissing;
-                }
-
-                _thumbnailCache.Add(info.CacheId, sprite);
+                // Fall back to old thumbnail names in case the mod wasn't updated
+#pragma warning disable CS0612
+                _pngNameCache.TryGetValue(info.OldCacheId, out pngPath);
+#pragma warning restore CS0612
             }
+
+            var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
+            if (tex != null)
+            {
+                sprite = tex.ToSprite();
+            }
+            else
+            {
+                if (info.IsSFX)
+                    sprite = _thumbSound;
+                else
+                    sprite = _thumbMissing;
+            }
+
+            _thumbnailCache.Add(info.NewCacheId, sprite);
 
             return sprite;
         }
@@ -76,7 +82,9 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static bool CustomThumbnailAvailable(ItemInfo itemInfo)
         {
-            return _pngNameCache != null && _pngNameCache.ContainsKey(itemInfo.CacheId);
+#pragma warning disable CS0612
+            return _pngNameCache != null && (_pngNameCache.ContainsKey(itemInfo.NewCacheId) || _pngNameCache.ContainsKey(itemInfo.OldCacheId));
+#pragma warning restore CS0612
         }
     }
 }

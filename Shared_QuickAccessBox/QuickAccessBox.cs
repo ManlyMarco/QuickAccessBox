@@ -141,7 +141,7 @@ namespace KK_QuickAccessBox
             Logger.LogDebug("Creating item " + info);
             info.AddItem();
 
-            _recents[info.CacheId] = DateTime.UtcNow;
+            _recents[info.NewCacheId] = DateTime.UtcNow;
             TrimRecents();
             SaveRecents();
         }
@@ -151,7 +151,7 @@ namespace KK_QuickAccessBox
             // If no search string, show recents if any
             _interface.SetList(!string.IsNullOrEmpty(newStr)
                 ? ItemList.Where(info => ItemMatchesSearch(info, newStr))
-                : _recents.OrderByDescending(x => x.Value).Select(x => ItemList.FirstOrDefault(i => i.CacheId == x.Key)).Where(x => x != null));
+                : _recents.OrderByDescending(x => x.Value).Select(x => ItemList.FirstOrDefault(i => i.NewCacheId == x.Key)).Where(x => x != null));
         }
 
         private static bool ItemMatchesSearch(ItemInfo item, string searchStr)

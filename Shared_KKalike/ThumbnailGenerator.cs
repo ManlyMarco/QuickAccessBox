@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using alphaShot;
 using BepInEx.Bootstrap;
-using BepInEx.Logging;
 using Illusion.Extensions;
 using KKAPI.Utilities;
 using Studio;
@@ -23,8 +22,8 @@ namespace KK_QuickAccessBox.Thumbs
             Texture2D thumbBackground;
             try
             {
-                if (manualMode && !Chainloader.PluginInfos.ContainsKey("KK_OrthographicCamera"))
-                    throw new ArgumentException("Manual mode needs the OrthographicCamera plugin to work");
+                if (manualMode && !(Chainloader.PluginInfos.TryGetValue("KK_OrthographicCamera", out var plug) && plug.Metadata.Version >= new Version("1.1.1")))
+                    throw new ArgumentException("Manual mode needs the OrthographicCamera plugin (at least v1.1.1) to work");
 
                 if (itemList == null) throw new ArgumentNullException(nameof(itemList));
                 if (outputDirectory == null) throw new ArgumentNullException(nameof(outputDirectory));
@@ -34,7 +33,7 @@ namespace KK_QuickAccessBox.Thumbs
             }
             catch (Exception ex)
             {
-                QuickAccessBox.Logger.Log(LogLevel.Message | LogLevel.Error, "Failed to make thumbs: " + ex.Message);
+                QuickAccessBox.Logger.Log(BepInEx.Logging.LogLevel.Message | BepInEx.Logging.LogLevel.Error, "Failed to make thumbs: " + ex.Message);
                 yield break;
             }
 
@@ -75,8 +74,18 @@ namespace KK_QuickAccessBox.Thumbs
             {
                 if (itemInfo.IsSFX) continue;
 
-                var thumbPath = Path.Combine(outputDirectory, itemInfo.CacheId + ".png");
-                if (File.Exists(thumbPath)) continue;
+                var thumbPathNew = Path.Combine(outputDirectory, itemInfo.NewCacheId + ".png");
+#pragma warning disable CS0612
+                var thumbPathOld = Path.Combine(outputDirectory, itemInfo.OldCacheId + ".png");
+#pragma warning restore CS0612
+                if (File.Exists(thumbPathNew)) continue;
+                if (File.Exists(thumbPathOld))
+                {
+                    // Convert thumbnails with old cache IDs to new cache IDs
+                    Console.WriteLine($"Renaming [{thumbPathOld}] to [{thumbPathNew}]");
+                    File.Move(thumbPathOld, thumbPathNew);
+                    continue;
+                }
 
                 if (ThumbnailLoader.CustomThumbnailAvailable(itemInfo)) continue;
 
@@ -143,12 +152,12 @@ namespace KK_QuickAccessBox.Thumbs
 
                     var result = alphaShot.Capture(64, 64, 1, true);
 
-                    try { File.WriteAllBytes(thumbPath, result); }
-                    catch (SystemException ex) { QuickAccessBox.Logger.Log(LogLevel.Message | LogLevel.Error, "Failed to write thumbnail file - " + ex.Message); }
+                    try { File.WriteAllBytes(thumbPathNew, result); }
+                    catch (SystemException ex) { QuickAccessBox.Logger.Log(BepInEx.Logging.LogLevel.Message | BepInEx.Logging.LogLevel.Error, "Failed to write thumbnail file - " + ex.Message); }
                 }
                 else
                 {
-                    QuickAccessBox.Logger.Log(LogLevel.Info, "No renderers to take capture of - " + itemInfo.FullName);
+                    QuickAccessBox.Logger.LogInfo("No renderers to take capture of - " + itemInfo);
                 }
 
                 yield return null;
@@ -165,7 +174,7 @@ namespace KK_QuickAccessBox.Thumbs
             Object.Destroy(thumbBackground);
             Object.Destroy(copyPlane.gameObject);
 
-            QuickAccessBox.Logger.Log(LogLevel.Message, "Finished taking thumbnails!");
+            QuickAccessBox.Logger.LogMessage("Finished taking thumbnails!");
         }
 
         private static void RemoveAllItems()

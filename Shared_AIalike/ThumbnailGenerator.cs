@@ -94,8 +94,18 @@ namespace KK_QuickAccessBox.Thumbs
             {
                 if (itemInfo.IsSFX) continue;
 
-                var thumbPath = Path.Combine(outputDirectory, itemInfo.CacheId + ".png");
-                if (File.Exists(thumbPath)) continue;
+                var thumbPathNew = Path.Combine(outputDirectory, itemInfo.NewCacheId + ".png");
+#pragma warning disable CS0612
+                var thumbPathOld = Path.Combine(outputDirectory, itemInfo.OldCacheId + ".png");
+#pragma warning restore CS0612
+                if (File.Exists(thumbPathNew)) continue;
+                if (File.Exists(thumbPathOld))
+                {
+                    // Convert thumbnails with old cache IDs to new cache IDs
+                    Console.WriteLine($"Renaming [{thumbPathOld}] to [{thumbPathNew}]");
+                    File.Move(thumbPathOld, thumbPathNew);
+                    continue;
+                }
 
                 if (ThumbnailLoader.CustomThumbnailAvailable(itemInfo)) continue;
 
@@ -163,12 +173,12 @@ namespace KK_QuickAccessBox.Thumbs
 
                     var result = RunCapture();
 
-                    try { File.WriteAllBytes(thumbPath, result); }
+                    try { File.WriteAllBytes(thumbPathNew, result); }
                     catch (SystemException ex) { QuickAccessBox.Logger.Log(BepInEx.Logging.LogLevel.Message | BepInEx.Logging.LogLevel.Error, "Failed to write thumbnail file - " + ex.Message); }
                 }
                 else
                 {
-                    QuickAccessBox.Logger.LogInfo($"No renderers to take capture of for {itemInfo.FullName} - GroupNo:{itemInfo.GroupNo} CategoryNo:{itemInfo.CategoryNo} ItemNo:{itemInfo.ItemNo}");
+                    QuickAccessBox.Logger.LogInfo("No renderers to take capture of - " + itemInfo);
                 }
 
                 yield return null;
