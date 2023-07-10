@@ -93,7 +93,6 @@
   </ItemGroup>
   <Import Project="..\Shared_QuickAccessBox\Shared_QuickAccessBox.projitems" Label="Shared" />
   <Import Project="..\Shared_KKalike\Shared_KKalike.projitems" Label="Shared" />
-  <Import Project="..\UIUtility\UIUtility.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

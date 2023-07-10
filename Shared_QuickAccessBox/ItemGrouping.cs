@@ -59,6 +59,12 @@ namespace KK_QuickAccessBox
             return false;
         }
 
+        public bool RemoveItem(ItemInfo item)
+        {
+            if (item == null) return false;
+            return RemoveItem(item.GUID, item.NewCacheId);
+        }
+
         public bool AddMod(string guid)
         {
             if (guid == null) guid = string.Empty;
@@ -92,6 +98,12 @@ namespace KK_QuickAccessBox
 
             if (any) _onChanged?.Invoke();
             return any;
+        }
+
+        public bool AddItem(ItemInfo item)
+        {
+            if (item == null) return false;
+            return AddItem(item.GUID, item.NewCacheId);
         }
 
         public void TrySave()
@@ -136,7 +148,7 @@ namespace KK_QuickAccessBox
                     {
                         if (string.IsNullOrEmpty(line)) continue;
 
-                        var s = line.Split(new char[] { '\0' }, 2, StringSplitOptions.None);
+                        var s = line.Split(new[] { '\0' }, 2, StringSplitOptions.None);
                         if (s.Length != 2) continue;
 
                         var guid = s[0];

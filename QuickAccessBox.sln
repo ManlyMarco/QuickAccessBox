@@ -17,8 +17,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_KKalike", "Shared_KK
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_AIalike", "Shared_AIalike\Shared_AIalike.shproj", "{CCF0938D-6C1B-409F-A9B9-E5CFD95B017F}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "UIUtility", "UIUtility\UIUtility.shproj", "{E6EF7A17-9328-4821-AF19-BC2C175BF4DD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,19 +49,14 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared_AIalike\Shared_AIalike.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
-		UIUtility\UIUtility.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
 		Shared_AIalike\Shared_AIalike.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
-		UIUtility\UIUtility.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
 		Shared_KKalike\Shared_KKalike.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
-		UIUtility\UIUtility.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
 		Shared_AIalike\Shared_AIalike.projitems*{ccf0938d-6c1b-409f-a9b9-e5cfd95b017f}*SharedItemsImports = 13
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{cf7c11e6-ced8-4bf3-9885-3f127e83389b}*SharedItemsImports = 13
 		Shared_KKalike\Shared_KKalike.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
-		UIUtility\UIUtility.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
-		UIUtility\UIUtility.projitems*{e6ef7a17-9328-4821-af19-bc2c175bf4dd}*SharedItemsImports = 13
 		Shared_KKalike\Shared_KKalike.projitems*{eaf0de8e-c2d9-4612-ba76-7b1a0c77dc16}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

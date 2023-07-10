@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3665316987
+CRC: 3939419646
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e8ca71184aaeaf79f13d9973313a44a9
+    Hash: 214036c0b35d458d07e212fd5dcbfe0a
   TypeTreeHash:
     serializedVersion: 2
-    Hash: b1208a27655a1db6826e80a926788de2
+    Hash: f6c32f8dc8b07abce42cc5be42cadeec
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -54,6 +54,8 @@ ClassTypes:
 - Class: 223
   Script: {instanceID: 0}
 - Class: 224
+  Script: {instanceID: 0}
+- Class: 225
   Script: {instanceID: 0}
 Assets:
 - Assets/QuickAccessBoxCanvas.prefab
