@@ -12,7 +12,6 @@ using KK_QuickAccessBox.Thumbs;
 using KK_QuickAccessBox.UI;
 using UnityEngine;
 using BepInEx.Configuration;
-using MessagePack;
 using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
 
 namespace KK_QuickAccessBox
@@ -36,6 +35,9 @@ namespace KK_QuickAccessBox
         private static readonly string _blacklistPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.blacklist");
         private static readonly string _favesPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.faves");
         private static readonly string _recentsPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.recents");
+        internal ItemGrouping Blacklisted { get; private set; }
+        internal ItemGrouping Favorited { get; private set; }
+        internal ItemRecents Recents { get; private set; }
 
         private const string DESCRIPTION_RECENTS = "How many items that were recently opened by using the search box should be stored. Recent items are displayed when search box is empty, ordered by date of last use. Set to 0 to disable the feature.";
         private const string DESCRIPTION_DEVINFO = "The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.\nRequires studio restart to take effect.";
@@ -136,12 +138,14 @@ namespace KK_QuickAccessBox
 
             ThreadingHelper.Instance.StartAsyncInvoke(() =>
             {
+                // Runs async
                 ItemInfoLoader.LoadItems();
-                LoadRecents();
+                Recents = new ItemRecents(_recentsPath, true, null);
                 Favorited = new ItemGrouping(_blacklistPath, true, RefreshList);
                 Blacklisted = new ItemGrouping(_favesPath, true, RefreshList);
                 return () =>
                 {
+                    // Runs sync
                     _interface = new InterfaceManager();
                     _interface.Visible = false;
                     ThumbnailLoader.LoadAssetBundle();
@@ -155,9 +159,7 @@ namespace KK_QuickAccessBox
             Logger.LogDebug("Creating item " + info);
             info.AddItem();
 
-            _recents[info.NewCacheId] = DateTime.UtcNow;
-            TrimRecents();
-            SaveRecents();
+            Recents.BumpItemLastUseDate(info.NewCacheId);
         }
 
         public void RefreshList()
@@ -168,7 +170,7 @@ namespace KK_QuickAccessBox
                 case ListVisibilityType.Filtered:
                     if (string.IsNullOrEmpty(searchString))
                     {
-                        _interface.SetList(ItemList.Select(i => new { i, isRecent = _recents.TryGetValue(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
+                        _interface.SetList(ItemList.Select(i => new { i, isRecent = Recents.TryGetLastUseDate(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
                                                    .Where(x => x.isfav || x.isRecent)
                                                    .OrderByDescending(x => x.date)
                                                    .ThenByDescending(x => x.i.ItemName)
@@ -202,53 +204,5 @@ namespace KK_QuickAccessBox
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             return splitSearchStr.All(s => matchString.IndexOf(s, StringComparison.Ordinal) >= 0);
         }
-
-        #region Recents
-
-        private Dictionary<string, DateTime> _recents = new Dictionary<string, DateTime>();
-
-        private void SaveRecents()
-        {
-            try
-            {
-                File.WriteAllBytes(_recentsPath, MessagePackSerializer.Serialize(_recents));
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning("Failed to save recents: " + ex.Message);
-            }
-        }
-
-        private void LoadRecents()
-        {
-            if (File.Exists(_recentsPath))
-            {
-                try
-                {
-                    var bytes = File.ReadAllBytes(_recentsPath);
-                    _recents = MessagePackSerializer.Deserialize<Dictionary<string, DateTime>>(bytes);
-                    TrimRecents();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning("Failed to read recents: " + ex.Message);
-                }
-            }
-        }
-
-        private void TrimRecents()
-        {
-            foreach (var toRemove in _recents.OrderByDescending(x => x.Value).Skip(RecentsCount.Value))
-                _recents.Remove(toRemove.Key);
-        }
-
-        #endregion
-
-        #region Faves/blacklist
-
-        internal ItemGrouping Favorited { get; private set; }
-        internal ItemGrouping Blacklisted { get; private set; }
-
-        #endregion
     }
 }

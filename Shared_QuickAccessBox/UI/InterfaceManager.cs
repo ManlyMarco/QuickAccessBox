@@ -5,7 +5,6 @@ using IllusionUtility.GetUtility;
 using KKAPI.Studio.UI;
 using KKAPI.Utilities;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -50,11 +49,11 @@ namespace KK_QuickAccessBox.UI
             var filterPanel = _canvasRoot.transform.FindLoop("Panel_filters") ?? throw new ArgumentException("Panel_filters missing");
 
             _inputField = filterPanel.transform.Find("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
-            _inputField.onValueChanged.AddListener(_ => QuickAccessBox._Instance.RefreshList());
+            _inputField.onValueChanged.AddListener(_ => QuickAccessBox.Instance.RefreshList());
             _inputField.textComponent.MarkXuaIgnored();
 
             _filterDropdown = filterPanel.transform.Find("Dropdown").GetComponent<Dropdown>() ?? throw new ArgumentNullException(nameof(_filterDropdown));
-            _filterDropdown.onValueChanged.AddListener(val => QuickAccessBox._Instance.RefreshList());
+            _filterDropdown.onValueChanged.AddListener(val => QuickAccessBox.Instance.RefreshList());
 
             _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp").gameObject ?? throw new ArgumentNullException(nameof(_textHelpObj));
 #if AI || HS2
@@ -87,10 +86,10 @@ namespace KK_QuickAccessBox.UI
             switch (eventData.button)
             {
                 case PointerEventData.InputButton.Left:
-                    QuickAccessBox._Instance.CreateItem(item, false);
+                    QuickAccessBox.Instance.CreateItem(item, false);
                     break;
                 case PointerEventData.InputButton.Middle:
-                    QuickAccessBox._Instance.CreateItem(item, true);
+                    QuickAccessBox.Instance.CreateItem(item, true);
                     break;
                 case PointerEventData.InputButton.Right:
                     _contextMenu.ShowMenu(item);
@@ -177,7 +176,7 @@ namespace KK_QuickAccessBox.UI
                 if (_inputField.text != value)
                 {
                     _inputField.text = value;
-                    QuickAccessBox._Instance.RefreshList();
+                    QuickAccessBox.Instance.RefreshList();
                 }
             }
         }

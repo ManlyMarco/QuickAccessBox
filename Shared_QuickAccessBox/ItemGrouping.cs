@@ -15,7 +15,7 @@ namespace KK_QuickAccessBox
 
         public ItemGrouping(string savePath, bool autoSaveLoad, Action onChanged)
         {
-            SavePath = savePath;
+            SavePath = savePath ?? throw new ArgumentNullException(nameof(savePath));
             if (autoSaveLoad)
             {
                 _onChanged = onChanged + TrySave;
@@ -115,7 +115,7 @@ namespace KK_QuickAccessBox
                     }
                 }
 
-                Console.WriteLine($"save {SavePath} in {sw.ElapsedMilliseconds}ms");
+                QuickAccessBox.Logger.LogDebug($"Finished saving to [{Path.GetFileName(SavePath)}] in {sw.ElapsedMilliseconds}ms");
             }
             catch (Exception ex)
             {
@@ -130,6 +130,7 @@ namespace KK_QuickAccessBox
                 if (File.Exists(SavePath))
                 {
                     var sw = Stopwatch.StartNew();
+
                     var lines = File.ReadAllLines(SavePath);
                     foreach (var line in lines)
                     {
@@ -150,7 +151,7 @@ namespace KK_QuickAccessBox
                         items.Add(itemId);
                     }
 
-                    Console.WriteLine($"read {SavePath} in {sw.ElapsedMilliseconds}ms");
+                    QuickAccessBox.Logger.LogDebug($"Finished reading from [{Path.GetFileName(SavePath)}] in {sw.ElapsedMilliseconds}ms");
                 }
             }
             catch (Exception ex)

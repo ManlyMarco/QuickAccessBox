@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ItemGrouping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ItemInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ItemInfoLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ItemRecents.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ListVisibilityType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickAccessBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ThumbnailCache.cs" />

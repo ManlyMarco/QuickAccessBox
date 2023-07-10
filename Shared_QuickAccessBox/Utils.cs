@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -62,7 +61,7 @@ namespace KK_QuickAccessBox
             return b;
         }
 
-        public static bool IsFavorited(this ItemInfo item) => QuickAccessBox._Instance.Favorited.Check(item.GUID, item.NewCacheId);
-        public static bool IsBlacklisted(this ItemInfo item) => QuickAccessBox._Instance.Blacklisted.Check(item.GUID, item.NewCacheId);
+        public static bool IsFavorited(this ItemInfo item) => QuickAccessBox.Instance.Favorited.Check(item.GUID, item.NewCacheId);
+        public static bool IsBlacklisted(this ItemInfo item) => QuickAccessBox.Instance.Blacklisted.Check(item.GUID, item.NewCacheId);
     }
 }

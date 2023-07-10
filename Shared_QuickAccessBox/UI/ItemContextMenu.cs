@@ -1,5 +1,3 @@
-using System;
-using HarmonyLib;
 using UILib;
 using UniRx;
 using UniRx.Triggers;
@@ -201,7 +199,7 @@ namespace KK_QuickAccessBox.UI
             BlacklistButton.enabled = true;
             BlacklistModButton.enabled = true;
 
-            var favorited = QuickAccessBox._Instance.Favorited;
+            var favorited = QuickAccessBox.Instance.Favorited;
             if (favorited.Check(guid, itemId))
             {
                 FavoriteButton.GetComponentInChildren<Text>().text = "Unfavorite this item";
@@ -217,7 +215,7 @@ namespace KK_QuickAccessBox.UI
                 FavoriteModButton.onClick.AddListener(() => favorited.AddMod(guid));
             }
 
-            var blacklisted = QuickAccessBox._Instance.Blacklisted;
+            var blacklisted = QuickAccessBox.Instance.Blacklisted;
             if (blacklisted.Check(guid, itemId))
             {
                 BlacklistButton.GetComponentInChildren<Text>().text = "Unhide this item";
