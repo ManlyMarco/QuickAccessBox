@@ -29,8 +29,13 @@ namespace KK_QuickAccessBox
         public const string Version = "2.4.5";
 
         internal static new ManualLogSource Logger;
+        internal static QuickAccessBox Instance;
 
         private InterfaceManager _interface;
+
+        private static readonly string _blacklistPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.blacklist");
+        private static readonly string _favesPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.faves");
+        private static readonly string _recentsPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.recents");
 
         private const string DESCRIPTION_RECENTS = "How many items that were recently opened by using the search box should be stored. Recent items are displayed when search box is empty, ordered by date of last use. Set to 0 to disable the feature.";
         private const string DESCRIPTION_DEVINFO = "The search box will search asset filenames, group/category/item ID numbers, manifests and other things from list files.\nRequires studio restart to take effect.";
@@ -63,11 +68,13 @@ namespace KK_QuickAccessBox
         /// <summary>
         /// List of all studio items that can be added into the game
         /// </summary>
+        [Browsable(false)]
         public IEnumerable<ItemInfo> ItemList => ItemInfoLoader.ItemList;
 
         private void Start()
         {
             Logger = base.Logger;
+            Instance = this;
 
             var advanced = new ConfigurationManagerAttributes { IsAdvanced = true };
 
@@ -87,10 +94,14 @@ namespace KK_QuickAccessBox
 
         private void OnDestroy()
         {
+            // Must run Dispose on these to save caches and settings
+            // todo: don't rely on game closing cleanly
             _interface?.Dispose();
             ThumbnailLoader.Dispose();
             ItemInfoLoader.Dispose();
-            //SaveRecents();
+#if DEBUG
+            SaveRecents();
+#endif
         }
 
         private void Update()
@@ -127,17 +138,20 @@ namespace KK_QuickAccessBox
             {
                 ItemInfoLoader.LoadItems();
                 LoadRecents();
+                Favorited = new ItemGrouping(_blacklistPath, true, RefreshList);
+                Blacklisted = new ItemGrouping(_favesPath, true, RefreshList);
                 return () =>
                 {
-                    _interface = new InterfaceManager(OnListItemClicked, OnSearchStringChanged);
+                    _interface = new InterfaceManager();
                     _interface.Visible = false;
                     ThumbnailLoader.LoadAssetBundle();
                 };
             });
         }
 
-        private void OnListItemClicked(ItemInfo info)
+        internal void CreateItem(ItemInfo info, bool parented)
         {
+            //todo parenting
             Logger.LogDebug("Creating item " + info);
             info.AddItem();
 
@@ -146,18 +160,43 @@ namespace KK_QuickAccessBox
             SaveRecents();
         }
 
-        private void OnSearchStringChanged(string newStr)
+        public void RefreshList()
         {
-            // If no search string, show recents if any
-            _interface.SetList(!string.IsNullOrEmpty(newStr)
-                ? ItemList.Where(info => ItemMatchesSearch(info, newStr))
-                : _recents.OrderByDescending(x => x.Value).Select(x => ItemList.FirstOrDefault(i => i.NewCacheId == x.Key)).Where(x => x != null));
+            var searchString = _interface.SearchString;
+            switch (_interface.ListFilteringType)
+            {
+                case ListVisibilityType.Filtered:
+                    if (string.IsNullOrEmpty(searchString))
+                    {
+                        _interface.SetList(ItemList.Select(i => new { i, isRecent = _recents.TryGetValue(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
+                                                   .Where(x => x.isfav || x.isRecent)
+                                                   .OrderByDescending(x => x.date)
+                                                   .ThenByDescending(x => x.i.ItemName)
+                                                   .Select(x => x.i));
+                    }
+                    else
+                    {
+                        _interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    }
+                    break;
+                case ListVisibilityType.Favorites:
+                    _interface.SetList(ItemList.Where(info => Favorited.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    break;
+                case ListVisibilityType.Hidden:
+                    _interface.SetList(ItemList.Where(info => Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    break;
+                case ListVisibilityType.All:
+                    _interface.SetList(ItemList.Where(info => ItemMatchesSearch(info, searchString)));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(_interface.ListFilteringType.ToString());
+            }
         }
 
         private static bool ItemMatchesSearch(ItemInfo item, string searchStr)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            if (searchStr == null) throw new ArgumentNullException(nameof(searchStr));
+            if (string.IsNullOrEmpty(searchStr)) return true;
 
             var matchString = item.SearchString;
             var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
@@ -166,7 +205,6 @@ namespace KK_QuickAccessBox
 
         #region Recents
 
-        private static readonly string _recentsPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.recents");
         private Dictionary<string, DateTime> _recents = new Dictionary<string, DateTime>();
 
         private void SaveRecents()
@@ -203,6 +241,13 @@ namespace KK_QuickAccessBox
             foreach (var toRemove in _recents.OrderByDescending(x => x.Value).Skip(RecentsCount.Value))
                 _recents.Remove(toRemove.Key);
         }
+
+        #endregion
+
+        #region Faves/blacklist
+
+        internal ItemGrouping Favorited { get; private set; }
+        internal ItemGrouping Blacklisted { get; private set; }
 
         #endregion
     }

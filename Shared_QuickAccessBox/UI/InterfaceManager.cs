@@ -26,9 +26,10 @@ namespace KK_QuickAccessBox.UI
         private GameObject _searchMenuButton;
         private ToolbarToggle _toolbarIcon;
 
-        /// <param name="onClicked">Fired when one of the list items is clicked</param>
-        /// <param name="onSearchStringChanged">Fired when search string changes</param>
-        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
+        private ItemContextMenu _contextMenu;
+        private readonly Dropdown _filterDropdown;
+
+        public InterfaceManager()
         {
             _canvasRoot = CreateCanvas();
 
@@ -46,9 +47,14 @@ namespace KK_QuickAccessBox.UI
             }
             MovableWindow.MakeObjectDraggable(_windowRootRt, _windowRootRt, false);
 
-            _inputField = _canvasRoot.transform.FindLoop("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
-            _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
+            var filterPanel = _canvasRoot.transform.FindLoop("Panel_filters") ?? throw new ArgumentException("Panel_filters missing");
+
+            _inputField = filterPanel.transform.Find("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
+            _inputField.onValueChanged.AddListener(_ => QuickAccessBox._Instance.RefreshList());
             _inputField.textComponent.MarkXuaIgnored();
+
+            _filterDropdown = filterPanel.transform.Find("Dropdown").GetComponent<Dropdown>() ?? throw new ArgumentNullException(nameof(_filterDropdown));
+            _filterDropdown.onValueChanged.AddListener(val => QuickAccessBox._Instance.RefreshList());
 
             _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp").gameObject ?? throw new ArgumentNullException(nameof(_textHelpObj));
 #if AI || HS2
@@ -63,11 +69,35 @@ namespace KK_QuickAccessBox.UI
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
             _simpleVirtualList.ScrollRect = scrollRect;
             _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindLoop("ListEntry").gameObject ?? throw new ArgumentException("Couldn't find ListEntry");
-            _simpleVirtualList.OnClicked = onClicked;
+            _simpleVirtualList.OnClicked = HandleItemClick;
             _simpleVirtualList.Initialize();
 
             CreateSearchMenuButton();
             CreateSearchToolbarButton();
+            CreateContextMenu();
+        }
+
+        private void CreateContextMenu()
+        {
+            _contextMenu = new ItemContextMenu(_canvasRoot);
+        }
+
+        private void HandleItemClick(ItemInfo item, PointerEventData eventData)
+        {
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    QuickAccessBox._Instance.CreateItem(item, false);
+                    break;
+                case PointerEventData.InputButton.Middle:
+                    QuickAccessBox._Instance.CreateItem(item, true);
+                    break;
+                case PointerEventData.InputButton.Right:
+                    _contextMenu.ShowMenu(item);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(eventData.button.ToString());
+            }
         }
 
         public void Dispose()
@@ -137,6 +167,25 @@ namespace KK_QuickAccessBox.UI
                         _inputField.onValueChanged.Invoke("");
                 }
             }
+        }
+
+        public string SearchString
+        {
+            get => _inputField.text;
+            set
+            {
+                if (_inputField.text != value)
+                {
+                    _inputField.text = value;
+                    QuickAccessBox._Instance.RefreshList();
+                }
+            }
+        }
+
+        public ListVisibilityType ListFilteringType
+        {
+            get => (ListVisibilityType)_filterDropdown.value;
+            set => _filterDropdown.value = (int)value;
         }
 
         private static GameObject CreateCanvas()
