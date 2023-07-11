@@ -118,7 +118,7 @@ namespace KK_QuickAccessBox.UI
         {
             var height = _menuRoot.rect.height * _menuRoot.lossyScale.y;
             var xPosition = Input.mousePosition.x + 15;
-            var yPosition = Input.mousePosition.y < height ? Input.mousePosition.y + 15 : Input.mousePosition.y - height + 15;
+            var yPosition = Input.mousePosition.y < height ? Input.mousePosition.y - 15 : Input.mousePosition.y - height - 15;
             _menuRoot.position = new Vector3(xPosition, yPosition, 0);
         }
 
