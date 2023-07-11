@@ -202,7 +202,7 @@ namespace KK_QuickAccessBox
                 // Some modded items crash in Studio.OCIItem.UpdateColor()
             }
         }
-
+        
         private void UpdateCompositeStrings()
         {
             FullName = GroupName + "/" + CategoryName + "/" + ItemName;
@@ -218,7 +218,7 @@ namespace KK_QuickAccessBox
             if (!string.IsNullOrEmpty(GUID))
                 searchStr += "\v" + GUID;
 
-            SearchString = searchStr.ToLowerInvariant();
+            SearchString = searchStr.Replace(' ', '_').ToLowerInvariant();
         }
 
         private static string MakeNewCacheId(int groupNo, int categoryNo, int slotNo)
