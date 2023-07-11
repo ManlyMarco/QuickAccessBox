@@ -59,6 +59,7 @@ namespace KK_QuickAccessBox
         public static ConfigEntry<int> RecentsCount { get; private set; }
 
         public static ConfigEntry<Vector2> WindowPosition { get; private set; }
+        public static ConfigEntry<float> InterfaceScale { get; private set; }
 
         [Browsable(false)]
         public bool ShowBox
@@ -90,6 +91,8 @@ namespace KK_QuickAccessBox
             ThumbStoreLocation = Config.Bind("Thumbnail generation", "Output directory", string.Empty, new ConfigDescription(DESCRIPTION_THUMBDIR, null, advanced));
 
             WindowPosition = Config.Bind("General", "Initial window position", Vector2.zero, new ConfigDescription(DESCRIPTION_WINPOS, null, new ConfigurationManagerAttributes { Browsable = false }));
+            InterfaceScale = Config.Bind("General", "Interface scale", 1f, new ConfigDescription("Scale of the search window compared to normal.", new AcceptableValueRange<float>(0.5f, 1.5f)));
+            InterfaceScale.SettingChanged += (sender, args) => Interface?.SetScale(InterfaceScale.Value);
 
             StartCoroutine(LoadingCo());
         }
@@ -148,6 +151,8 @@ namespace KK_QuickAccessBox
                     // Runs sync
                     Interface = new InterfaceManager();
                     Interface.Visible = false;
+                    Interface.SetScale(InterfaceScale.Value);
+
                     ThumbnailLoader.LoadAssetBundle();
                 };
             });

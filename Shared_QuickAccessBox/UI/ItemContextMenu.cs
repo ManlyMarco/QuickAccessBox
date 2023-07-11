@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Illusion.Extensions;
 using UniRx;
 using UniRx.Triggers;
@@ -115,14 +116,20 @@ namespace KK_QuickAccessBox.UI
 
         private void SnapPositionToCursor()
         {
+            var height = _menuRoot.rect.height * _menuRoot.lossyScale.y;
             var xPosition = Input.mousePosition.x + 15;
-            var yPosition = Input.mousePosition.y - 10 - _menuRoot.rect.height + 33;
+            var yPosition = Input.mousePosition.y < height ? Input.mousePosition.y + 15 : Input.mousePosition.y - height + 15;
             _menuRoot.position = new Vector3(xPosition, yPosition, 0);
         }
 
         public void SetMenuVisibility(bool visible)
         {
             _menuVisible.OnNext(visible);
+        }
+
+        public void SetScale(Vector3 newScale)
+        {
+            _menuRoot.localScale = newScale;
         }
     }
 }

@@ -236,5 +236,12 @@ namespace KK_QuickAccessBox.UI
             var iconTex = ResourceUtils.GetEmbeddedResource("toolbar-icon.png").LoadTexture();
             _toolbarIcon = CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
         }
+
+        public void SetScale(float interfaceScale)
+        {
+            var newScale = new Vector3(interfaceScale, interfaceScale, 1);
+            _windowRootRt.localScale = newScale;
+            _contextMenu.SetScale(newScale);
+        }
     }
 }
