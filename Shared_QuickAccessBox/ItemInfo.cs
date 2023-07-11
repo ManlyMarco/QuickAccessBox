@@ -35,7 +35,7 @@ namespace KK_QuickAccessBox
             {
                 GUID = zipmodInfo.GUID;
                 ZipmodSlot = zipmodInfo.Slot;
-                DeveloperSearchString += "\v" + GUID + "\v" + ZipmodSlot;
+                DeveloperSearchString += "\v" + ZipmodSlot;
                 NewCacheId = MakeNewCacheId(groupNo, categoryNo, ZipmodSlot);
             }
             else
@@ -214,6 +214,9 @@ namespace KK_QuickAccessBox
 
             if (QuickAccessBox.SearchDeveloperInfo.Value)
                 searchStr = $"{searchStr}\v{DeveloperSearchString}";
+
+            if (!string.IsNullOrEmpty(GUID))
+                searchStr += "\v" + GUID;
 
             SearchString = searchStr.ToLowerInvariant();
         }
