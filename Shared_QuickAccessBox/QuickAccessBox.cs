@@ -30,7 +30,7 @@ namespace KK_QuickAccessBox
         internal static new ManualLogSource Logger;
         internal static QuickAccessBox Instance;
 
-        private InterfaceManager _interface;
+        internal InterfaceManager Interface { get; set; }
 
         private static readonly string _blacklistPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.blacklist");
         private static readonly string _favesPath = Path.Combine(Paths.CachePath, "KK_QuickAccessBox.faves");
@@ -63,8 +63,8 @@ namespace KK_QuickAccessBox
         [Browsable(false)]
         public bool ShowBox
         {
-            get => _interface.Visible;
-            set => _interface.Visible = value;
+            get => Interface.Visible;
+            set => Interface.Visible = value;
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace KK_QuickAccessBox
         {
             // Must run Dispose on these to save caches and settings
             // todo: don't rely on game closing cleanly
-            _interface?.Dispose();
+            Interface?.Dispose();
             ThumbnailLoader.Dispose();
             ItemInfoLoader.Dispose();
 #if DEBUG
@@ -122,7 +122,7 @@ namespace KK_QuickAccessBox
 
         private bool IsLoaded()
         {
-            if (ItemList == null || _interface == null)
+            if (ItemList == null || Interface == null)
             {
                 Logger.LogMessage("Item list is still loading, please try again in a few seconds");
                 return false;
@@ -146,8 +146,8 @@ namespace KK_QuickAccessBox
                 return () =>
                 {
                     // Runs sync
-                    _interface = new InterfaceManager();
-                    _interface.Visible = false;
+                    Interface = new InterfaceManager();
+                    Interface.Visible = false;
                     ThumbnailLoader.LoadAssetBundle();
                 };
             });
@@ -164,13 +164,13 @@ namespace KK_QuickAccessBox
 
         public void RefreshList()
         {
-            var searchString = _interface.SearchString;
-            switch (_interface.ListFilteringType)
+            var searchString = Interface.SearchString;
+            switch (Interface.ListFilteringType)
             {
                 case ListVisibilityType.Filtered:
                     if (string.IsNullOrEmpty(searchString))
                     {
-                        _interface.SetList(ItemList.Select(i => new { i, isRecent = Recents.TryGetLastUseDate(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
+                        Interface.SetList(ItemList.Select(i => new { i, isRecent = Recents.TryGetLastUseDate(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
                                                    .Where(x => x.isfav || x.isRecent)
                                                    .OrderByDescending(x => x.date)
                                                    .ThenByDescending(x => x.i.ItemName)
@@ -178,20 +178,20 @@ namespace KK_QuickAccessBox
                     }
                     else
                     {
-                        _interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                        Interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
                     }
                     break;
                 case ListVisibilityType.Favorites:
-                    _interface.SetList(ItemList.Where(info => Favorited.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => Favorited.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
                     break;
                 case ListVisibilityType.Hidden:
-                    _interface.SetList(ItemList.Where(info => Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
                     break;
                 case ListVisibilityType.All:
-                    _interface.SetList(ItemList.Where(info => ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => ItemMatchesSearch(info, searchString)));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(_interface.ListFilteringType.ToString());
+                    throw new ArgumentOutOfRangeException(Interface.ListFilteringType.ToString());
             }
         }
 

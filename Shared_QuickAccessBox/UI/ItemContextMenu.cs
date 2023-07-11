@@ -23,10 +23,7 @@ namespace KK_QuickAccessBox.UI
         {
             _menuRoot = contextMenu;
 
-            var template = _menuRoot.Find("MenuButton") ?? throw new ArgumentException("MenuButton is missing");
-
             var canvasGroup = _menuRoot.GetComponent<CanvasGroup>() ?? throw new ArgumentException("MenuButton/CanvasGroup is missing");
-
             _menuVisible.Subscribe(visible =>
             {
                 canvasGroup.alpha = visible ? 1 : 0;
@@ -34,6 +31,7 @@ namespace KK_QuickAccessBox.UI
             });
             _menuVisible.OnNext(false);
 
+            var template = _menuRoot.Find("MenuButton") ?? throw new ArgumentException("MenuButton is missing");
             void CreateButton(string text, Action onClick, Func<bool> isVisible)
             {
                 var copy = UnityEngine.Object.Instantiate(template.gameObject, _menuRoot);
@@ -49,21 +47,38 @@ namespace KK_QuickAccessBox.UI
                 });
             }
 
+            var separator = _menuRoot.Find("Separator") ?? throw new ArgumentException("Separator is missing");
+            void CreateSeparator()
+            {
+                UnityEngine.Object.Instantiate(separator.gameObject, _menuRoot);
+            }
+
+            CreateButton("Spawn item", () => QuickAccessBox.Instance.CreateItem(_currentItem, false), null);
+            CreateButton("Print item info", () => QuickAccessBox.Logger.LogMessage(_currentItem.ToDescriptionString()), null);
+
+            CreateSeparator();
+
+            CreateButton("Search by this category", () => QuickAccessBox.Instance.Interface.SearchString = $"{_currentItem.GroupName}/{_currentItem.CategoryName}".Replace(' ', '_'), null);
+            CreateButton("Search by this zipmod",   () => QuickAccessBox.Instance.Interface.SearchString = _currentItem.GUID.Replace(' ', '_'), () => !string.IsNullOrEmpty(_currentItem.FileName));
+            
+            CreateSeparator();
+
             var favorited = QuickAccessBox.Instance.Favorited;
             CreateButton("Favorite this item",                 () => favorited.AddItem(_currentItem),        () => !_itemIsFav);
             CreateButton("Favorite all items from this mod",   () => favorited.AddMod(_currentItem.GUID),    () => !_itemIsFav);
             CreateButton("Unfavorite this item",               () => favorited.RemoveItem(_currentItem),     () => _itemIsFav);
             CreateButton("Unfavorite all items from this mod", () => favorited.RemoveMod(_currentItem.GUID), () => _itemIsFav);
 
+            CreateSeparator();
+            
             var blacklisted = QuickAccessBox.Instance.Blacklisted;
             CreateButton("Hide this item",                 () => blacklisted.AddItem(_currentItem),        () => !_itemIsBlk);
             CreateButton("Hide all items from this mod",   () => blacklisted.AddMod(_currentItem.GUID),    () => !_itemIsBlk);
             CreateButton("Unhide this item",               () => blacklisted.RemoveItem(_currentItem),     () => _itemIsBlk);
             CreateButton("Unhide all items from this mod", () => blacklisted.RemoveMod(_currentItem.GUID), () => _itemIsBlk);
-            
-            CreateButton("Print item info", () => QuickAccessBox.Logger.LogMessage(_currentItem.ToDescriptionString()), null);
 
             UnityEngine.Object.Destroy(template.gameObject);
+            UnityEngine.Object.Destroy(separator.gameObject);
 
             _menuRoot.UpdateAsObservable().Subscribe(_ =>
             {
