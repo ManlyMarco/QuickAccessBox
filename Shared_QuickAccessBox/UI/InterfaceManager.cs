@@ -5,7 +5,6 @@ using IllusionUtility.GetUtility;
 using KKAPI.Studio.UI;
 using KKAPI.Utilities;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -15,24 +14,37 @@ namespace KK_QuickAccessBox.UI
     internal class InterfaceManager
     {
         private readonly GameObject _canvasRoot;
-        private readonly RectTransform _windowRootRt;
-        private readonly InputField _inputField;
+        private RectTransform _windowRootRt;
+        private InputField _inputField;
 
-        private readonly SimpleVirtualList _simpleVirtualList;
+        private SimpleVirtualList _simpleVirtualList;
 
-        private readonly GameObject _textEmptyObj;
-        private readonly GameObject _textHelpObj;
+        private GameObject _textEmptyObj;
+        private GameObject _textHelpObj;
 
         private GameObject _searchMenuButton;
         private ToolbarToggle _toolbarIcon;
 
-        /// <param name="onClicked">Fired when one of the list items is clicked</param>
-        /// <param name="onSearchStringChanged">Fired when search string changes</param>
-        public InterfaceManager(Action<ItemInfo> onClicked, Action<string> onSearchStringChanged)
+        private ItemContextMenu _contextMenu;
+        private Dropdown _filterDropdown;
+
+        public InterfaceManager()
         {
             _canvasRoot = CreateCanvas();
 
-            _windowRootRt = _canvasRoot.GetComponentInChildren<Image>().GetComponent<RectTransform>();
+            var mainWindow = _canvasRoot.transform.Find("MainWindow") ?? throw new ArgumentException("MainWindow missing");
+            SetUpMainWindow((RectTransform)mainWindow);
+
+            var contextMenu = _canvasRoot.transform.Find("ContextMenu") ?? throw new ArgumentException("ContextMenu missing");
+            SetUpContextMenu((RectTransform)contextMenu);
+
+            CreateSearchMenuButton();
+            CreateSearchToolbarButton();
+        }
+
+        private void SetUpMainWindow(RectTransform mainWindow)
+        {
+            _windowRootRt = mainWindow;
             var savedPos = QuickAccessBox.WindowPosition.Value;
             if (savedPos != Vector2.zero)
             {
@@ -44,30 +56,56 @@ namespace KK_QuickAccessBox.UI
                     _windowRootRt.offsetMax = savedPos + sd;
                 }
             }
+
             MovableWindow.MakeObjectDraggable(_windowRootRt, _windowRootRt, false);
 
-            _inputField = _canvasRoot.transform.FindLoop("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
-            _inputField.onValueChanged.AddListener(new UnityAction<string>(onSearchStringChanged));
+            var filterPanel = mainWindow.Find("Panel_filters") ?? throw new ArgumentException("Panel_filters missing");
+
+            _inputField = filterPanel.transform.Find("InputField").GetComponent<InputField>() ?? throw new ArgumentNullException(nameof(_inputField));
+            _inputField.onValueChanged.AddListener(_ => QuickAccessBox.Instance.RefreshList());
             _inputField.textComponent.MarkXuaIgnored();
 
-            _textHelpObj = _canvasRoot.transform.FindLoop("TextHelp").gameObject ?? throw new ArgumentNullException(nameof(_textHelpObj));
+            _filterDropdown = filterPanel.transform.Find("Dropdown").GetComponent<Dropdown>() ?? throw new ArgumentNullException(nameof(_filterDropdown));
+            _filterDropdown.onValueChanged.AddListener(val => QuickAccessBox.Instance.RefreshList());
+
+            _textHelpObj = mainWindow.FindLoop("TextHelp").gameObject ?? throw new ArgumentNullException(nameof(_textHelpObj));
 #if AI || HS2
             var helpText = _textHelpObj.GetComponentInChildren<Text>();
             // Get rid of the "use keyboard to navigate" part that doesn't work in AI
             helpText.text = helpText.text.Substring(0, helpText.text.LastIndexOf('-'));
 #endif
-            _textEmptyObj = _canvasRoot.transform.FindLoop("TextEmpty").gameObject ?? throw new ArgumentNullException(nameof(_textEmptyObj));
+            _textEmptyObj = mainWindow.FindLoop("TextEmpty").gameObject ?? throw new ArgumentNullException(nameof(_textEmptyObj));
             _textEmptyObj.SetActive(false);
 
-            var scrollRect = _canvasRoot.GetComponentInChildren<ScrollRect>();
+            var scrollRect = mainWindow.GetComponentInChildren<ScrollRect>();
             _simpleVirtualList = scrollRect.gameObject.AddComponent<SimpleVirtualList>();
             _simpleVirtualList.ScrollRect = scrollRect;
-            _simpleVirtualList.EntryTemplate = _canvasRoot.transform.FindLoop("ListEntry").gameObject ?? throw new ArgumentException("Couldn't find ListEntry");
-            _simpleVirtualList.OnClicked = onClicked;
+            _simpleVirtualList.EntryTemplate = mainWindow.FindLoop("ListEntry").gameObject ?? throw new ArgumentException("Couldn't find ListEntry");
+            _simpleVirtualList.OnClicked = HandleItemClick;
             _simpleVirtualList.Initialize();
+        }
 
-            CreateSearchMenuButton();
-            CreateSearchToolbarButton();
+        private void SetUpContextMenu(RectTransform contextMenu)
+        {
+            _contextMenu = new ItemContextMenu(contextMenu);
+        }
+
+        private void HandleItemClick(ItemInfo item, PointerEventData eventData)
+        {
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    QuickAccessBox.Instance.CreateItem(item, false);
+                    break;
+                case PointerEventData.InputButton.Middle:
+                    QuickAccessBox.Instance.CreateItem(item, true);
+                    break;
+                case PointerEventData.InputButton.Right:
+                    _contextMenu.ShowMenu(item);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(eventData.button.ToString());
+            }
         }
 
         public void Dispose()
@@ -137,6 +175,25 @@ namespace KK_QuickAccessBox.UI
                         _inputField.onValueChanged.Invoke("");
                 }
             }
+        }
+
+        public string SearchString
+        {
+            get => _inputField.text;
+            set
+            {
+                if (_inputField.text != value)
+                {
+                    _inputField.text = value;
+                    QuickAccessBox.Instance.RefreshList();
+                }
+            }
+        }
+
+        public ListVisibilityType ListFilteringType
+        {
+            get => (ListVisibilityType)_filterDropdown.value;
+            set => _filterDropdown.value = (int)value;
         }
 
         private static GameObject CreateCanvas()

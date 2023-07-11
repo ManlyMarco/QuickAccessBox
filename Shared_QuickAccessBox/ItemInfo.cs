@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using KK_QuickAccessBox.Thumbs;
 using Sideloader.AutoResolver;
 using Studio;
@@ -27,7 +28,7 @@ namespace KK_QuickAccessBox
 #elif AI || HS2
             DeveloperSearchString = $"{studioInfo.bundlePath}\v{studioInfo.fileName}\v{studioInfo.manifest}\v{GroupNo}\v{CategoryNo}\v{LocalSlot}";
 #endif
-            
+
             OldCacheId = MakeOldCacheId(groupNo, categoryNo, studioInfo);
 
             if (zipmodInfo != null)
@@ -244,6 +245,28 @@ namespace KK_QuickAccessBox
         public override string ToString()
         {
             return $"Name=\"{FullName}\" GroupNo={GroupNo} CategoryNo={CategoryNo} LocalSlot={LocalSlot} ZipmodSlot={ZipmodSlot} Bundle=\"{Bundle}\" Asset=\"{Asset}\" GUID=\"{GUID}\" Zipmod=\"{FileName}\"";
+        }
+
+        public string ToDescriptionString()
+        {
+            var isZipmod = ZipmodSlot >= 0;
+
+            var sb = new StringBuilder();
+            sb.AppendLine(FullName);
+            
+            sb.Append($"Group = {GroupNo}  Category = {CategoryNo}");
+            if (isZipmod) sb.Append($"  LocalSlot = {LocalSlot}  ZipmodSlot = {ZipmodSlot}");
+            else sb.Append($"  Slot = {LocalSlot}");
+            sb.AppendLine();
+
+            sb.AppendLine($"Bundle = \"{Bundle}\"  Asset = \"{Asset}\"");
+
+            if (isZipmod)
+                sb.Append($"GUID = \"{GUID}\"  Zipmod = \"{FileName}\"");
+            else
+                sb.Append("This is a base game item or a hardmod");
+
+            return sb.ToString();
         }
 
         private static void Translate(string input, Action<string> updateAction)

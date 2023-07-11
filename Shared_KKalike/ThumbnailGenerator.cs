@@ -184,7 +184,7 @@ namespace KK_QuickAccessBox.Thumbs
                 Singleton<Studio.Studio>.Instance.treeNodeCtrl.DeleteNode(treeNodeObject);
 
             foreach (Transform unofficialChild in GameObject.Find("CommonSpace").transform)
-                GameObject.Destroy(unofficialChild.gameObject);
+                Object.Destroy(unofficialChild.gameObject);
         }
     }
 }

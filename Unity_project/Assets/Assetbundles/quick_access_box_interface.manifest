@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 690339308
+CRC: 3939419646
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 4249b0220a1572ae9ec0dd80b65d8604
+    Hash: 214036c0b35d458d07e212fd5dcbfe0a
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 841dfcaafb90ce5f56f8434b860969ed
+    Hash: f6c32f8dc8b07abce42cc5be42cadeec
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -22,6 +22,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 1741964061, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
+  Script: {fileID: 853051423, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
   Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
   Script: {fileID: 575553740, guid: f70555f144d8491a825f0804e09c671c, type: 3}
@@ -33,6 +35,8 @@ ClassTypes:
   Script: {fileID: 1367256648, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
   Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 2109663825, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
   Script: {fileID: 1297475563, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
@@ -50,6 +54,8 @@ ClassTypes:
 - Class: 223
   Script: {instanceID: 0}
 - Class: 224
+  Script: {instanceID: 0}
+- Class: 225
   Script: {instanceID: 0}
 Assets:
 - Assets/QuickAccessBoxCanvas.prefab

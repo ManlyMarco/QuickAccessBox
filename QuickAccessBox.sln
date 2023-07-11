@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30104.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_QuickAccessBox", "KK_QuickAccessBox\KK_QuickAccessBox.csproj", "{8F2D7D14-BF8A-40C2-8187-48480508D5C9}"
 EndProject
@@ -18,19 +18,6 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_AIalike", "Shared_AIalike\Shared_AIalike.shproj", "{CCF0938D-6C1B-409F-A9B9-E5CFD95B017F}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Shared_AIalike\Shared_AIalike.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
-		Shared_AIalike\Shared_AIalike.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
-		Shared_KKalike\Shared_KKalike.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
-		Shared_AIalike\Shared_AIalike.projitems*{ccf0938d-6c1b-409f-a9b9-e5cfd95b017f}*SharedItemsImports = 13
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{cf7c11e6-ced8-4bf3-9885-3f127e83389b}*SharedItemsImports = 13
-		Shared_KKalike\Shared_KKalike.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
-		Shared_KKalike\Shared_KKalike.projitems*{eaf0de8e-c2d9-4612-ba76-7b1a0c77dc16}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -58,5 +45,18 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59278A08-215A-4008-88C2-4214D956A7CB}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared_AIalike\Shared_AIalike.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
+		Shared_AIalike\Shared_AIalike.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
+		Shared_KKalike\Shared_KKalike.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
+		Shared_AIalike\Shared_AIalike.projitems*{ccf0938d-6c1b-409f-a9b9-e5cfd95b017f}*SharedItemsImports = 13
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{cf7c11e6-ced8-4bf3-9885-3f127e83389b}*SharedItemsImports = 13
+		Shared_KKalike\Shared_KKalike.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
+		Shared_KKalike\Shared_KKalike.projitems*{eaf0de8e-c2d9-4612-ba76-7b1a0c77dc16}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

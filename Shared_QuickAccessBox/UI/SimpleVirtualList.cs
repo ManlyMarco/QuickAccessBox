@@ -15,7 +15,7 @@ namespace KK_QuickAccessBox.UI
         private readonly List<ItemInfo> _items = new List<ItemInfo>();
 
         public GameObject EntryTemplate;
-        public Action<ItemInfo> OnClicked;
+        public Action<ItemInfo, PointerEventData> OnClicked;
         public ScrollRect ScrollRect;
 
         private bool _dirty;
@@ -57,6 +57,7 @@ namespace KK_QuickAccessBox.UI
             listEntry.TextGroup = listEntry.transform.FindLoop("TextGroup")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextGroup");
             listEntry.TextCategory = listEntry.transform.FindLoop("TextCategory")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextCategory");
             listEntry.TextItem = listEntry.transform.FindLoop("TextItem")?.GetComponent<Text>() ?? throw new ArgumentException("Couldn't find TextItem");
+            listEntry.Background = EntryTemplate.GetComponent<Image>() ?? throw new InvalidOperationException("Couldn't find Image");
             listEntry.SetItem(null, true);
 
             listEntry.TextGroup.MarkXuaIgnored();
@@ -124,7 +125,7 @@ namespace KK_QuickAccessBox.UI
 
                 count++;
 
-                cachedEntry.SetItem(item, false);
+                cachedEntry.SetItem(item, true);
                 cachedEntry.SetVisible(true);
 
                 if (ReferenceEquals(selectedItem, item))
