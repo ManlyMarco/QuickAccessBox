@@ -201,8 +201,23 @@ namespace KK_QuickAccessBox
             if (string.IsNullOrEmpty(searchStr)) return true;
 
             var matchString = item.SearchString;
-            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            return splitSearchStr.All(s => matchString.IndexOf(s, StringComparison.Ordinal) >= 0);
+            var splitSearchStr = searchStr.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < splitSearchStr.Length; i++)
+            {
+                var str = splitSearchStr[i];
+                var negative = str[0] == '-';
+                if (negative)
+                {
+                    if (str.Length == 1) continue;
+                    str = str.Substring(1);
+                }
+
+                var match = matchString.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0;
+                if ((!match && !negative) || (match && negative))
+                    return false;
+            }
+
+            return true;
         }
     }
 }
