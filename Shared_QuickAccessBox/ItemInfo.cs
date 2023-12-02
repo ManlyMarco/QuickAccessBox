@@ -36,12 +36,13 @@ namespace KK_QuickAccessBox
                 GUID = zipmodInfo.GUID;
                 ZipmodSlot = zipmodInfo.Slot;
                 DeveloperSearchString += "\v" + ZipmodSlot;
-                NewCacheId = MakeNewCacheId(groupNo, categoryNo, ZipmodSlot);
+                NewCacheId = MakeNewCacheId(groupNo, categoryNo, ZipmodSlot, zipmodInfo.GUID);
+                NewCacheIdShort = MakeNewCacheId(groupNo, categoryNo, ZipmodSlot, null);
             }
             else
             {
                 ZipmodSlot = -1;
-                NewCacheId = MakeNewCacheId(groupNo, categoryNo, LocalSlot);
+                NewCacheId = NewCacheIdShort = MakeNewCacheId(groupNo, categoryNo, LocalSlot, null);
             }
 
             if (zipmodFilename != null)
@@ -165,6 +166,11 @@ namespace KK_QuickAccessBox
         [Obsolete("Will be removed", true)]
         public string CacheId => OldCacheId;
         internal string NewCacheId { get; }
+        /// <summary>
+        /// Only for backwards compatibility, turns out the ID wasn't unique across zipmods
+        /// </summary>
+        [Obsolete]
+        internal string NewCacheIdShort { get; }
         [Obsolete]
         internal string OldCacheId { get; }
 
@@ -202,7 +208,7 @@ namespace KK_QuickAccessBox
                 // Some modded items crash in Studio.OCIItem.UpdateColor()
             }
         }
-        
+
         private void UpdateCompositeStrings()
         {
             FullName = GroupName + "/" + CategoryName + "/" + ItemName;
@@ -221,10 +227,13 @@ namespace KK_QuickAccessBox
             SearchString = searchStr.Replace(' ', '_').ToLowerInvariant();
         }
 
-        private static string MakeNewCacheId(int groupNo, int categoryNo, int slotNo)
+        private static string MakeNewCacheId(int groupNo, int categoryNo, int slotNo, string guid)
         {
             // Sideloader generated local slot numbers start at 100000000, so real slot numbers should have at most 8 digits
-            return $"{groupNo:D8}-{categoryNo:D8}-{slotNo:D8}";
+            var str = $"{groupNo:D8}-{categoryNo:D8}-{slotNo:D8}";
+            if (guid != null)
+                str += $"-{Utils.GetHashCode(guid):X8}"; // Pretty much the same as using full guid string. Trimming hash to 4 bytes causes a lot of collisions.
+            return str;
         }
 
         [Obsolete]
@@ -256,7 +265,7 @@ namespace KK_QuickAccessBox
 
             var sb = new StringBuilder();
             sb.AppendLine(FullName);
-            
+
             sb.Append($"Group = {GroupNo}  Category = {CategoryNo}");
             if (isZipmod) sb.Append($"  LocalSlot = {LocalSlot}  ZipmodSlot = {ZipmodSlot}");
             else sb.Append($"  Slot = {LocalSlot}");

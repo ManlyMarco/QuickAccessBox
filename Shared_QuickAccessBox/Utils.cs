@@ -63,5 +63,30 @@ namespace KK_QuickAccessBox
 
         public static bool IsFavorited(this ItemInfo item) => QuickAccessBox.Instance.Favorited.Check(item.GUID, item.NewCacheId);
         public static bool IsBlacklisted(this ItemInfo item) => QuickAccessBox.Instance.Blacklisted.Check(item.GUID, item.NewCacheId);
+
+        /// <summary>
+        /// Repatable hash code for strings, not framework implementation dependent.
+        /// </summary>
+        public static unsafe int GetHashCode(string str)
+        {
+            fixed (char* chPtr = str)
+            {
+                int num1 = 352654597;
+                int num2 = num1;
+                int* numPtr = (int*)chPtr;
+                for (int length = str.Length; length > 0; length -= 4)
+                {
+                    num1 = (num1 << 5) + num1 + (num1 >> 27) ^ *numPtr;
+                    if (length > 2)
+                    {
+                        num2 = (num2 << 5) + num2 + (num2 >> 27) ^ numPtr[1];
+                        numPtr += 2;
+                    }
+                    else
+                        break;
+                }
+                return num1 + num2 * 1566083941;
+            }
+        }
     }
 }

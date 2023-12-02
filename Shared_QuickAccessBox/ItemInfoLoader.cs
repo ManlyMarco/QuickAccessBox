@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Timers;
 using BepInEx;
@@ -95,6 +96,13 @@ namespace KK_QuickAccessBox
             results.Sort((x, y) => string.Compare(x.FullName, y.FullName, StringComparison.Ordinal));
             ItemList = results;
 
+#if DEBUG
+#pragma warning disable CS0612
+            var oldGroups = results.GroupBy(x => x.OldCacheId).Count(x => x.Count() > 1);
+#pragma warning restore CS0612
+            var nowGroups = results.GroupBy(x => x.NewCacheId).Count(x => x.Count() > 1);
+            QuickAccessBox.Logger.LogInfo($"Cache collisions: old={oldGroups} new={nowGroups}");
+#endif
         }
 
         private static void LoadTranslationCache()

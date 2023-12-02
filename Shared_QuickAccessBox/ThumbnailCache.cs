@@ -37,13 +37,15 @@ namespace KK_QuickAccessBox.Thumbs
                 }
             }
 
-            _pngNameCache.TryGetValue(info.OldCacheId, out var pngPath);
+            _pngNameCache.TryGetValue(info.NewCacheId, out var pngPath);
             if (pngPath == null)
             {
                 // Fall back to old thumbnail names in case the mod wasn't updated
 #pragma warning disable CS0612
-                _pngNameCache.TryGetValue(info.NewCacheId, out pngPath);
+                _pngNameCache.TryGetValue(info.OldCacheId, out pngPath);
 #pragma warning restore CS0612
+                if (pngPath == null)
+                    _pngNameCache.TryGetValue(info.NewCacheIdShort, out pngPath);
             }
 
             var tex = Sideloader.Sideloader.GetPng(pngPath, TextureFormat.DXT5, false);
