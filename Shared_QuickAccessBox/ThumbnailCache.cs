@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using KKAPI.Utilities;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace KK_QuickAccessBox.Thumbs
 {
     internal static class ThumbnailLoader
     {
+        public static List<QuickAccessBox.ThumbnailProvider> ThumbnailProviders { get; } = new List<QuickAccessBox.ThumbnailProvider>();
+
         private static readonly Dictionary<string, Sprite> _thumbnailCache = new Dictionary<string, Sprite>();
         private static Dictionary<string, string> _pngNameCache;
 
@@ -17,12 +20,29 @@ namespace KK_QuickAccessBox.Thumbs
             if (_thumbnailCache.TryGetValue(info.NewCacheId, out var sprite)) return sprite;
             if (_pngNameCache == null) return _thumbMissing;
 
-            _pngNameCache.TryGetValue(info.NewCacheId, out var pngPath);
+            foreach (var thumbnailProvider in ThumbnailProviders)
+            {
+                try
+                {
+                    var thumb = thumbnailProvider(info);
+                    if (thumb != null)
+                    {
+                        _thumbnailCache.Add(info.NewCacheId, thumb);
+                        return thumb;
+                    }
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+
+            _pngNameCache.TryGetValue(info.OldCacheId, out var pngPath);
             if (pngPath == null)
             {
                 // Fall back to old thumbnail names in case the mod wasn't updated
 #pragma warning disable CS0612
-                _pngNameCache.TryGetValue(info.OldCacheId, out pngPath);
+                _pngNameCache.TryGetValue(info.NewCacheId, out pngPath);
 #pragma warning restore CS0612
             }
 

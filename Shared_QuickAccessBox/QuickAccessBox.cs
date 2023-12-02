@@ -74,6 +74,19 @@ namespace KK_QuickAccessBox
         [Browsable(false)]
         public IEnumerable<ItemInfo> ItemList => ItemInfoLoader.ItemList;
 
+        /// <summary>
+        /// Register a custom provider for item thumbnails used in the item list.
+        /// It should return a thumbnail sprite or a null. If it returns null, the next provider in the list is called.
+        /// Thumbnail providers are called only once when the item is first shown in the list. The result is cached and never rechecked.
+        /// If no provider returns a thumbnail, zipmods will be searched, and if that fails the item will have a placeholder thumbnail.
+        /// </summary>
+        public static void RegisterThumbnailProvider(ThumbnailProvider provider)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            ThumbnailLoader.ThumbnailProviders.Add(provider);
+        }
+        public delegate Sprite ThumbnailProvider(ItemInfo item);
+
         private void Start()
         {
             Logger = base.Logger;
