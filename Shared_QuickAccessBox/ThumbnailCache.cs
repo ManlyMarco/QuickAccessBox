@@ -9,7 +9,7 @@ namespace KK_QuickAccessBox.Thumbs
     {
         public static List<QuickAccessBox.ThumbnailProvider> ThumbnailProviders { get; } = new List<QuickAccessBox.ThumbnailProvider>();
 
-        private static readonly Dictionary<string, Sprite> _thumbnailCache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<ItemInfo, Sprite> _thumbnailCache = new Dictionary<ItemInfo, Sprite>();
         private static Dictionary<string, string> _pngNameCache;
 
         private static Sprite _thumbMissing;
@@ -17,7 +17,7 @@ namespace KK_QuickAccessBox.Thumbs
 
         public static Sprite GetThumbnail(ItemInfo info)
         {
-            if (_thumbnailCache.TryGetValue(info.NewCacheId, out var sprite)) return sprite;
+            if (_thumbnailCache.TryGetValue(info, out var sprite)) return sprite;
             if (_pngNameCache == null) return _thumbMissing;
 
             foreach (var thumbnailProvider in ThumbnailProviders)
@@ -27,7 +27,7 @@ namespace KK_QuickAccessBox.Thumbs
                     var thumb = thumbnailProvider(info);
                     if (thumb != null)
                     {
-                        _thumbnailCache.Add(info.NewCacheId, thumb);
+                        _thumbnailCache.Add(info, thumb);
                         return thumb;
                     }
                 }
@@ -59,7 +59,7 @@ namespace KK_QuickAccessBox.Thumbs
                     sprite = _thumbMissing;
             }
 
-            _thumbnailCache.Add(info.NewCacheId, sprite);
+            _thumbnailCache.Add(info, sprite);
 
             return sprite;
         }
@@ -92,7 +92,7 @@ namespace KK_QuickAccessBox.Thumbs
         {
 #if DEBUG
             foreach (var thumb in _thumbnailCache.Values)
-                Object.Destroy(thumb);
+                UnityEngine.Object.Destroy(thumb);
         
             _thumbnailCache.Clear();
             _pngNameCache = null;
