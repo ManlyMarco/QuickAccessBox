@@ -117,9 +117,6 @@ namespace KK_QuickAccessBox
             Interface?.Dispose();
             ThumbnailLoader.Dispose();
             ItemInfoLoader.Dispose();
-#if DEBUG
-            SaveRecents();
-#endif
         }
 
         private void Update()
@@ -182,11 +179,11 @@ namespace KK_QuickAccessBox
 
         public void RefreshList()
         {
-            var searchString = Interface.SearchString;
+            var searchStrings = GetSearchStrings();
             switch (Interface.ListFilteringType)
             {
                 case ListVisibilityType.Filtered:
-                    if (string.IsNullOrEmpty(searchString))
+                    if (searchStrings.Key.Count == 0 && searchStrings.Value.Count == 0)
                     {
                         Interface.SetList(ItemList.Select(i => new { i, isRecent = Recents.TryGetLastUseDate(i.NewCacheId, out var date), date, isfav = Favorited.Check(i.GUID, i.NewCacheId) })
                                                    .Where(x => x.isfav || x.isRecent)
@@ -196,43 +193,68 @@ namespace KK_QuickAccessBox
                     }
                     else
                     {
-                        Interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                        Interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value)));
                     }
                     break;
                 case ListVisibilityType.Favorites:
-                    Interface.SetList(ItemList.Where(info => Favorited.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => Favorited.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value)));
                     break;
                 case ListVisibilityType.Hidden:
-                    Interface.SetList(ItemList.Where(info => Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value)));
                     break;
                 case ListVisibilityType.All:
-                    Interface.SetList(ItemList.Where(info => ItemMatchesSearch(info, searchString)));
+                    Interface.SetList(ItemList.Where(info => ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value)));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(Interface.ListFilteringType.ToString());
             }
         }
 
-        private static bool ItemMatchesSearch(ItemInfo item, string searchStr)
+        private KeyValuePair<List<string>, List<string>> GetSearchStrings()
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
-            if (string.IsNullOrEmpty(searchStr)) return true;
+            var val = new KeyValuePair<List<string>, List<string>>(new List<string>(4), new List<string>(4));
 
-            var matchString = item.SearchString;
+            var searchStr = Interface.SearchString;
+            if (string.IsNullOrEmpty(searchStr))
+                return val;
+
             var splitSearchStr = searchStr.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-            for (var i = 0; i < splitSearchStr.Length; i++)
+            foreach (var str in splitSearchStr)
             {
-                var str = splitSearchStr[i];
+                if (string.IsNullOrEmpty(str))
+                    continue;
+
                 var negative = str[0] == '-';
                 if (negative)
                 {
-                    if (str.Length == 1) continue;
-                    str = str.Substring(1);
+                    if (str.Length == 1)
+                        continue;
+                    val.Value.Add(str.Substring(1));
                 }
+                else
+                {
+                    val.Key.Add(str);
+                }
+            }
 
-                var match = matchString.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0;
-                if ((!match && !negative) || (match && negative))
-                    return false;
+            return val;
+        }
+
+        private static bool ItemMatchesSearch(ItemInfo item, List<string> positiveSearchStrings, List<string> negativeSearchStrings)
+        {
+            var matchString = item.SearchString;
+            for (var i = 0; i < positiveSearchStrings.Count; i++)
+            {
+                var str = positiveSearchStrings[i];
+                var match = matchString.IndexOf(str, StringComparison.Ordinal) >= 0;
+                if (!match) return false;
+            }
+
+            for (var i = 0; i < negativeSearchStrings.Count; i++)
+            {
+                var str = negativeSearchStrings[i];
+                var match = matchString.IndexOf(str, StringComparison.Ordinal) >= 0;
+                if (match) return false;
             }
 
             return true;
