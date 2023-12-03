@@ -232,7 +232,7 @@ namespace KK_QuickAccessBox
             // Sideloader generated local slot numbers start at 100000000, so real slot numbers should have at most 8 digits
             var str = $"{groupNo:D8}-{categoryNo:D8}-{slotNo:D8}";
             if (guid != null)
-                str += $"-{Utils.GetHashCode(guid):X8}"; // Pretty much the same as using full guid string. Trimming hash to 4 bytes causes a lot of collisions.
+                str += $"-{guid.GetStableHashCode():X8}"; // Pretty much the same as using full guid string. Trimming hash to 4 bytes causes a lot of collisions.
             return str;
         }
 

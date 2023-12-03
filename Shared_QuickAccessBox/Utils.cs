@@ -66,26 +66,24 @@ namespace KK_QuickAccessBox
 
         /// <summary>
         /// Repatable hash code for strings, not framework implementation dependent.
+        /// https://stackoverflow.com/a/36845864
         /// </summary>
-        public static unsafe int GetHashCode(string str)
+        public static int GetStableHashCode(this string str)
         {
-            fixed (char* chPtr = str)
+            unchecked
             {
-                int num1 = 352654597;
-                int num2 = num1;
-                int* numPtr = (int*)chPtr;
-                for (int length = str.Length; length > 0; length -= 4)
+                int hash1 = 5381;
+                int hash2 = hash1;
+
+                for (int i = 0; i < str.Length && str[i] != '\0'; i += 2)
                 {
-                    num1 = (num1 << 5) + num1 + (num1 >> 27) ^ *numPtr;
-                    if (length > 2)
-                    {
-                        num2 = (num2 << 5) + num2 + (num2 >> 27) ^ numPtr[1];
-                        numPtr += 2;
-                    }
-                    else
+                    hash1 = ((hash1 << 5) + hash1) ^ str[i];
+                    if (i == str.Length - 1 || str[i + 1] == '\0')
                         break;
+                    hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
                 }
-                return num1 + num2 * 1566083941;
+
+                return hash1 + (hash2 * 1566083941);
             }
         }
     }
