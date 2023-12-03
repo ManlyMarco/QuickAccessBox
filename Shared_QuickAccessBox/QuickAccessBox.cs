@@ -25,7 +25,7 @@ namespace KK_QuickAccessBox
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
-        public const string Version = "3.1";
+        public const string Version = "3.1.1";
 
         internal static new ManualLogSource Logger;
         internal static QuickAccessBox Instance;
