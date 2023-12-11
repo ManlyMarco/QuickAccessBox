@@ -141,7 +141,7 @@ namespace KK_QuickAccessBox
         public int ZipmodSlot { get; }
 
         /// <summary>
-        /// String to search against
+        /// String to search against. All lowercase.
         /// </summary>
         internal string SearchString { get; private set; }
 

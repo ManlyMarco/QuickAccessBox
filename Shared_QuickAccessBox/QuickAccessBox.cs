@@ -25,7 +25,7 @@ namespace KK_QuickAccessBox
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
-        public const string Version = "3.1.1";
+        public const string Version = "3.1.1.1";
 
         internal static new ManualLogSource Logger;
         internal static QuickAccessBox Instance;
@@ -218,7 +218,7 @@ namespace KK_QuickAccessBox
             if (string.IsNullOrEmpty(searchStr))
                 return val;
 
-            var splitSearchStr = searchStr.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+            var splitSearchStr = searchStr.ToLowerInvariant().Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
             foreach (var str in splitSearchStr)
             {
                 if (string.IsNullOrEmpty(str))
