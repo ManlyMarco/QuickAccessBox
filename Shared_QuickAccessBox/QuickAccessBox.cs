@@ -14,6 +14,7 @@ using UnityEngine;
 using BepInEx.Configuration;
 using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
 using Studio;
+using HarmonyLib;
 
 namespace KK_QuickAccessBox
 {
@@ -71,6 +72,8 @@ namespace KK_QuickAccessBox
             set => Interface.Visible = value;
         }
 
+        internal static TreeNodeObject SpawnedNode;
+
         /// <summary>
         /// List of all studio items that can be added into the game
         /// </summary>
@@ -94,6 +97,8 @@ namespace KK_QuickAccessBox
         {
             Logger = base.Logger;
             Instance = this;
+
+            Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
 
             var advanced = new ConfigurationManagerAttributes { IsAdvanced = true };
 
@@ -188,8 +193,7 @@ namespace KK_QuickAccessBox
 
             if (parented && selectedNode)
             {
-                var spawnedNode = Studio.Studio.Instance.treeNodeCtrl.selectNodes.FirstOrDefault();
-                Studio.Studio.Instance.treeNodeCtrl.SetParent(spawnedNode, selectedNode);
+                Studio.Studio.Instance.treeNodeCtrl.SetParent(SpawnedNode, selectedNode);
                 selectedNode.SetTreeState(TreeNodeObject.TreeState.Open);
 
                 // If spawning at the same level, just keep vanilla behaviour of auto selecting the spawned item
