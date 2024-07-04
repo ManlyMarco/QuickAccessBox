@@ -13,6 +13,8 @@ using KK_QuickAccessBox.UI;
 using UnityEngine;
 using BepInEx.Configuration;
 using KeyboardShortcut = BepInEx.Configuration.KeyboardShortcut;
+using Studio;
+using HarmonyLib;
 
 namespace KK_QuickAccessBox
 {
@@ -49,6 +51,7 @@ namespace KK_QuickAccessBox
                                                     "the middle of the screen. Press left Shift to accept and move to the next item.";
         private const string DESCRIPTION_THUMBDIR = "Directory to save newly generated thumbs into. The directory must exist. Existing thumbs are not overwritten, remove them to re-create.";
         private const string DESCRIPTION_WINPOS = "Position at which the search window first opens. Can be changed by dragging the edges of the window.";
+        private const string DESCRIPTION_SELECTION = "When spawning an item as a child of the selected item, don't change the selection to the spawned item";
 
         public static ConfigEntry<KeyboardShortcut> KeyShowBox { get; private set; }
         public static ConfigEntry<bool> SearchDeveloperInfo { get; private set; }
@@ -57,6 +60,7 @@ namespace KK_QuickAccessBox
         public static ConfigEntry<bool> ThumbDarkBackground { get; private set; }
         public static ConfigEntry<bool> ThumbManualAdjust { get; private set; }
         public static ConfigEntry<int> RecentsCount { get; private set; }
+        public static ConfigEntry<bool> KeepSelectionOnParent { get; private set; }
 
         public static ConfigEntry<Vector2> WindowPosition { get; private set; }
         public static ConfigEntry<float> InterfaceScale { get; private set; }
@@ -67,6 +71,8 @@ namespace KK_QuickAccessBox
             get => Interface.Visible;
             set => Interface.Visible = value;
         }
+
+        internal static TreeNodeObject SpawnedNode;
 
         /// <summary>
         /// List of all studio items that can be added into the game
@@ -92,11 +98,14 @@ namespace KK_QuickAccessBox
             Logger = base.Logger;
             Instance = this;
 
+            Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+
             var advanced = new ConfigurationManagerAttributes { IsAdvanced = true };
 
             KeyShowBox = Config.Bind("General", "Show quick access box", new KeyboardShortcut(KeyCode.Space, KeyCode.LeftControl), "Toggles the item search box on and off.");
             RecentsCount = Config.Bind("General", "Number of recents to remember", 20, new ConfigDescription(DESCRIPTION_RECENTS, new AcceptableValueRange<int>(0, 200)));
             SearchDeveloperInfo = Config.Bind("General", "Search developer information", false, new ConfigDescription(DESCRIPTION_DEVINFO, null, advanced));
+            KeepSelectionOnParent = Config.Bind("General", "Keep selection when adding child", false, new ConfigDescription(DESCRIPTION_SELECTION, null, advanced));
 
             ThumbGenerateKey = Config.Bind("Thumbnail generation", "Generate item thumbnails", new KeyboardShortcut(), new ConfigDescription(DESCRIPTION_THUMBGENKEY, null, advanced));
             ThumbManualAdjust = Config.Bind("Thumbnail generation", "Manual mode", false, new ConfigDescription(DESCRIPTION_MANUALADJUST, null, advanced));
@@ -168,11 +177,29 @@ namespace KK_QuickAccessBox
             });
         }
 
-        internal void CreateItem(ItemInfo info, bool parented)
+        internal void CreateItem(ItemInfo info, bool parented, bool sameLevel = false)
         {
-            //todo parenting
             Logger.LogDebug("Creating item " + info);
+
+            TreeNodeObject selectedNode = null;
+            if (parented)
+            {
+                selectedNode = Studio.Studio.Instance.treeNodeCtrl.selectNodes.FirstOrDefault();
+                if (sameLevel)
+                    selectedNode = selectedNode?.parent;
+            }
+
             info.AddItem();
+
+            if (parented && selectedNode)
+            {
+                Studio.Studio.Instance.treeNodeCtrl.SetParent(SpawnedNode, selectedNode);
+                selectedNode.SetTreeState(TreeNodeObject.TreeState.Open);
+
+                // If spawning at the same level, just keep vanilla behaviour of auto selecting the spawned item
+                if (!sameLevel && KeepSelectionOnParent.Value)
+                    Studio.Studio.Instance.treeNodeCtrl.SelectSingle(selectedNode, false);
+            }
 
             Recents.BumpItemLastUseDate(info.NewCacheId);
         }

@@ -98,7 +98,7 @@ namespace KK_QuickAccessBox.UI
                     QuickAccessBox.Instance.CreateItem(item, false);
                     break;
                 case PointerEventData.InputButton.Middle:
-                    QuickAccessBox.Instance.CreateItem(item, true);
+                    QuickAccessBox.Instance.CreateItem(item, true, Input.GetKey(KeyCode.LeftShift));
                     break;
                 case PointerEventData.InputButton.Right:
                     _contextMenu.ShowMenu(item);
