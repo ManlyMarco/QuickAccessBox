@@ -55,6 +55,7 @@ namespace KK_QuickAccessBox.UI
             }
 
             CreateButton("Spawn item", () => QuickAccessBox.Instance.CreateItem(_currentItem, false), null);
+            CreateButton("Spawn and parent to selection", () => QuickAccessBox.Instance.CreateItem(_currentItem, true), () => Studio.Studio.Instance.treeNodeCtrl.selectNodes.Any());
             CreateButton("Print item info", () => QuickAccessBox.Logger.LogMessage(_currentItem.ToDescriptionString()), null);
 
             CreateSeparator();
