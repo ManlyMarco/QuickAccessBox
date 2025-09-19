@@ -32,5 +32,5 @@ jobs:
         NUGET_URL: https://pkgs.dev.azure.com/IllusionMods/Nuget/_packaging/IllusionMods/nuget/v3/index.json
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
       run: |
-        dotnet nuget add source $env:NUGET_URL -n IllusionMods --username token --password $env:NUGET_TOKEN
-        dotnet nuget push **/*.nupkg --source IllusionMods --api-key $env:NUGET_TOKEN --skip-duplicate
+        dotnet nuget add source $env:NUGET_URL -n IllusionMods --username token --password $env:NUGET_TOKEN --store-password-in-clear-text
+        dotnet nuget push **/*.nupkg --source IllusionMods --skip-duplicate
