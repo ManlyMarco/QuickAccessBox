@@ -73,7 +73,6 @@ namespace KK_QuickAccessBox.Thumbs
             camera.farClipPlane = 1500000;
             var postProcessing = camera.GetComponent<PostProcessLayer>();
 
-            var screencap = (Screencap.ScreenshotManager)Chainloader.PluginInfos[Screencap.ScreenshotManager.GUID].Instance;
             byte[] RunCapture()
             {
                 postProcessing.enabled = false;
@@ -81,7 +80,7 @@ namespace KK_QuickAccessBox.Thumbs
                 RenderSettings.ambientEquatorColor = Color.white;
                 RenderSettings.ambientGroundColor = Color.white;
 
-                var cap = screencap.Capture(64, 64, 1, true);
+                var cap = Screencap.ScreenshotManager.CaptureRender(64, 64, 1, Screencap.AlphaMode.composite);
                 var cap2D = cap.ToTexture2D();
                 var bytes = cap2D.EncodeToPNG();
                 RenderTexture.ReleaseTemporary(cap);

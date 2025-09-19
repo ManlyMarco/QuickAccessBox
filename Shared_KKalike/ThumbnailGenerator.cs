@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using alphaShot;
 using BepInEx.Bootstrap;
 using Illusion.Extensions;
 using KKAPI.Utilities;
@@ -64,10 +63,23 @@ namespace KK_QuickAccessBox.Thumbs
 
             var camera = Camera.main;
             var cameraControl = camera.GetComponent<Studio.CameraControl>();
-            var alphaShot = camera.GetComponent<AlphaShot2>();
 
             camera.orthographic = true;
             cameraControl.enabled = false;
+
+            byte[] RunCapture()
+            {
+                RenderSettings.ambientSkyColor = Color.white;
+                RenderSettings.ambientEquatorColor = Color.white;
+                RenderSettings.ambientGroundColor = Color.white;
+
+                var cap = Screencap.ScreenshotManager.CaptureRender(64, 64, 1, Screencap.AlphaMode.rgAlpha);
+                var cap2D = cap.ToTexture2D();
+                var bytes = cap2D.EncodeToPNG();
+                RenderTexture.ReleaseTemporary(cap);
+                Object.Destroy(cap2D);
+                return bytes;
+            }
 
             var createdCount = 0;
             foreach (var itemInfo in itemList)
@@ -149,8 +161,8 @@ namespace KK_QuickAccessBox.Thumbs
                     }
 
                     UpdateBackgroundPlane();
-
-                    var result = alphaShot.Capture(64, 64, 1, true);
+                    
+                    var result = RunCapture();
 
                     try { File.WriteAllBytes(thumbPathNew, result); }
                     catch (SystemException ex) { QuickAccessBox.Logger.Log(BepInEx.Logging.LogLevel.Message | BepInEx.Logging.LogLevel.Error, "Failed to write thumbnail file - " + ex.Message); }
