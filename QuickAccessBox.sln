@@ -17,6 +17,12 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_KKalike", "Shared_KK
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_AIalike", "Shared_AIalike\Shared_AIalike.shproj", "{CCF0938D-6C1B-409F-A9B9-E5CFD95B017F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution", "_Solution", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,16 +53,16 @@ Global
 		SolutionGuid = {59278A08-215A-4008-88C2-4214D956A7CB}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Shared_AIalike\Shared_AIalike.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 4
-		Shared_AIalike\Shared_AIalike.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 4
-		Shared_KKalike\Shared_KKalike.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 4
+		Shared_AIalike\Shared_AIalike.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 5
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53899808-1333-4671-b0be-0338cc0781b8}*SharedItemsImports = 5
+		Shared_AIalike\Shared_AIalike.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 5
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{53f32772-4312-4fe1-be0d-2bbf00fdf903}*SharedItemsImports = 5
+		Shared_KKalike\Shared_KKalike.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 5
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{8f2d7d14-bf8a-40c2-8187-48480508d5c9}*SharedItemsImports = 5
 		Shared_AIalike\Shared_AIalike.projitems*{ccf0938d-6c1b-409f-a9b9-e5cfd95b017f}*SharedItemsImports = 13
 		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{cf7c11e6-ced8-4bf3-9885-3f127e83389b}*SharedItemsImports = 13
-		Shared_KKalike\Shared_KKalike.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
-		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 4
+		Shared_KKalike\Shared_KKalike.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 5
+		Shared_QuickAccessBox\Shared_QuickAccessBox.projitems*{e4810879-fcd1-4ddc-bd48-d13fb9d3efb1}*SharedItemsImports = 5
 		Shared_KKalike\Shared_KKalike.projitems*{eaf0de8e-c2d9-4612-ba76-7b1a0c77dc16}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
