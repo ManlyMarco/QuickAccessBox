@@ -18,6 +18,9 @@ using HarmonyLib;
 
 namespace KK_QuickAccessBox
 {
+    /// <summary>
+    /// Main plugin class
+    /// </summary>
     [BepInPlugin(GUID, DisplayName, Version)]
     [BepInProcess(KoikatuAPI.StudioProcessName)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
@@ -27,7 +30,13 @@ namespace KK_QuickAccessBox
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
+        /// <summary>
+        /// Version constant for use with BepInDependency
+        /// </summary>
         public const string Version = Constants.Version;
+        /// <summary>
+        /// Display name of the plugin
+        /// </summary>
         public const string DisplayName = Constants.Name;
 
         internal static new ManualLogSource Logger;
@@ -54,6 +63,7 @@ namespace KK_QuickAccessBox
         private const string DESCRIPTION_WINPOS = "Position at which the search window first opens. Can be changed by dragging the edges of the window.";
         private const string DESCRIPTION_SELECTION = "When spawning an item as a child of the selected item, don't change the selection to the spawned item";
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static ConfigEntry<KeyboardShortcut> KeyShowBox { get; private set; }
         public static ConfigEntry<bool> SearchDeveloperInfo { get; private set; }
         public static ConfigEntry<KeyboardShortcut> ThumbGenerateKey { get; private set; }
@@ -65,7 +75,11 @@ namespace KK_QuickAccessBox
 
         public static ConfigEntry<Vector2> WindowPosition { get; private set; }
         public static ConfigEntry<float> InterfaceScale { get; private set; }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
+        /// <summary>
+        /// Show the main search box window.
+        /// </summary>
         [Browsable(false)]
         public bool ShowBox
         {
@@ -76,7 +90,7 @@ namespace KK_QuickAccessBox
         internal static TreeNodeObject SpawnedNode;
 
         /// <summary>
-        /// List of all studio items that can be added into the game
+        /// List of all studio items that can be added into the game.
         /// </summary>
         [Browsable(false)]
         public IEnumerable<ItemInfo> ItemList => ItemInfoLoader.ItemList;
@@ -92,6 +106,11 @@ namespace KK_QuickAccessBox
             if (provider == null) throw new ArgumentNullException(nameof(provider));
             ThumbnailLoader.ThumbnailProviders.Add(provider);
         }
+        /// <summary>
+        /// Represents a method that provides a thumbnail image for a given item.
+        /// </summary>
+        /// <param name="item">The item for which the thumbnail image is to be provided.</param>
+        /// <returns>A <see cref="Sprite"/> representing the thumbnail image for the specified item.</returns>
         public delegate Sprite ThumbnailProvider(ItemInfo item);
 
         private void Start()
@@ -205,6 +224,9 @@ namespace KK_QuickAccessBox
             Recents.BumpItemLastUseDate(info.NewCacheId);
         }
 
+        /// <summary>
+        /// Refresh the item list shown in the search box window.
+        /// </summary>
         public void RefreshList()
         {
             var searchStrings = GetSearchStrings();

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Timers;
 using BepInEx;
@@ -150,6 +149,7 @@ namespace KK_QuickAccessBox
         private static Dictionary<int, KeyValuePair<StudioResolveInfo, string>> GatherZipmodInfos()
         {
             var zipmodCache = new Dictionary<int, KeyValuePair<StudioResolveInfo, string>>();
+            //TODO Requires https://github.com/IllusionMods/BepisPlugins/pull/231 to avoid using the obsolete API
             foreach (var x in UniversalAutoResolver.LoadedStudioResolutionInfo)
             {
                 if (!x.ResolveItem) continue;
