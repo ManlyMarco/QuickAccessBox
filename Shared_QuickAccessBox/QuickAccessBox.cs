@@ -18,7 +18,7 @@ using HarmonyLib;
 
 namespace KK_QuickAccessBox
 {
-    [BepInPlugin(GUID, GUID, Version)]
+    [BepInPlugin(GUID, DisplayName, Version)]
     [BepInProcess(KoikatuAPI.StudioProcessName)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     [BepInDependency(Sideloader.Sideloader.GUID, Sideloader.Sideloader.Version)]
@@ -27,7 +27,8 @@ namespace KK_QuickAccessBox
     [BepInDependency("gravydevsupreme.xunity.autotranslator", BepInDependency.DependencyFlags.SoftDependency)]
     public partial class QuickAccessBox : BaseUnityPlugin
     {
-        public const string Version = "3.2";
+        public const string Version = Constants.Version;
+        public const string DisplayName = Constants.Name;
 
         internal static new ManualLogSource Logger;
         internal static QuickAccessBox Instance;

@@ -6,7 +6,7 @@
     <SharedGUID>ccf0938d-6c1b-409f-a9b9-e5cfd95b017f</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Shared_AIalike</Import_RootNamespace>
+    <Import_RootNamespace>KK_QuickAccessBox</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Thumbs\thumb_background.png" />
