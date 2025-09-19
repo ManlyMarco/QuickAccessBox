@@ -31,8 +31,6 @@ namespace KK_QuickAccessBox.UI
         public InterfaceManager()
         {
             _canvasRoot = CreateCanvas();
-            _canvasRoot.GetComponentInChildren<Canvas>().sortingOrder = 3; // Above toolbars but below the add/anim/system submenus
-
             var mainWindow = _canvasRoot.transform.Find("MainWindow") ?? throw new ArgumentException("MainWindow missing");
             SetUpMainWindow((RectTransform)mainWindow);
 
