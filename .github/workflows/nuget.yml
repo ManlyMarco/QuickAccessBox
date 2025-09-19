@@ -1,0 +1,36 @@
+name: Push to nuget feed on release
+
+on:
+  release:	
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Pack NuGet packages
+      run: |
+        Get-ChildItem -Recurse -Filter *.csproj | ForEach-Object {
+          dotnet pack $_.FullName -c Release
+        }
+
+    - name: Push NuGet packages
+      env:
+        NUGET_URL: https://pkgs.dev.azure.com/IllusionMods/Nuget/_packaging/IllusionMods/nuget/v3/index.json
+        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+      run: |
+        dotnet nuget add source $env:NUGET_URL -n IllusionMods --username token --password $env:NUGET_TOKEN --store-password-in-clear-text
+        dotnet nuget push **/*.nupkg --source IllusionMods --api-key $env:NUGET_TOKEN --skip-duplicate

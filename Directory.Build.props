@@ -24,6 +24,17 @@
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>embedded</DebugType>
 		<FileAlignment>512</FileAlignment>
+
+		<!-- NuGet packaging properties -->
+		<PackageId>$(AssemblyName)</PackageId>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageDescription>$(AssemblyTitle)</PackageDescription>
+		<PackageProjectUrl>https://github.com/ManlyMarco/QuickAccessBox</PackageProjectUrl>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<PackageCopyright>$(Copyright)</PackageCopyright>
+		<Company>$(Authors)</Company>
+		<RepositoryUrl>https://github.com/ManlyMarco/QuickAccessBox</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
