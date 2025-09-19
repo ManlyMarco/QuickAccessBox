@@ -1,6 +1,6 @@
 ﻿namespace KK_QuickAccessBox
 {
-    public enum ListVisibilityType
+    internal enum ListVisibilityType
     {
         // Values need to be the same as used for items in UI dropdox
         Filtered = 0,

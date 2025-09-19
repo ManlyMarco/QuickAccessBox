@@ -23,7 +23,7 @@ jobs:
 
     - name: Pack NuGet packages
       run: |
-        Get-ChildItem -Recurse -Filter *.csproj | ForEach-Object {
+        Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch 'Unity_project' } | ForEach-Object {
           dotnet pack $_.FullName -c Release
         }
 
@@ -32,5 +32,5 @@ jobs:
         NUGET_URL: https://pkgs.dev.azure.com/IllusionMods/Nuget/_packaging/IllusionMods/nuget/v3/index.json
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
       run: |
-        dotnet nuget add source $env:NUGET_URL -n IllusionMods --username token --password $env:NUGET_TOKEN --store-password-in-clear-text
-        dotnet nuget push **/*.nupkg --source IllusionMods --skip-duplicate
+        dotnet nuget update source IllusionMods --username "token" --password $env:NUGET_TOKEN --store-password-in-clear-text
+        dotnet nuget push **/*.nupkg --source IllusionMods --api-key $env:NUGET_TOKEN --skip-duplicate

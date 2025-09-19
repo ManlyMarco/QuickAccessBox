@@ -8,10 +8,22 @@ using UnityEngine;
 
 namespace KK_QuickAccessBox
 {
+    /// <summary>
+    /// Container for information about a studio item.
+    /// </summary>
     public sealed class ItemInfo
     {
         private readonly bool _initFinished;
 
+        /// <summary>
+        /// Create a new ItemInfo instance.
+        /// </summary>
+        /// <param name="groupNo">GroupNo of the item</param>
+        /// <param name="categoryNo">CategoryNo of the item</param>
+        /// <param name="localSlot">ID of the item, as seen in list file</param>
+        /// <param name="studioInfo">Studio's info object</param>
+        /// <param name="zipmodInfo">Sideloader's info object</param>
+        /// <param name="zipmodFilename">Filename of the containing zipmod</param>
         public ItemInfo(int groupNo, int categoryNo, int localSlot, Info.ItemLoadInfo studioInfo, StudioResolveInfo zipmodInfo, string zipmodFilename)
         {
             GroupNo = groupNo;
@@ -150,6 +162,9 @@ namespace KK_QuickAccessBox
         /// </summary>
         internal string DeveloperSearchString { get; }
 
+        /// <summary>
+        /// Get thumbnail for this item
+        /// </summary>
         public Sprite Thumbnail => ThumbnailLoader.GetThumbnail(this);
 
         /// <summary>
@@ -163,6 +178,9 @@ namespace KK_QuickAccessBox
             GroupNo == 2171; // dirty's 3dsfx
 #endif
 
+        /// <summary>
+        /// Do not use, not unique
+        /// </summary>
         [Obsolete("Will be removed", true)]
         public string CacheId => OldCacheId;
         internal string NewCacheId { get; }
@@ -244,21 +262,27 @@ namespace KK_QuickAccessBox
             // even older - return $"{groupNo:D8}-{categoryNo:D8}-{item.name.GetHashCode():D32}";
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return string.Concat(GroupNo, '/', CategoryNo, '/', LocalSlot).GetHashCode();
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return obj is ItemInfo i && i.GroupNo == GroupNo && i.CategoryNo == CategoryNo && i.LocalSlot == LocalSlot;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"Name=\"{FullName}\" GroupNo={GroupNo} CategoryNo={CategoryNo} LocalSlot={LocalSlot} ZipmodSlot={ZipmodSlot} Bundle=\"{Bundle}\" Asset=\"{Asset}\" GUID=\"{GUID}\" Zipmod=\"{FileName}\"";
         }
 
+        /// <summary>
+        /// Create a multiline string with all relevant information about this item, useful for debugging.
+        /// </summary>
         public string ToDescriptionString()
         {
             var isZipmod = ZipmodSlot >= 0;

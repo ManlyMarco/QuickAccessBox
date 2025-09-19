@@ -1,7 +1,11 @@
 ﻿using MessagePack;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace KK_QuickAccessBox
 {
+    /// <summary>
+    /// Has to be public for MessagePack, do not use outside QAB.
+    /// </summary>
     [MessagePackObject]
     public sealed class TranslationCacheEntry
     {
