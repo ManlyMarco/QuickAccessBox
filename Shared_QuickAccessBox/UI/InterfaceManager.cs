@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using IllusionUtility.GetUtility;
-using KKAPI.Studio.UI;
+using KKAPI.Studio.UI.Toolbars;
 using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -23,7 +23,7 @@ namespace KK_QuickAccessBox.UI
         private GameObject _textHelpObj;
 
         private GameObject _searchMenuButton;
-        private ToolbarToggle _toolbarIcon;
+        private SimpleToolbarToggle _toolbarIcon;
 
         private ItemContextMenu _contextMenu;
         private Dropdown _filterDropdown;
@@ -160,12 +160,12 @@ namespace KK_QuickAccessBox.UI
             get => _canvasRoot.activeSelf;
             set
             {
-                _toolbarIcon.Value = value;
-
                 if (value == _canvasRoot.activeSelf)
                     return;
 
                 _canvasRoot.SetActive(value);
+                
+                _toolbarIcon.Toggled.OnNext(value);
 
                 // Focus search box right after showing the window
                 if (value)
@@ -234,8 +234,13 @@ namespace KK_QuickAccessBox.UI
 
         private void CreateSearchToolbarButton()
         {
-            var iconTex = ResourceUtils.GetEmbeddedResource("toolbar-icon.png").LoadTexture();
-            _toolbarIcon = CustomToolbarButtons.AddLeftToolbarToggle(iconTex, Visible, b => Visible = b);
+            _toolbarIcon = new SimpleToolbarToggle(buttonID: "Open Window",
+                                                   hoverText: "Open QuickAccessBox search window.\nUsed to quickly find items from the 'add' menu.",
+                                                   iconGetter: () => ResourceUtils.GetEmbeddedResource("toolbar-icon.png").LoadTexture(),
+                                                   initialValue: Visible,
+                                                   owner: QuickAccessBox.Instance,
+                                                   onValueChanged: b => Visible = b);
+            ToolbarManager.AddLeftToolbarControl(_toolbarIcon);
         }
 
         public void SetScale(float interfaceScale)
