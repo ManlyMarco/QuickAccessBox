@@ -62,6 +62,7 @@ namespace KK_QuickAccessBox
         private const string DESCRIPTION_THUMBDIR = "Directory to save newly generated thumbs into. The directory must exist. Existing thumbs are not overwritten, remove them to re-create.";
         private const string DESCRIPTION_WINPOS = "Position at which the search window first opens. Can be changed by dragging the edges of the window.";
         private const string DESCRIPTION_SELECTION = "When spawning an item as a child of the selected item, don't change the selection to the spawned item";
+        private const string DESCRIPTION_FAVOURITES_FIRST = "When filtering the list, order favourited items first in the list";
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static ConfigEntry<KeyboardShortcut> KeyShowBox { get; private set; }
@@ -72,6 +73,7 @@ namespace KK_QuickAccessBox
         public static ConfigEntry<bool> ThumbManualAdjust { get; private set; }
         public static ConfigEntry<int> RecentsCount { get; private set; }
         public static ConfigEntry<bool> KeepSelectionOnParent { get; private set; }
+        public static ConfigEntry<bool> SortFavouritesFirst { get; private set; }
 
         public static ConfigEntry<Vector2> WindowPosition { get; private set; }
         public static ConfigEntry<float> InterfaceScale { get; private set; }
@@ -126,6 +128,7 @@ namespace KK_QuickAccessBox
             RecentsCount = Config.Bind("General", "Number of recents to remember", 20, new ConfigDescription(DESCRIPTION_RECENTS, new AcceptableValueRange<int>(0, 200)));
             SearchDeveloperInfo = Config.Bind("General", "Search developer information", false, new ConfigDescription(DESCRIPTION_DEVINFO, null, advanced));
             KeepSelectionOnParent = Config.Bind("General", "Keep selection when adding child", false, new ConfigDescription(DESCRIPTION_SELECTION, null, advanced));
+            SortFavouritesFirst = Config.Bind("General", "Order favourites first", true, new ConfigDescription(DESCRIPTION_FAVOURITES_FIRST, null));
 
             ThumbGenerateKey = Config.Bind("Thumbnail generation", "Generate item thumbnails", new KeyboardShortcut(), new ConfigDescription(DESCRIPTION_THUMBGENKEY, null, advanced));
             ThumbManualAdjust = Config.Bind("Thumbnail generation", "Manual mode", false, new ConfigDescription(DESCRIPTION_MANUALADJUST, null, advanced));
@@ -243,7 +246,10 @@ namespace KK_QuickAccessBox
                     }
                     else
                     {
-                        Interface.SetList(ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value)));
+                        var itemList = ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value));
+                        if (SortFavouritesFirst.Value)
+                            itemList = itemList.OrderByDescending(info => Favorited.Check(info.GUID, info.NewCacheId));
+                        Interface.SetList(itemList);
                     }
                     break;
                 case ListVisibilityType.Favorites:
