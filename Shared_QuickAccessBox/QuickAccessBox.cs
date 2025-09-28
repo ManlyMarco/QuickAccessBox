@@ -246,10 +246,10 @@ namespace KK_QuickAccessBox
                     }
                     else
                     {
-                        Interface.SetList(ItemList
-                            .Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value))
-                            .OrderByDescending(info => SortFavouritesFirst.Value && Favorited.Check(info.GUID, info.NewCacheId))
-                        );
+                        var itemList = ItemList.Where(info => !Blacklisted.Check(info.GUID, info.NewCacheId) && ItemMatchesSearch(info, searchStrings.Key, searchStrings.Value));
+                        if (SortFavouritesFirst.Value)
+                            itemList = itemList.OrderByDescending(info => Favorited.Check(info.GUID, info.NewCacheId));
+                        Interface.SetList(itemList);
                     }
                     break;
                 case ListVisibilityType.Favorites:
