@@ -5,12 +5,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ExtensibleSaveFormat.KoikatsuSunshine" Version="21.1.1"/>
+		<PackageReference Include="ExtensibleSaveFormat.KoikatsuSunshine" Version="21.1.1" />
 		<PackageReference Include="IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule" Version="2019.4.9" />
 		<PackageReference Include="IllusionLibs.KoikatsuSunshine.UnityEngine.ImageConversionModule" Version="2019.4.9" />
 		<PackageReference Include="IllusionModdingAPI.KKSAPI" Version="1.43.0" />
 		<PackageReference Include="ScreenshotManager.KoikatsuSunshine" Version="21.1.1"/>
-		<PackageReference Include="Sideloader.KoikatsuSunshine" Version="21.1.1"/>
+		<PackageReference Include="Sideloader.KoikatsuSunshine" Version="21.1.1" />
 	</ItemGroup>
 
 	<Import Project="..\Shared_KKalike\Shared_KKalike.projitems" Label="Shared" />
