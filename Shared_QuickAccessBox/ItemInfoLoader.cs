@@ -149,8 +149,7 @@ namespace KK_QuickAccessBox
         private static Dictionary<int, KeyValuePair<StudioResolveInfo, string>> GatherZipmodInfos()
         {
             var zipmodCache = new Dictionary<int, KeyValuePair<StudioResolveInfo, string>>();
-            //TODO Requires https://github.com/IllusionMods/BepisPlugins/pull/231 to avoid using the obsolete API
-            foreach (var x in UniversalAutoResolver.LoadedStudioResolutionInfo)
+            foreach (var x in UniversalAutoResolver.LoadedStudioResolutionInfos)
             {
                 if (!x.ResolveItem) continue;
 
