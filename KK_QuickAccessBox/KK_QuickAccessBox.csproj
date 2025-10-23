@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net35</TargetFramework>
-    <DefineConstants>$(DefineConstants);KK</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net35</TargetFramework>
+		<DefineConstants>$(DefineConstants);KK</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ExtensibleSaveFormat.Koikatu" Version="21.0" />
-    <PackageReference Include="IllusionModdingAPI.KKAPI" Version="1.43.0" />
-    <PackageReference Include="ScreenshotManager.Koikatu" Version="21.0" />
-    <PackageReference Include="Sideloader.Koikatu" Version="21.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ExtensibleSaveFormat.Koikatu" Version="21.1.1"/>
+		<PackageReference Include="IllusionModdingAPI.KKAPI" Version="1.43.0" />
+		<PackageReference Include="ScreenshotManager.Koikatu" Version="21.1.1"/>
+		<PackageReference Include="Sideloader.Koikatu" Version="21.1.1"/>
+	</ItemGroup>
 
-  <Import Project="..\Shared_KKalike\Shared_KKalike.projitems" Label="Shared" />
-  <Import Project="..\Shared_QuickAccessBox\Shared_QuickAccessBox.projitems" Label="Shared" />
+	<Import Project="..\Shared_KKalike\Shared_KKalike.projitems" Label="Shared" />
+	<Import Project="..\Shared_QuickAccessBox\Shared_QuickAccessBox.projitems" Label="Shared" />
 </Project>
